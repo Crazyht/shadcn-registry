@@ -1,0 +1,56 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "shadcn-registry",
+  "homepage": "https://ui.shadcn.com",
+  "version": "1.0.0",
+  "items": [
+    {
+      "name": "animated-counter",
+      "type": "registry:ui",
+      "description": "Un compteur animé qui incrémente progressivement vers une valeur cible",
+      "files": [
+        {
+          "path":"registry/new-york/components/animated-counter/animated-counter.tsx",
+          "type": "registry:ui"
+       }
+      ],
+      "dependencies": ["clsx", "tailwind-merge"]
+    },
+    {
+      "name": "use-debounce",
+      "type": "registry:hook",
+      "description": "Hook pour debounce des valeurs",
+      "files": [
+        {
+          "path":"registry/new-york/hooks/use-debounce.ts",
+          "type": "registry:hook"
+        }
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "use-local-storage",
+      "type": "registry:hook",
+      "description": "Hook pour gérer le stockage local",
+      "files": [
+        {
+          "path":"registry/new-york/hooks/use-local-storage.ts",
+          "type": "registry:hook"
+        }
+      ],
+      "dependencies": []
+    },
+    {
+      "name": "use-media-query",
+      "type": "registry:hook",
+      "description": "Hook pour gérer les media queries",
+      "files": [
+        {
+          "path":"registry/new-york/hooks/use-media-query.ts",
+          "type": "registry:hook"
+        }
+      ],
+      "dependencies": []
+    }
+  ]
+}
