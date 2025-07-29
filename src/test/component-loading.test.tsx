@@ -45,4 +45,25 @@ describe('Component Loading', () => {
       expect(module[`${pascalComponentName}Preview`]).toBe(module.AnimatedCounterPreview)
     }
   })
+
+  it('should load animated-counter documentation correctly', async () => {
+    const docModules = import.meta.glob('@registry/**/*.docs.tsx', { eager: false })
+
+    // The expected key for animated-counter documentation
+    const expectedKey = '/registry/new-york/components/animated-counter/animated-counter.docs.tsx'
+
+    expect(docModules[expectedKey]).toBeDefined()
+
+    if (docModules[expectedKey]) {
+      const module = await docModules[expectedKey]() as any
+
+      // Should have default export (the documentation component)
+      expect(module.default).toBeDefined()
+      expect(typeof module.default).toBe('function')
+
+      // Should also have named export
+      expect(module.AnimatedCounterDocumentation).toBeDefined()
+      expect(typeof module.AnimatedCounterDocumentation).toBe('function')
+    }
+  })
 })
