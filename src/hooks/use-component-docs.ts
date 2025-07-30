@@ -180,7 +180,7 @@ async function tryImportStrategies(docsPath: string, componentName: string): Pro
       console.log(`Strategy ${i + 1} failed:`, err)
       // For the first strategy (glob), if it fails, continue to other strategies
       // For other strategies, if we get a 500 error, skip to the next one
-      if (err && typeof err === 'object' && 'message' in err && err.message.includes('500')) {
+      if (err && typeof err === 'object' && 'message' in err && typeof (err as Error).message === 'string' && (err as Error).message.includes('500')) {
         console.log(`Strategy ${i + 1} returned 500 error, skipping to next strategy`)
         continue
       }

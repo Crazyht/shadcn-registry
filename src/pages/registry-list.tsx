@@ -25,7 +25,7 @@ export function RegistryListPage({ type, title, icon }: RegistryListPageProps) {
    * @returns Composant icône
    */
   function getIcon(iconName: string) {
-    const iconMap: Record<string, any> = {
+    const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
       blocks: Icons.Blocks,
       package: Icons.Package,
       library: Icons.Library,

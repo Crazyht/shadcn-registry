@@ -28,7 +28,10 @@ describe('Component Loading', () => {
     expect(previewModules[expectedKey]).toBeDefined()
 
     if (previewModules[expectedKey]) {
-      const module = await previewModules[expectedKey]() as any
+      const module = await previewModules[expectedKey]() as {
+        default?: React.ComponentType;
+        [key: string]: unknown;
+      }
 
       // Should have AnimatedCounterPreview export (PascalCase)
       expect(module.AnimatedCounterPreview).toBeDefined()
@@ -55,7 +58,10 @@ describe('Component Loading', () => {
     expect(docModules[expectedKey]).toBeDefined()
 
     if (docModules[expectedKey]) {
-      const module = await docModules[expectedKey]() as any
+      const module = await docModules[expectedKey]() as {
+        default?: React.ComponentType;
+        [key: string]: unknown;
+      }
 
       // Should have default export (the documentation component)
       expect(module.default).toBeDefined()

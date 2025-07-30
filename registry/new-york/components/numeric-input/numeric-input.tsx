@@ -1,4 +1,4 @@
-import { useState, useEffect, forwardRef } from 'react'
+import { useState, useEffect, useCallback, forwardRef } from 'react'
 import { cn } from '@/lib/utils'
 import { Minus, Plus } from 'lucide-react'
 
@@ -85,10 +85,10 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
     const [inputValue, setInputValue] = useState('')
 
     // Format number with decimals
-    const formatNumber = (num: number | undefined): string => {
+    const formatNumber = useCallback((num: number | undefined): string => {
       if (num === undefined || isNaN(num)) return ''
       return num.toFixed(decimals)
-    }
+    }, [decimals])
 
     // Parse string to number
     const parseNumber = (str: string): number | undefined => {
@@ -113,12 +113,12 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
         setInternalValue(value)
         setInputValue(formatNumber(value))
       }
-    }, [value, decimals])
+    }, [value, decimals, formatNumber])
 
     // Initialize input value
     useEffect(() => {
       setInputValue(formatNumber(internalValue))
-    }, [internalValue, decimals])
+    }, [internalValue, decimals, formatNumber])
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = event.target.value

@@ -44,7 +44,10 @@ export function ComponentCard({ item, type }: ComponentCardProps) {
         const moduleKey = `/${previewPath}`
 
         if (previewModules[moduleKey]) {
-          const module = await previewModules[moduleKey]() as any
+          const module = await previewModules[moduleKey]() as {
+            default?: React.ComponentType;
+            [key: string]: unknown;
+          }
 
           // Convert kebab-case to PascalCase for the component name
           const pascalComponentName = componentName
@@ -53,7 +56,8 @@ export function ComponentCard({ item, type }: ComponentCardProps) {
             .join('')
 
           if (module.default || module[`${pascalComponentName}Preview`]) {
-            setPreview(() => module.default || module[`${pascalComponentName}Preview`])
+            const component = (module.default || module[`${pascalComponentName}Preview`]) as React.ComponentType
+            setPreview(() => component)
           }
         }
       } catch (error) {
