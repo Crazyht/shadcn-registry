@@ -3,7 +3,6 @@
  * Script d'aide au développement pour améliorer l'expérience HMR
  */
 
-import { spawn } from 'child_process'
 import chokidar from 'chokidar'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -18,7 +17,7 @@ const watcher = chokidar.watch([
   path.join(__dirname, '../registry/**/*.docs.tsx'),
   path.join(__dirname, '../registry/**/*.preview.tsx')
 ], {
-  ignored: /(^|[\/\\])\../, // ignore dotfiles
+  ignored: /(^|[/\\])\../, // ignore dotfiles
   persistent: true
 })
 
