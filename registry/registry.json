@@ -17,6 +17,30 @@
       "dependencies": ["clsx", "tailwind-merge"]
     },
     {
+      "name": "numeric-input",
+      "type": "registry:ui",
+      "description": "Un composant d'input numérique avec contrôles +/-, validation et formatage",
+      "files": [
+        {
+          "path":"registry/new-york/components/numeric-input/numeric-input.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "dependencies": ["clsx", "tailwind-merge", "lucide-react"]
+    },
+    {
+      "name": "data-table",
+      "type": "registry:ui",
+      "description": "Un composant de tableau de données avec tri, validation Zod et colonnes configurables",
+      "files": [
+        {
+          "path":"registry/new-york/components/data-table/data-table.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "dependencies": ["clsx", "tailwind-merge", "lucide-react", "zod"]
+    },
+    {
       "name": "use-debounce",
       "type": "registry:hook",
       "description": "Hook pour debounce des valeurs",
