@@ -3,13 +3,19 @@ import { Registry, RegistryType, REGISTRY_TYPES, RegistryFile } from '@/types/re
 
 /**
  * Charge la registry depuis le fichier JSON
+ * Utilise la BASE_URL pour construire le chemin correct peu importe la route actuelle
+ * En développement: '/registry/registry.json'
+ * En production: '/shadcn-registry/registry/registry.json'
  * @returns La registry ou null si non disponible
  */
 export async function loadRegistry(): Promise<Registry | null> {
   try {
-    const response = await fetch('/registry/registry.json')
+    // Construct the path using the base URL to work correctly in all routes
+    const baseUrl = import.meta.env.BASE_URL || '/'
+    const registryPath = `${baseUrl}registry/registry.json`.replace(/\/+/g, '/')
+    const response = await fetch(registryPath)
     if (!response.ok) {
-      throw new Error('Registry not found')
+      throw new Error(`Registry not found: ${response.status} ${response.statusText}`)
     }
     return await response.json()
   } catch (error) {
