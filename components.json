@@ -17,11 +17,5 @@
     "lib": "@/lib",
     "hooks": "@/hooks"
   },
-  "registries": {
-    "ui": {
-      "url": "./registry",
-      "path": "./registry"
-    }
-  },
   "iconLibrary": "lucide"
 }
