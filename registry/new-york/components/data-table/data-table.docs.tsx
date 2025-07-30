@@ -2,6 +2,7 @@
 import { DataTable, DataTableColumn, SortColumn } from './data-table'
 import { z } from 'zod'
 import { useState } from 'react'
+import { TrendingUp, TrendingDown, MoreHorizontal } from 'lucide-react'
 
 // Schémas d'exemple
 const UserSchema = z.object({
@@ -1058,6 +1059,43 @@ const getData = async (sortColumns, startRow, pageSize) => {
             </div>
           </div>
 
+          <div>
+            <h3 className="text-lg font-medium mb-4">SortIcons Interface</h3>
+            <div className="rounded-lg border overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-muted/50">
+                  <tr className="border-b">
+                    <th className="text-left p-4 font-medium">Propriété</th>
+                    <th className="text-left p-4 font-medium">Type</th>
+                    <th className="text-left p-4 font-medium">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b">
+                    <td className="p-4 font-mono text-sm">default</td>
+                    <td className="p-4 text-sm"><code>ComponentType?</code></td>
+                    <td className="p-4 text-sm">Icône affichée quand aucun tri n'est appliqué</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-4 font-mono text-sm">asc</td>
+                    <td className="p-4 text-sm"><code>ComponentType?</code></td>
+                    <td className="p-4 text-sm">Icône affichée pour le tri croissant</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-4 font-mono text-sm">desc</td>
+                    <td className="p-4 text-sm"><code>ComponentType?</code></td>
+                    <td className="p-4 text-sm">Icône affichée pour le tri décroissant</td>
+                  </tr>
+                  <tr>
+                    <td className="p-4 font-mono text-sm">classNames</td>
+                    <td className="p-4 text-sm"><code>object?</code></td>
+                    <td className="p-4 text-sm">Classes CSS personnalisées pour chaque état de tri</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           {/* Sorting Behavior */}
           <div>
             <h3 className="text-lg font-medium mb-4">Comportement du tri</h3>
@@ -1442,6 +1480,46 @@ const getData = async (sortColumns, startRow, pageSize) => {
               <p className="text-sm text-muted-foreground">Groupement par colonne avec expansion/collapse et rendu personnalisé</p>
             </div>
           </div>
+          <div className="flex items-start gap-3 p-4 border rounded-lg">
+            <span className="text-green-500 text-xl">✅</span>
+            <div>
+              <h4 className="font-medium">Icônes de tri personnalisées</h4>
+              <p className="text-sm text-muted-foreground">Configuration d'icônes et de styles personnalisés pour le tri des colonnes</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Custom Sort Icons */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-medium">Icônes de tri personnalisées</h3>
+        <p className="text-sm text-muted-foreground">
+          Personnalisez les icônes et styles de tri pour chaque colonne avec des icônes Lucide personnalisées et des classes CSS.
+        </p>
+
+        {/* Custom Icons Example */}
+        <div className="space-y-4">
+          <h4 className="font-medium">Exemple avec icônes et couleurs personnalisées</h4>
+          <CustomSortIconsExample />
+        </div>
+
+        <div className="rounded-lg bg-muted p-4">
+          <pre className="text-sm overflow-x-auto"><code>{`// Configuration d'icônes personnalisées au niveau du DataTable
+<DataTable
+  schema={ProductSchema}
+  columns={columns}
+  getData={getData}
+  sortIcons={{
+    default: MoreHorizontal,           // Icône quand aucun tri
+    asc: TrendingUp,                   // Icône pour tri croissant
+    desc: TrendingDown,                // Icône pour tri décroissant
+    classNames: {
+      default: "h-4 w-4 text-gray-400",
+      asc: "h-4 w-4 text-green-600",   // Vert pour croissant
+      desc: "h-4 w-4 text-red-600"     // Rouge pour décroissant
+    }
+  }}
+/>`}</code></pre>
         </div>
       </div>
 
@@ -1672,6 +1750,151 @@ function GroupingExample() {
       {selectedEmployee && (
         <div className="p-3 bg-muted/50 rounded-lg text-sm">
           <strong>Sélectionné :</strong> {selectedEmployee.name} - {selectedEmployee.department} ({selectedEmployee.email})
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Composant d'exemple pour les icônes de tri personnalisées
+function CustomSortIconsExample() {
+  const [selectedProduct, setSelectedProduct] = useState<Product | undefined>()
+
+  // Données d'exemple de produits avec prix variés
+  const sampleProducts: Product[] = [
+    { id: 1, name: 'Laptop Pro', price: 1299.99, category: 'Electronics', stock: 25, isAvailable: true },
+    { id: 2, name: 'Wireless Mouse', price: 29.99, category: 'Accessories', stock: 150, isAvailable: true },
+    { id: 3, name: 'Gaming Keyboard', price: 89.99, category: 'Gaming', stock: 0, isAvailable: false },
+    { id: 4, name: 'USB-C Cable', price: 19.99, category: 'Accessories', stock: 200, isAvailable: true },
+    { id: 5, name: 'Smartphone', price: 899.99, category: 'Electronics', stock: 45, isAvailable: true },
+    { id: 6, name: 'Tablet Stand', price: 39.99, category: 'Accessories', stock: 75, isAvailable: true },
+  ]
+
+  // Configuration des colonnes avec icônes personnalisées
+  const productColumns: DataTableColumn<Product>[] = [
+    {
+      label: 'Produit',
+      path: 'name',
+      isSortable: true,
+    },
+    {
+      label: 'Prix',
+      path: 'price',
+      isSortable: true,
+      align: 'right',
+      render: (value: unknown) => (
+        <span className="font-semibold">€{(value as number).toFixed(2)}</span>
+      )
+    },
+    {
+      label: 'Stock',
+      path: 'stock',
+      isSortable: true,
+      align: 'center',
+      render: (value: unknown) => (
+        <span className={(value as number) === 0 ? 'text-red-500 font-medium' : 'text-green-600'}>
+          {value as number} unités
+        </span>
+      )
+    },
+    {
+      label: 'Catégorie',
+      path: 'category',
+      isSortable: true,
+    }
+  ]
+
+  // Fonction getData pour les produits
+  const getProductData = async (
+    sortColumns: SortColumn[],
+    startRow: number,
+    pageSize: number
+  ) => {
+    // Simulation d'un délai réseau
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    const data = [...sampleProducts]
+
+    // Appliquer le tri
+    if (sortColumns.length > 0) {
+      data.sort((a, b) => {
+        for (const sort of sortColumns) {
+          // Fonction utilitaire pour obtenir une valeur par son chemin
+          const getValueByPath = (obj: Record<string, unknown>, path: string): unknown => {
+            return path.split('.').reduce((current: unknown, key: string) => {
+              if (current && typeof current === 'object' && key in current) {
+                return (current as Record<string, unknown>)[key]
+              }
+              return undefined
+            }, obj)
+          }
+
+          const aValue = getValueByPath(a as Record<string, unknown>, sort.path)
+          const bValue = getValueByPath(b as Record<string, unknown>, sort.path)
+
+          let comparison = 0
+
+          if (typeof aValue === 'string' && typeof bValue === 'string') {
+            comparison = aValue.localeCompare(bValue)
+          } else if (typeof aValue === 'number' && typeof bValue === 'number') {
+            comparison = aValue - bValue
+          } else {
+            const aStr = String(aValue ?? '')
+            const bStr = String(bValue ?? '')
+            comparison = aStr.localeCompare(bStr)
+          }
+
+          if (comparison !== 0) {
+            return sort.direction === 'asc' ? comparison : -comparison
+          }
+        }
+        return 0
+      })
+    }
+
+    // Appliquer la pagination
+    const paginatedData = data.slice(startRow, startRow + pageSize)
+
+    return {
+      data: paginatedData,
+      totalCount: data.length,
+      lastRow: startRow + paginatedData.length - 1
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="p-3 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
+        <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">💡 Démonstration des icônes personnalisées :</p>
+        <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+          <li>• <strong>Toutes les colonnes :</strong> Icônes TrendingUp/TrendingDown en vert/rouge</li>
+          <li>• <strong>Configuration globale :</strong> Une seule configuration pour tout le tableau</li>
+        </ul>
+      </div>
+
+      <DataTable
+        schema={ProductSchema}
+        columns={productColumns}
+        getData={getProductData}
+        onRowSelect={setSelectedProduct}
+        selectedRow={selectedProduct}
+        pageSize={6}
+        paginationMode="None"
+        sortIcons={{
+          default: MoreHorizontal,
+          asc: TrendingUp,
+          desc: TrendingDown,
+          classNames: {
+            default: "h-4 w-4 text-gray-400",
+            asc: "h-4 w-4 text-green-600 font-bold",
+            desc: "h-4 w-4 text-red-600 font-bold"
+          }
+        }}
+      />
+
+      {selectedProduct && (
+        <div className="p-3 bg-muted/50 rounded-lg text-sm">
+          <strong>Sélectionné :</strong> {selectedProduct.name} - €{selectedProduct.price} ({selectedProduct.stock} en stock)
         </div>
       )}
     </div>

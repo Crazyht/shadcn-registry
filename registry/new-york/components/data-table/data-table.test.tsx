@@ -1009,5 +1009,124 @@ describe('DataTable', () => {
       })
     })
     })
+
+    // Tests pour les icônes de tri personnalisées
+    describe('Custom Sort Icons', () => {
+      const TestIcon = ({ className }: { className?: string }) => (
+        <span className={className} data-testid="custom-icon">⭐</span>
+      )
+
+      const columnsForCustomIcons: DataTableColumn<TestData>[] = [
+        {
+          label: 'Name',
+          path: 'name',
+          isSortable: true
+        }
+      ]
+
+      it('uses custom icons when provided at DataTable level', async () => {
+        const getData = vi.fn().mockResolvedValue(createMockResponse(testData))
+
+        render(
+          <DataTable
+            schema={TestSchema}
+            columns={columnsForCustomIcons}
+            getData={getData}
+            sortIcons={{
+              default: TestIcon,
+              asc: TestIcon,
+              desc: TestIcon,
+              classNames: {
+                default: 'custom-default',
+                asc: 'custom-asc',
+                desc: 'custom-desc'
+              }
+            }}
+          />
+        )
+
+        await waitFor(() => {
+          expect(screen.getByTestId('custom-icon')).toBeInTheDocument()
+        })
+
+        // Vérifier que l'icône par défaut a les bonnes classes
+        const icon = screen.getByTestId('custom-icon')
+        expect(icon).toHaveClass('custom-default')
+      })
+
+      it('applies custom classes for sort states', async () => {
+        const getData = vi.fn().mockResolvedValue(createMockResponse(testData))
+
+        render(
+          <DataTable
+            schema={TestSchema}
+            columns={columnsForCustomIcons}
+            getData={getData}
+            sortIcons={{
+              default: TestIcon,
+              asc: TestIcon,
+              desc: TestIcon,
+              classNames: {
+                default: 'custom-default',
+                asc: 'custom-asc',
+                desc: 'custom-desc'
+              }
+            }}
+          />
+        )
+
+        await waitFor(() => {
+          expect(screen.getByTestId('custom-icon')).toBeInTheDocument()
+        })
+
+        // Cliquer pour trier en mode croissant
+        fireEvent.click(screen.getByText('Name'))
+
+        await waitFor(() => {
+          const icon = screen.getByTestId('custom-icon')
+          expect(icon).toHaveClass('custom-asc')
+        })
+
+        // Cliquer à nouveau pour trier en mode décroissant
+        fireEvent.click(screen.getByText('Name'))
+
+        await waitFor(() => {
+          const icon = screen.getByTestId('custom-icon')
+          expect(icon).toHaveClass('custom-desc')
+        })
+      })
+
+      it('falls back to default icons when custom icons are not provided', async () => {
+        const getData = vi.fn().mockResolvedValue(createMockResponse(testData))
+
+        render(
+          <DataTable
+            schema={TestSchema}
+            columns={columnsForCustomIcons}
+            getData={getData}
+            sortIcons={{
+              asc: TestIcon, // Seulement asc défini
+              classNames: {
+                asc: 'custom-asc'
+              }
+            }}
+          />
+        )
+
+        await waitFor(() => {
+          // L'icône par défaut devrait être le ChevronsUpDown standard
+          expect(screen.getByRole('columnheader', { name: /name/i })).toBeInTheDocument()
+        })
+
+        // Cliquer pour activer le tri croissant
+        fireEvent.click(screen.getByText('Name'))
+
+        await waitFor(() => {
+          // Maintenant on devrait voir l'icône personnalisée
+          expect(screen.getByTestId('custom-icon')).toBeInTheDocument()
+          expect(screen.getByTestId('custom-icon')).toHaveClass('custom-asc')
+        })
+      })
+    })
   })
 })

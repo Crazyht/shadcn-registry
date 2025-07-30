@@ -20,6 +20,24 @@ import {
 import { z } from 'zod'
 
 /**
+ * Configuration d'icônes personnalisées pour le tri
+ */
+export interface SortIcons {
+  /** Icône affichée quand aucun tri n'est appliqué sur la colonne */
+  default?: React.ComponentType<{ className?: string }>
+  /** Icône affichée pour le tri croissant */
+  asc?: React.ComponentType<{ className?: string }>
+  /** Icône affichée pour le tri décroissant */
+  desc?: React.ComponentType<{ className?: string }>
+  /** Classes CSS personnalisées pour chaque état de tri */
+  classNames?: {
+    default?: string
+    asc?: string
+    desc?: string
+  }
+}
+
+/**
  * Type pour une colonne du tableau
  */
 export interface DataTableColumn<T> {
@@ -140,6 +158,8 @@ export interface DataTableProps<T> {
   showSinglePagePagination?: boolean
   /** Configuration du groupement */
   grouping?: DataTableGrouping
+  /** Configuration d'icônes personnalisées pour le tri */
+  sortIcons?: SortIcons
 }
 
 /**
@@ -326,6 +346,7 @@ export function DataTable<T extends Record<string, unknown>>({
   showPaginationInfo = true,
   showSinglePagePagination = false,
   grouping,
+  sortIcons,
 }: DataTableProps<T>) {
   const [data, setData] = useState<T[]>([])
   const [groups, setGroups] = useState<DataGroup<T>[]>([])
@@ -532,18 +553,27 @@ export function DataTable<T extends Record<string, unknown>>({
     const sort = sortColumns[sortIndex]
 
     if (!sort) {
-      return <ChevronsUpDown className="h-4 w-4 text-muted-foreground" />
+      // Aucun tri appliqué - utiliser l'icône par défaut
+      const DefaultIcon = sortIcons?.default || ChevronsUpDown
+      const defaultClassName = sortIcons?.classNames?.default || "h-4 w-4 text-muted-foreground"
+      return <DefaultIcon className={defaultClassName} />
     }
 
     const isMultiSort = sortColumns.length > 1
     const sortNumber = isMultiSort ? sortIndex + 1 : null
 
+    // Choisir l'icône et les classes selon la direction
+    const SortIcon = sort.direction === 'asc'
+      ? (sortIcons?.asc || ChevronUp)
+      : (sortIcons?.desc || ChevronDown)
+
+    const iconClassName = sort.direction === 'asc'
+      ? (sortIcons?.classNames?.asc || "h-4 w-4 text-foreground")
+      : (sortIcons?.classNames?.desc || "h-4 w-4 text-foreground")
+
     return (
       <div className="flex items-center gap-1">
-        {sort.direction === 'asc'
-          ? <ChevronUp className="h-4 w-4 text-foreground" />
-          : <ChevronDown className="h-4 w-4 text-foreground" />
-        }
+        <SortIcon className={iconClassName} />
         {sortNumber && (
           <span className="text-xs font-medium text-foreground bg-muted rounded px-1 min-w-[16px] text-center">
             {sortNumber}
