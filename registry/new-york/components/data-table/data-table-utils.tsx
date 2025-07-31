@@ -1,4 +1,4 @@
-import { DataGroup, DataTableGrouping } from './data-table-types'
+import { DataGroup, DataTableGrouping, FilterValue, ColumnFilter } from './data-table-types'
 
 /**
  * Génère les numéros de page à afficher dans la pagination
@@ -82,4 +82,90 @@ export function groupDataClientSide<T extends Record<string, unknown>>(
       ? (grouping.defaultExpanded !== false && index === 0) // En mode accordéon, seul le premier groupe est ouvert
       : (grouping.defaultExpanded !== false) // Mode normal : tous les groupes suivent defaultExpanded
   }))
+}
+
+/**
+ * Évalue un filtre sur une valeur donnée
+ * Utile pour l'implémentation côté serveur
+ */
+export function evaluateFilter(value: unknown, filter: FilterValue): boolean {
+  if (!filter) return true
+
+  switch (filter.operator) {
+    case 'equals':
+      return value === filter.value
+
+    case 'not_equals':
+      return value !== filter.value
+
+    case 'contains':
+      if (typeof value === 'string' && typeof filter.value === 'string') {
+        return value.toLowerCase().includes(filter.value.toLowerCase())
+      }
+      return false
+
+    case 'starts_with':
+      if (typeof value === 'string' && typeof filter.value === 'string') {
+        return value.toLowerCase().startsWith(filter.value.toLowerCase())
+      }
+      return false
+
+    case 'ends_with':
+      if (typeof value === 'string' && typeof filter.value === 'string') {
+        return value.toLowerCase().endsWith(filter.value.toLowerCase())
+      }
+      return false
+
+    case 'greater_than':
+      return Number(value) > Number(filter.value)
+
+    case 'greater_or_equal':
+      return Number(value) >= Number(filter.value)
+
+    case 'less_than':
+      return Number(value) < Number(filter.value)
+
+    case 'less_or_equal':
+      return Number(value) <= Number(filter.value)
+
+    case 'between': {
+      const numValue = Number(value)
+      const min = Number(filter.value)
+      const max = Number(filter.value2)
+      return numValue >= min && numValue <= max
+    }
+
+    case 'in':
+      return filter.values?.includes(value) ?? false
+
+    case 'not_in':
+      return !(filter.values?.includes(value) ?? false)
+
+    case 'is_null':
+      return value === null || value === undefined
+
+    case 'is_not_null':
+      return value !== null && value !== undefined
+
+    default:
+      return true
+  }
+}
+
+/**
+ * Applique une liste de filtres sur un objet de données
+ * Utile pour l'implémentation côté serveur
+ */
+export function applyFilters<T extends Record<string, unknown>>(
+  data: T[],
+  filters: ColumnFilter[]
+): T[] {
+  if (!filters.length) return data
+
+  return data.filter(item => {
+    return filters.every(filter => {
+      const value = getNestedValue(item, filter.path)
+      return evaluateFilter(value, filter.filter)
+    })
+  })
 }

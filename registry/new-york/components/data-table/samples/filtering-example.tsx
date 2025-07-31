@@ -112,7 +112,7 @@ export function FilteringExample() {
     sortColumns: SortColumn[],
     startRow: number,
     pageSize: number,
-    _grouping?: any,
+    _grouping?: unknown,
     filters?: ColumnFilter[]
   ) => {
     // Simulation d'un délai réseau
@@ -135,34 +135,72 @@ export function FilteringExample() {
           }
 
           const value = getValueByPath(item, filter.path)
-          const filterValue = filter.value
+          const filterValue = filter.filter
 
-          if (filterValue === null || filterValue === undefined || filterValue === '__all__') {
+          if (!filterValue) {
             return true
           }
 
-          if (typeof filterValue === 'object' && filterValue !== null && 'operator' in filterValue) {
-            const numericFilter = filterValue as { operator: string; value: number }
-            const numValue = Number(value)
+          // Gestion des différents opérateurs
+          switch (filterValue.operator) {
+            case 'equals':
+              return value === filterValue.value
 
-            if (isNaN(numValue)) return false
+            case 'not_equals':
+              return value !== filterValue.value
 
-            switch (numericFilter.operator) {
-              case '=': return numValue === numericFilter.value
-              case '!=': return numValue !== numericFilter.value
-              case '<': return numValue < numericFilter.value
-              case '<=': return numValue <= numericFilter.value
-              case '>': return numValue > numericFilter.value
-              case '>=': return numValue >= numericFilter.value
-              default: return true
+            case 'contains':
+              if (typeof value === 'string' && typeof filterValue.value === 'string') {
+                return value.toLowerCase().includes(filterValue.value.toLowerCase())
+              }
+              return false
+
+            case 'starts_with':
+              if (typeof value === 'string' && typeof filterValue.value === 'string') {
+                return value.toLowerCase().startsWith(filterValue.value.toLowerCase())
+              }
+              return false
+
+            case 'ends_with':
+              if (typeof value === 'string' && typeof filterValue.value === 'string') {
+                return value.toLowerCase().endsWith(filterValue.value.toLowerCase())
+              }
+              return false
+
+            case 'greater_than':
+              return Number(value) > Number(filterValue.value)
+
+            case 'greater_or_equal':
+              return Number(value) >= Number(filterValue.value)
+
+            case 'less_than':
+              return Number(value) < Number(filterValue.value)
+
+            case 'less_or_equal':
+              return Number(value) <= Number(filterValue.value)
+
+            case 'between': {
+              const numValue = Number(value)
+              const min = Number(filterValue.value)
+              const max = Number(filterValue.value2)
+              return numValue >= min && numValue <= max
             }
-          }
 
-          if (typeof value === 'string' && typeof filterValue === 'string') {
-            return value.toLowerCase().includes(filterValue.toLowerCase())
-          }
+            case 'in':
+              return filterValue.values?.includes(value)
 
-          return String(value).toLowerCase() === String(filterValue).toLowerCase()
+            case 'not_in':
+              return !filterValue.values?.includes(value)
+
+            case 'is_null':
+              return value === null || value === undefined
+
+            case 'is_not_null':
+              return value !== null && value !== undefined
+
+            default:
+              return true
+          }
         })
       })
     }

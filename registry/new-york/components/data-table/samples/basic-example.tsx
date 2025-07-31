@@ -1,4 +1,4 @@
-import { DataTable, DataTableColumn } from '../data-table'
+import { DataTable, DataTableColumn, SortColumn } from '../data-table'
 import { z } from 'zod'
 import { useState } from 'react'
 
@@ -76,18 +76,18 @@ export function BasicExample() {
   ]
 
   // Fonction getData pour récupérer les données
-  const getData = async (sortColumns: any[], startRow: number, pageSize: number) => {
+  const getData = async (sortColumns: SortColumn[], startRow: number, pageSize: number) => {
     // Simulation d'un délai réseau
     await new Promise(resolve => setTimeout(resolve, 300))
 
-    let data = [...sampleUsers]
+    const data = [...sampleUsers]
 
     // Appliquer le tri
     if (sortColumns.length > 0) {
       data.sort((a, b) => {
         for (const sort of sortColumns) {
-          const aValue = (a as any)[sort.path]
-          const bValue = (b as any)[sort.path]
+          const aValue = (a as User)[sort.path as keyof User]
+          const bValue = (b as User)[sort.path as keyof User]
 
           let comparison = 0
           if (typeof aValue === 'string' && typeof bValue === 'string') {

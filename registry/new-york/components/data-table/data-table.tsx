@@ -26,6 +26,7 @@ import {
   SortColumn,
   ColumnFilter,
   DataGroup,
+  FilterValue,
 } from './data-table-types'
 import { generatePageNumbers, getNestedValue, groupDataClientSide } from './data-table-utils'
 import { FilterPopover } from './data-table-filters'
@@ -33,6 +34,7 @@ import { FilterPopover } from './data-table-filters'
 // Exporter les types et composants pour l'usage externe
 export * from './data-table-types'
 export { TextFilterControl, NumberFilterControl, SelectFilterControl } from './data-table-filters'
+export { evaluateFilter, applyFilters } from './data-table-utils'
 
 /**
  * Normalise les colonnes selon les règles définies
@@ -330,18 +332,17 @@ export function DataTable<T extends Record<string, unknown>>({
       </div>
     )
   }
-
   // Fonctions de gestion des filtres
-  const handleFilterChange = (columnPath: string, value: unknown) => {
+  const handleFilterChange = (columnPath: string, filterValue: FilterValue | undefined) => {
     setFilters(prevFilters => {
       const existingFilterIndex = prevFilters.findIndex(f => f.path === columnPath)
 
-      if (value === null || value === undefined || value === '') {
+      if (filterValue === null || filterValue === undefined) {
         // Supprimer le filtre si la valeur est vide
         return prevFilters.filter(f => f.path !== columnPath)
       }
 
-      const newFilter: ColumnFilter = { path: columnPath, value }
+      const newFilter: ColumnFilter = { path: columnPath, filter: filterValue }
 
       if (existingFilterIndex >= 0) {
         // Mettre à jour le filtre existant
@@ -373,10 +374,9 @@ export function DataTable<T extends Record<string, unknown>>({
       return <DefaultIcon className={defaultClassName} />
     }
   }
-
-  const getFilterValue = (columnPath: string) => {
+  const getFilterValue = (columnPath: string): FilterValue | undefined => {
     const filter = filters.find(f => f.path === columnPath)
-    return filter ? filter.value : undefined
+    return filter ? filter.filter : undefined
   }
 
   // Gérer la sélection de ligne

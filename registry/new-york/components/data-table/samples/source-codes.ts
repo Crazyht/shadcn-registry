@@ -145,12 +145,23 @@ export function FilteringExample() {
     if (filters?.length > 0) {
       data = data.filter(item => {
         return filters.every(filter => {
-          // Logique de filtrage selon le type
           const value = item[filter.path]
-          if (typeof filter.value === 'string') {
-            return String(value).toLowerCase().includes(filter.value.toLowerCase())
+          const filterValue = filter.filter
+
+          if (!filterValue) return true
+
+          // Gestion des opérateurs
+          switch (filterValue.operator) {
+            case 'contains':
+              return String(value).toLowerCase().includes(String(filterValue.value).toLowerCase())
+            case 'equals':
+              return value === filterValue.value
+            case 'greater_than':
+              return Number(value) > Number(filterValue.value)
+            // ... autres opérateurs
+            default:
+              return true
           }
-          return true
         })
       })
     }

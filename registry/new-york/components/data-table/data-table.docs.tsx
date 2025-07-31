@@ -589,9 +589,46 @@ const getData = async (sortColumns, startRow, pageSize) => {
                     <td className="p-4 text-sm">Chemin de la colonne filtrée (ex: 'name', 'user.email')</td>
                   </tr>
                   <tr>
+                    <td className="p-4 font-mono text-sm">filter</td>
+                    <td className="p-4 text-sm"><code>FilterValue</code></td>
+                    <td className="p-4 text-sm">Valeur du filtre avec opérateur et valeur(s) associée(s)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-medium mb-4">FilterValue Interface</h3>
+            <div className="rounded-lg border overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-muted/50">
+                  <tr className="border-b">
+                    <th className="text-left p-4 font-medium">Propriété</th>
+                    <th className="text-left p-4 font-medium">Type</th>
+                    <th className="text-left p-4 font-medium">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b">
+                    <td className="p-4 font-mono text-sm">operator</td>
+                    <td className="p-4 text-sm"><code>FilterOperator</code></td>
+                    <td className="p-4 text-sm">Opérateur de filtrage (equals, contains, greater_than, etc.)</td>
+                  </tr>
+                  <tr className="border-b">
                     <td className="p-4 font-mono text-sm">value</td>
                     <td className="p-4 text-sm"><code>unknown</code></td>
-                    <td className="p-4 text-sm">Valeur du filtre (string, object avec opérateur, etc.)</td>
+                    <td className="p-4 text-sm">Valeur principale du filtre</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-4 font-mono text-sm">value2</td>
+                    <td className="p-4 text-sm"><code>unknown</code></td>
+                    <td className="p-4 text-sm">Valeur secondaire pour l'opérateur 'between'</td>
+                  </tr>
+                  <tr>
+                    <td className="p-4 font-mono text-sm">values</td>
+                    <td className="p-4 text-sm"><code>unknown[]</code></td>
+                    <td className="p-4 text-sm">Liste de valeurs pour les opérateurs 'in' et 'not_in'</td>
                   </tr>
                 </tbody>
               </table>
@@ -612,12 +649,12 @@ const getData = async (sortColumns, startRow, pageSize) => {
                 <tbody>
                   <tr className="border-b">
                     <td className="p-4 font-mono text-sm">value</td>
-                    <td className="p-4 text-sm"><code>unknown</code></td>
-                    <td className="p-4 text-sm">Valeur actuelle du filtre</td>
+                    <td className="p-4 text-sm"><code>FilterValue | undefined</code></td>
+                    <td className="p-4 text-sm">Valeur actuelle du filtre avec opérateur</td>
                   </tr>
                   <tr className="border-b">
                     <td className="p-4 font-mono text-sm">onChange</td>
-                    <td className="p-4 text-sm"><code>(value: unknown) =&gt; void</code></td>
+                    <td className="p-4 text-sm"><code>(value: FilterValue | undefined) =&gt; void</code></td>
                     <td className="p-4 text-sm">Callback appelé quand la valeur change</td>
                   </tr>
                   <tr>
@@ -644,18 +681,18 @@ const getData = async (sortColumns, startRow, pageSize) => {
                 <tbody>
                   <tr className="border-b">
                     <td className="p-4 font-mono text-sm">TextFilterControl</td>
-                    <td className="p-4 text-sm">Recherche textuelle simple</td>
-                    <td className="p-4 text-sm"><code>string</code> - Texte de recherche</td>
+                    <td className="p-4 text-sm">Recherche textuelle avec opérateurs (contains, starts_with, etc.)</td>
+                    <td className="p-4 text-sm"><code>FilterValue</code> - Opérateur et texte de recherche</td>
                   </tr>
                   <tr className="border-b">
                     <td className="p-4 font-mono text-sm">NumberFilterControl</td>
-                    <td className="p-4 text-sm">Filtrage numérique avec opérateurs</td>
-                    <td className="p-4 text-sm"><code>{`{ operator: string, value: string }`}</code></td>
+                    <td className="p-4 text-sm">Filtrage numérique avec opérateurs (=, &gt;, between, etc.)</td>
+                    <td className="p-4 text-sm"><code>FilterValue</code> - Opérateur et valeur(s) numérique(s)</td>
                   </tr>
                   <tr>
                     <td className="p-4 font-mono text-sm">SelectFilterControl</td>
-                    <td className="p-4 text-sm">Sélection dans une liste d'options</td>
-                    <td className="p-4 text-sm"><code>string</code> - Valeur sélectionnée</td>
+                    <td className="p-4 text-sm">Sélection simple/multiple dans une liste</td>
+                    <td className="p-4 text-sm"><code>FilterValue</code> - Opérateur et valeur(s) sélectionnée(s)</td>
                   </tr>
                 </tbody>
               </table>

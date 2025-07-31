@@ -132,18 +132,47 @@ export default function DataTableDemo() {
       filteredData = filteredData.filter(item => {
         return filters.every(filter => {
           const value = getValueByPath(item, filter.path)
+          const filterValue = filter.filter
 
-          if (filter.path === 'name' || filter.path === 'email') {
-            if (typeof filter.value === 'string') {
-              return String(value).toLowerCase().includes(filter.value.toLowerCase())
-            }
+          if (!filterValue) {
+            return true
           }
 
-          if (filter.path === 'status' || filter.path === 'role') {
-            return filter.value === '' || value === filter.value
-          }
+          // Gestion des différents opérateurs
+          switch (filterValue.operator) {
+            case 'equals':
+              return value === filterValue.value
 
-          return true
+            case 'not_equals':
+              return value !== filterValue.value
+
+            case 'contains':
+              if (typeof value === 'string' && typeof filterValue.value === 'string') {
+                return value.toLowerCase().includes(filterValue.value.toLowerCase())
+              }
+              return false
+
+            case 'starts_with':
+              if (typeof value === 'string' && typeof filterValue.value === 'string') {
+                return value.toLowerCase().startsWith(filterValue.value.toLowerCase())
+              }
+              return false
+
+            case 'ends_with':
+              if (typeof value === 'string' && typeof filterValue.value === 'string') {
+                return value.toLowerCase().endsWith(filterValue.value.toLowerCase())
+              }
+              return false
+
+            case 'in':
+              return filterValue.values?.includes(value)
+
+            case 'not_in':
+              return !filterValue.values?.includes(value)
+
+            default:
+              return true
+          }
         })
       })
     }

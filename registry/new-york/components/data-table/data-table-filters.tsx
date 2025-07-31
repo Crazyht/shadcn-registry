@@ -13,22 +13,22 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Button } from '@/components/ui/button'
-import { DataTableColumn, FilterControlProps } from './data-table-types'
+import { DataTableColumn, FilterControlProps, FilterValue, FilterOperator } from './data-table-types'
 
 /**
  * Composant FilterPopover pour gérer les filtres de colonnes
  */
 interface FilterPopoverProps<T> {
   column: DataTableColumn<T>
-  filterValue: unknown
-  onFilterChange: (value: unknown) => void
+  filterValue: FilterValue | undefined
+  onFilterChange: (value: FilterValue | undefined) => void
   onClearFilter: () => void
   icon: React.ReactNode
 }
 
 export function FilterPopover<T>({ column, filterValue, onFilterChange, onClearFilter, icon }: FilterPopoverProps<T>) {
   const [isOpen, setIsOpen] = useState(false)
-  const [tempValue, setTempValue] = useState(filterValue)
+  const [tempValue, setTempValue] = useState<FilterValue | undefined>(filterValue)
 
   // Synchroniser la valeur temporaire avec la valeur du filtre
   useEffect(() => {
@@ -63,15 +63,18 @@ export function FilterPopover<T>({ column, filterValue, onFilterChange, onClearF
       )
     }
 
-    // Contrôle par défaut : input texte
+    // Contrôle par défaut : filtre texte avec 'contains'
     return (
       <div className="space-y-3">
         <div>
           <label className="text-sm font-medium">Filtrer par {column.label.toLowerCase()}</label>
           <Input
             type="text"
-            value={tempValue as string || ''}
-            onChange={(e) => setTempValue(e.target.value)}
+            value={tempValue?.value as string || ''}
+            onChange={(e) => setTempValue(e.target.value ? {
+              operator: 'contains' as const,
+              value: e.target.value
+            } : undefined)}
             onClick={(e) => e.stopPropagation()}
             onFocus={(e) => e.stopPropagation()}
             onMouseDown={(e) => e.stopPropagation()}
@@ -136,25 +139,65 @@ export function FilterPopover<T>({ column, filterValue, onFilterChange, onClearF
 }
 
 /**
- * Contrôles de filtre prédéfinis
+ * Contrôles de filtre prédéfinis avec structure uniforme
  */
 
-// Filtre texte simple
+// Filtre texte avec choix d'opérateur
 export function TextFilterControl({ value, onChange }: FilterControlProps) {
+  const [operator, setOperator] = useState<FilterOperator>(value?.operator || 'contains')
+  const [textValue, setTextValue] = useState(value?.value as string || '')
+
+  useEffect(() => {
+    if (value) {
+      setOperator(value.operator)
+      setTextValue(value.value as string || '')
+    } else {
+      setOperator('contains')
+      setTextValue('')
+    }
+  }, [value])
+
+  const handleChange = (newOperator: FilterOperator, newValue: string) => {
+    setOperator(newOperator)
+    setTextValue(newValue)
+    if (newValue.trim()) {
+      onChange({
+        operator: newOperator,
+        value: newValue.trim()
+      })
+    } else {
+      onChange(undefined)
+    }
+  }
+
   return (
     <div className="space-y-3">
       <div>
         <label className="text-sm font-medium">Rechercher</label>
-        <Input
-          type="text"
-          value={value as string || ''}
-          onChange={(e) => onChange(e.target.value)}
-          onClick={(e) => e.stopPropagation()}
-          onFocus={(e) => e.stopPropagation()}
-          onMouseDown={(e) => e.stopPropagation()}
-          className="w-full mt-1"
-          placeholder="Saisir le texte à rechercher..."
-        />
+        <div className="flex gap-2 mt-1">
+          <Select value={operator} onValueChange={(op) => handleChange(op as FilterOperator, textValue)}>
+            <SelectTrigger className="w-36">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="contains">Contient</SelectItem>
+              <SelectItem value="starts_with">Commence par</SelectItem>
+              <SelectItem value="ends_with">Finit par</SelectItem>
+              <SelectItem value="equals">Égal à</SelectItem>
+              <SelectItem value="not_equals">Différent de</SelectItem>
+            </SelectContent>
+          </Select>
+          <Input
+            type="text"
+            value={textValue}
+            onChange={(e) => handleChange(operator, e.target.value)}
+            onClick={(e) => e.stopPropagation()}
+            onFocus={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            className="flex-1"
+            placeholder="Valeur à rechercher..."
+          />
+        </div>
       </div>
     </div>
   )
@@ -162,24 +205,42 @@ export function TextFilterControl({ value, onChange }: FilterControlProps) {
 
 // Filtre nombre avec opérateurs
 export function NumberFilterControl({ value, onChange }: FilterControlProps) {
-  const [operator, setOperator] = useState('=')
-  const [numberValue, setNumberValue] = useState('')
+  const [operator, setOperator] = useState<FilterOperator>(value?.operator || 'equals')
+  const [numberValue, setNumberValue] = useState(value?.value as string || '')
+  const [numberValue2, setNumberValue2] = useState(value?.value2 as string || '')
 
   useEffect(() => {
-    if (value && typeof value === 'object' && 'operator' in value && 'value' in value) {
-      const filter = value as { operator: string; value: string }
-      setOperator(filter.operator)
-      setNumberValue(filter.value)
+    if (value) {
+      setOperator(value.operator)
+      setNumberValue(String(value.value || ''))
+      setNumberValue2(String(value.value2 || ''))
+    } else {
+      setOperator('equals')
+      setNumberValue('')
+      setNumberValue2('')
     }
   }, [value])
 
-  const handleChange = (newOperator: string, newValue: string) => {
+  const handleChange = (newOperator: FilterOperator, newValue: string, newValue2?: string) => {
     setOperator(newOperator)
     setNumberValue(newValue)
-    if (newValue) {
-      onChange({ operator: newOperator, value: newValue })
+    if (newValue2 !== undefined) {
+      setNumberValue2(newValue2)
+    }
+
+    if (newValue.trim()) {
+      const filterValue: FilterValue = {
+        operator: newOperator,
+        value: parseFloat(newValue)
+      }
+
+      if (newOperator === 'between' && newValue2?.trim()) {
+        filterValue.value2 = parseFloat(newValue2)
+      }
+
+      onChange(filterValue)
     } else {
-      onChange(null)
+      onChange(undefined)
     }
   }
 
@@ -188,29 +249,45 @@ export function NumberFilterControl({ value, onChange }: FilterControlProps) {
       <div>
         <label className="text-sm font-medium">Filtrer par nombre</label>
         <div className="flex gap-2 mt-1">
-          <Select value={operator} onValueChange={(op) => handleChange(op, numberValue)}>
-            <SelectTrigger className="w-20">
+          <Select value={operator} onValueChange={(op) => handleChange(op as FilterOperator, numberValue, numberValue2)}>
+            <SelectTrigger className="w-24">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="=">=</SelectItem>
-              <SelectItem value="!=">≠</SelectItem>
-              <SelectItem value="<">&lt;</SelectItem>
-              <SelectItem value="<=">&le;</SelectItem>
-              <SelectItem value=">">&gt;</SelectItem>
-              <SelectItem value=">=">&ge;</SelectItem>
+              <SelectItem value="equals">=</SelectItem>
+              <SelectItem value="not_equals">≠</SelectItem>
+              <SelectItem value="greater_than">&gt;</SelectItem>
+              <SelectItem value="greater_or_equal">≥</SelectItem>
+              <SelectItem value="less_than">&lt;</SelectItem>
+              <SelectItem value="less_or_equal">≤</SelectItem>
+              <SelectItem value="between">Entre</SelectItem>
             </SelectContent>
           </Select>
           <input
             type="number"
             value={numberValue}
-            onChange={(e) => handleChange(operator, e.target.value)}
+            onChange={(e) => handleChange(operator, e.target.value, numberValue2)}
             onClick={(e) => e.stopPropagation()}
             onFocus={(e) => e.stopPropagation()}
             onMouseDown={(e) => e.stopPropagation()}
             className="flex-1 px-3 py-2 border border-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             placeholder="Valeur..."
           />
+          {operator === 'between' && (
+            <>
+              <span className="flex items-center text-sm text-muted-foreground">et</span>
+              <input
+                type="number"
+                value={numberValue2}
+                onChange={(e) => handleChange(operator, numberValue, e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+                onFocus={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                className="flex-1 px-3 py-2 border border-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                placeholder="Valeur 2..."
+              />
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -219,31 +296,106 @@ export function NumberFilterControl({ value, onChange }: FilterControlProps) {
 
 // Filtre select avec options
 export function SelectFilterControl({ value, onChange, options }: FilterControlProps & { options: { label: string; value: string }[] }) {
-  const handleValueChange = (newValue: string) => {
-    if (newValue === '__all__') {
-      onChange('') // Convertir la valeur spéciale en chaîne vide pour le filtre
+  const [selectedValues, setSelectedValues] = useState<string[]>(
+    value?.operator === 'in' && value.values ? value.values as string[] :
+    value?.value ? [value.value as string] : []
+  )
+  const [operator, setOperator] = useState<FilterOperator>(value?.operator || 'equals')
+  const [isMultiSelect, setIsMultiSelect] = useState(value?.operator === 'in' || value?.operator === 'not_in')
+
+  useEffect(() => {
+    if (value) {
+      setOperator(value.operator)
+      if (value.operator === 'in' || value.operator === 'not_in') {
+        setSelectedValues(value.values as string[] || [])
+        setIsMultiSelect(true)
+      } else {
+        setSelectedValues(value.value ? [value.value as string] : [])
+        setIsMultiSelect(false)
+      }
     } else {
-      onChange(newValue)
+      setOperator('equals')
+      setSelectedValues([])
+      setIsMultiSelect(false)
+    }
+  }, [value])
+
+  const handleOperatorChange = (newOperator: string) => {
+    const typedOperator = newOperator as FilterOperator
+    setOperator(typedOperator)
+    const newIsMulti = typedOperator === 'in' || typedOperator === 'not_in'
+    setIsMultiSelect(newIsMulti)
+
+    if (selectedValues.length > 0) {
+      if (newIsMulti) {
+        onChange({ operator: typedOperator, values: selectedValues })
+      } else {
+        onChange({ operator: typedOperator, value: selectedValues[0] })
+      }
+    } else {
+      onChange(undefined)
+    }
+  }
+
+  const handleValueChange = (newValue: string) => {
+    if (isMultiSelect) {
+      const newValues = selectedValues.includes(newValue)
+        ? selectedValues.filter(v => v !== newValue)
+        : [...selectedValues, newValue]
+
+      setSelectedValues(newValues)
+
+      if (newValues.length > 0) {
+        onChange({ operator, values: newValues })
+      } else {
+        onChange(undefined)
+      }
+    } else {
+      const newValues = newValue ? [newValue] : []
+      setSelectedValues(newValues)
+
+      if (newValue) {
+        onChange({ operator, value: newValue })
+      } else {
+        onChange(undefined)
+      }
     }
   }
 
   return (
     <div className="space-y-3">
       <div>
-        <label className="text-sm font-medium">Sélectionner une option</label>
-        <Select value={value as string || '__all__'} onValueChange={handleValueChange}>
+        <label className="text-sm font-medium">Opérateur</label>
+        <Select value={operator} onValueChange={handleOperatorChange}>
           <SelectTrigger className="w-full mt-1">
-            <SelectValue placeholder="Choisir une option..." />
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="__all__">Toutes les options</SelectItem>
-            {options?.map(option => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
+            <SelectItem value="equals">Égal à</SelectItem>
+            <SelectItem value="not_equals">Différent de</SelectItem>
+            <SelectItem value="in">Dans la liste</SelectItem>
+            <SelectItem value="not_in">Pas dans la liste</SelectItem>
           </SelectContent>
         </Select>
+      </div>
+      <div>
+        <label className="text-sm font-medium">
+          {isMultiSelect ? 'Sélectionner plusieurs options' : 'Sélectionner une option'}
+        </label>
+        <div className="mt-1 space-y-2">
+          {options?.map(option => (
+            <label key={option.value} className="flex items-center space-x-2">
+              <input
+                type={isMultiSelect ? "checkbox" : "radio"}
+                name="filter-options"
+                checked={selectedValues.includes(option.value)}
+                onChange={() => handleValueChange(option.value)}
+                className="rounded border-gray-300"
+              />
+              <span className="text-sm">{option.label}</span>
+            </label>
+          ))}
+        </div>
       </div>
     </div>
   )

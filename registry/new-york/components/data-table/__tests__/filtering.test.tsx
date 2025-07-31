@@ -68,7 +68,7 @@ describe('DataTable - Column Filtering', () => {
         0,  // startRow
         50, // pageSize
         undefined, // grouping
-        [{ path: 'name', value: 'Alice' }] // filters
+        [{ path: 'name', filter: { operator: 'contains', value: 'Alice' } }] // filters
       )
     })
   })

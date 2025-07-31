@@ -1,4 +1,4 @@
-import { DataTable, DataTableColumn, SortColumn } from '../data-table'
+import { DataTable, DataTableColumn, SortColumn, PaginationMode } from '../data-table'
 import { z } from 'zod'
 import { useState } from 'react'
 
@@ -15,7 +15,7 @@ const UserSchema = z.object({
 type User = z.infer<typeof UserSchema>
 
 export function PaginationModesExample() {
-  const [currentMode, setCurrentMode] = useState<'None' | 'InfiniteScroll' | 'Pagination' | 'PaginationWithSize'>('PaginationWithSize')
+  const [currentMode, setCurrentMode] = useState<PaginationMode>('PaginationWithSize')
 
   // Génération d'utilisateurs d'exemple
   const generateUsers = (count: number): User[] => {
@@ -85,14 +85,14 @@ export function PaginationModesExample() {
     // Simulation d'un délai réseau
     await new Promise(resolve => setTimeout(resolve, 300))
 
-    let data = [...sampleUsers]
+    const data = [...sampleUsers]
 
     // Appliquer le tri
     if (sortColumns.length > 0) {
       data.sort((a, b) => {
         for (const sort of sortColumns) {
-          const aValue = (a as any)[sort.path]
-          const bValue = (b as any)[sort.path]
+          const aValue = (a as User)[sort.path as keyof User]
+          const bValue = (b as User)[sort.path as keyof User]
 
           let comparison = 0
           if (typeof aValue === 'string' && typeof bValue === 'string') {
@@ -152,7 +152,7 @@ export function PaginationModesExample() {
         {modes.map((mode) => (
           <button
             key={mode.value}
-            onClick={() => setCurrentMode(mode.value as any)}
+            onClick={() => setCurrentMode(mode.value as PaginationMode)}
             className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
               currentMode === mode.value
                 ? 'bg-primary text-primary-foreground border-primary'

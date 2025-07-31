@@ -34,13 +34,46 @@ export interface FilterIcons {
 }
 
 /**
- * Type pour un filtre de colonne
+ * Opérateurs de filtrage supportés
+ */
+export type FilterOperator =
+  | 'equals'           // Égalité exacte
+  | 'not_equals'       // Différent de
+  | 'contains'         // Contient (texte)
+  | 'starts_with'      // Commence par (texte)
+  | 'ends_with'        // Finit par (texte)
+  | 'greater_than'     // Plus grand que (nombre/date)
+  | 'greater_or_equal' // Plus grand ou égal (nombre/date)
+  | 'less_than'        // Plus petit que (nombre/date)
+  | 'less_or_equal'    // Plus petit ou égal (nombre/date)
+  | 'between'          // Entre deux valeurs (nombre/date)
+  | 'in'               // Dans une liste de valeurs
+  | 'not_in'           // Pas dans une liste de valeurs
+  | 'is_null'          // Est nul
+  | 'is_not_null'      // N'est pas nul
+
+/**
+ * Valeur de filtre uniforme
+ */
+export interface FilterValue {
+  /** Opérateur de filtrage */
+  operator: FilterOperator
+  /** Valeur principale du filtre */
+  value?: unknown
+  /** Valeur secondaire pour les opérateurs comme 'between' */
+  value2?: unknown
+  /** Liste de valeurs pour les opérateurs 'in' et 'not_in' */
+  values?: unknown[]
+}
+
+/**
+ * Type pour un filtre de colonne avec structure uniforme
  */
 export interface ColumnFilter {
   /** Chemin de la colonne filtrée */
   path: string
-  /** Valeur du filtre */
-  value: unknown
+  /** Valeur du filtre avec opérateur et valeur(s) */
+  filter: FilterValue
 }
 
 /**
@@ -48,9 +81,9 @@ export interface ColumnFilter {
  */
 export interface FilterControlProps {
   /** Valeur actuelle du filtre */
-  value: unknown
+  value: FilterValue | undefined
   /** Callback appelé quand la valeur change */
-  onChange: (value: unknown) => void
+  onChange: (value: FilterValue | undefined) => void
   /** Callback pour fermer la popover */
   onClose: () => void
 }
