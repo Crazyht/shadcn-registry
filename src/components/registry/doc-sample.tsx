@@ -1,6 +1,6 @@
 import { useState, ReactNode } from 'react'
-import { Button } from '../../../../../src/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '../../../../../src/components/ui/card'
+import { Button } from '../ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 
 interface DocSampleProps {
   title: string

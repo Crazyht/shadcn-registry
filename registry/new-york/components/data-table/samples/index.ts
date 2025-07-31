@@ -1,4 +1,3 @@
-export { DocSample } from './doc-sample'
 export { BasicExample } from './basic-example'
 export { FilteringExample } from './filtering-example'
 export { GroupingExample } from './grouping-example'

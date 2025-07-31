@@ -1,6 +1,6 @@
 // Documentation DataTable - Restructuré avec exemples modulaires
+import { DocSample } from '../../../../src/components/registry'
 import {
-  DocSample,
   BasicExample,
   FilteringExample,
   GroupingExample,
@@ -15,9 +15,9 @@ import { getSampleSourceCode } from './samples/source-codes'
  */
 export function DataTableDocumentation() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       {/* Header */}
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div className="flex items-center gap-3">
           <h1 className="text-4xl font-bold">Data Table</h1>
           <span className="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-950/50 px-3 py-1 text-sm font-medium text-blue-700 dark:text-blue-300">
@@ -25,995 +25,373 @@ export function DataTableDocumentation() {
           </span>
         </div>
         <p className="text-xl text-muted-foreground max-w-3xl leading-relaxed">
-          Un composant de tableau de données avancé avec validation Zod, tri multi-colonnes,
+          Un composant de tableau de données avancé avec validation Zod, tri multi-colonnes, filtrage uniforme,
           rendu personnalisé et gestion de la sélection. Idéal pour afficher et manipuler des datasets complexes.
         </p>
       </div>
 
-      {/* Basic Example */}
-      <DocSample
-        title="🎮 Exemple d'utilisation de base"
-        description="DataTable avec tri, sélection et pagination. Clic simple = tri unique | Ctrl/Shift + Clic = tri multi-colonnes"
-        sourceCode={getSampleSourceCode('basic-example')}
-      >
-        <BasicExample />
-      </DocSample>
+      {/* Fonctionnalités */}
+      <section className="space-y-6">
+        <h2 className="text-3xl font-semibold border-b pb-2">🚀 Fonctionnalités</h2>
 
-      {/* Installation */}
-      <div className="space-y-4">
-        <h2 className="text-2xl font-semibold">Installation</h2>
-        <div className="rounded-lg bg-muted p-4">
-          <code className="text-sm">npm install clsx tailwind-merge lucide-react zod</code>
-        </div>
-      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-blue-600 dark:text-blue-400">📊 Données et Validation</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li>• Validation des données avec schémas Zod</li>
+              <li>• Support des types TypeScript complets</li>
+              <li>• Gestion d'erreurs intégrée</li>
+              <li>• Rendu conditionnel des cellules</li>
+            </ul>
+          </div>
 
-      {/* Usage Examples */}
-      <div className="space-y-6">
-        <h2 className="text-2xl font-semibold">Exemples d'utilisation</h2>
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-green-600 dark:text-green-400">🔍 Tri et Filtrage</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li>• Tri multi-colonnes (Ctrl/Shift + clic)</li>
+              <li>• Filtres uniformes avec opérateurs</li>
+              <li>• Filtres personnalisés par colonne</li>
+              <li>• Icônes de tri configurables</li>
+            </ul>
+          </div>
 
-        {/* Basic Usage */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Utilisation de base</h3>
-          <div className="rounded-lg bg-muted p-4">
-            <pre className="text-sm overflow-x-auto"><code>{`import { DataTable, DataTableColumn } from './data-table'
-import { z } from 'zod'
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-purple-600 dark:text-purple-400">📄 Pagination et Navigation</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li>• 4 modes de pagination disponibles</li>
+              <li>• Scroll infini avec chargement auto</li>
+              <li>• Contrôle de taille de page</li>
+              <li>• Informations de pagination</li>
+            </ul>
+          </div>
 
-// Définir le schéma Zod
-const UserSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  email: z.string().email(),
-})
-
-type User = z.infer<typeof UserSchema>
-
-// Configuration des colonnes
-const columns: DataTableColumn<User>[] = [
-  { label: 'ID', path: 'id', isSortable: true },
-  { label: 'Nom', path: 'name', isSortable: true },
-  { label: 'Email', path: 'email', isSortable: true },
-]
-
-// Fonction pour récupérer les données
-const getData = async (sortColumns, startRow, pageSize) => {
-  const response = await fetch('/api/users', {
-    method: 'POST',
-    body: JSON.stringify({ sort: sortColumns, startRow, pageSize })
-  })
-  const result = await response.json()
-  return {
-    data: result.data,
-    totalCount: result.totalCount,
-    lastRow: startRow + result.data.length - 1
-  }
-}
-
-// Utilisation
-<DataTable
-  schema={UserSchema}
-  columns={columns}
-  getData={getData}
-/>`}</code></pre>
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-orange-600 dark:text-orange-400">🎨 Interface et UX</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li>• Groupement des données</li>
+              <li>• Sélection de lignes</li>
+              <li>• Messages personnalisables</li>
+              <li>• Responsive design</li>
+            </ul>
           </div>
         </div>
+      </section>      {/* Installation */}
+      <section className="space-y-6">
+        <h2 className="text-3xl font-semibold border-b pb-2">📦 Installation</h2>
 
-        {/* Pagination Usage */}
         <div className="space-y-4">
-          <h3 className="text-lg font-medium">Utilisation avec pagination</h3>
-          <div className="rounded-lg bg-muted p-4">
-            <pre className="text-sm overflow-x-auto"><code>{`// Pagination complète avec contrôle de taille (recommandé)
-<DataTable
-  schema={UserSchema}
-  columns={columns}
-  getData={getData}
-  paginationMode="PaginationWithSize"
-  pageSize={25}
-  pageSizeOptions={[10, 25, 50, 100]}
-/>
+          <p className="text-muted-foreground">
+            Installez le composant Data Table via shadcn/ui CLI :
+          </p>
+          <div className="rounded-lg bg-zinc-950 dark:bg-zinc-900 p-4 text-green-400 font-mono">
+            <code>npx shadcn@latest add data-table</code>
+          </div>
 
-// Pagination simple sans contrôle de taille
-<DataTable
-  schema={UserSchema}
-  columns={columns}
-  getData={getData}
-  paginationMode="Pagination"
-  pageSize={20}
-/>
-
-// Sans pagination (charge toutes les données)
-<DataTable
-  schema={UserSchema}
-  columns={columns}
-  getData={getData}
-  paginationMode="None"
-/>
-
-// Scroll infini
-<DataTable
-  schema={UserSchema}
-  columns={columns}
-  getData={getData}
-  paginationMode="InfiniteScroll"
-  pageSize={20}
-  showLoadMoreButton={true}
-/>
-
-// Options de personnalisation de la pagination
-<DataTable
-  schema={UserSchema}
-  columns={columns}
-  getData={getData}
-  paginationMode="PaginationWithSize"
-  showPaginationInfo={false}        // Masquer "Affichage de X à Y"
-  showSinglePagePagination={true}   // Toujours afficher la pagination
-  pageSize={25}
-/>
-
-// Exemple de réponse serveur attendue
-{
-  "data": [
-    { "id": 1, "name": "Alice", "email": "alice@example.com" },
-    { "id": 2, "name": "Bob", "email": "bob@example.com" }
-  ],
-  "totalCount": 150,
-  "lastRow": 49
-}`}</code></pre>
+          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <p className="text-sm text-blue-800 dark:text-blue-200">
+              💡 <strong>Toutes les dépendances sont installées automatiquement</strong> par la commande shadcn add (zod, lucide-react, clsx, tailwind-merge).
+            </p>
           </div>
         </div>
-
-        {/* Advanced Usage */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Colonnes avec rendu personnalisé</h3>
-          <div className="rounded-lg bg-muted p-4">
-            <pre className="text-sm overflow-x-auto"><code>{`const columns: DataTableColumn<Product>[] = [
-  {
-    label: 'Prix',
-    path: 'price',
-    isSortable: true,
-    align: 'right',
-    render: (value: number) => \`€\${value.toFixed(2)}\`,
-  },
-  {
-    label: 'Statut',
-    path: 'status',
-    render: (value: string) => (
-      <span className={\`badge \${value === 'active' ? 'success' : 'error'}\`}>
-        {value}
-      </span>
-    ),
-  },
-]`}</code></pre>
-          </div>
-        </div>
-
-        {/* Columns without path */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Colonnes d'actions et calculées</h3>
-          <div className="rounded-lg bg-muted p-4">
-            <pre className="text-sm overflow-x-auto"><code>{`const columns: DataTableColumn<User>[] = [
-  // Colonne normale avec données
-  {
-    label: 'Nom',
-    path: 'name',
-    isSortable: true
-  },
-
-  // Colonne calculée (sans path, pas triable)
-  {
-    label: 'Initiales',
-    type: 'computed',
-    render: (_, row: User) => {
-      const initials = row.name.split(' ')
-        .map(n => n[0])
-        .join('')
-      return <span className="font-mono">{initials}</span>
-    },
-  },
-
-  // Colonne d'actions (sans path, pas triable)
-  {
-    label: 'Actions',
-    type: 'action',
-    align: 'center',
-    render: (_, row: User) => (
-      <div className="flex gap-2">
-        <button onClick={() => edit(row)}>Éditer</button>
-        <button onClick={() => delete(row)}>Supprimer</button>
-      </div>
-    ),
-  },
-]`}</code></pre>
-          </div>
-        </div>
-      </div>
+      </section>
 
       {/* API Reference */}
-      <div className="space-y-4">
-        <h2 className="text-2xl font-semibold">Référence API</h2>
+      <section className="space-y-6">
+        <h2 className="text-3xl font-semibold border-b pb-2">📖 Référence API</h2>
 
-        <div className="space-y-6">
-          <div>
-            <h3 className="text-lg font-medium mb-4">DataTable Props</h3>
-            <div className="rounded-lg border overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-muted/50">
-                  <tr className="border-b">
-                    <th className="text-left p-4 font-medium">Prop</th>
-                    <th className="text-left p-4 font-medium">Type</th>
-                    <th className="text-left p-4 font-medium">Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">schema</td>
-                    <td className="p-4 text-sm"><code>z.ZodSchema&lt;T&gt;</code></td>
-                    <td className="p-4 text-sm">Schéma Zod pour valider les données</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">columns</td>
-                    <td className="p-4 text-sm"><code>DataTableColumn&lt;T&gt;[]</code></td>
-                    <td className="p-4 text-sm">Configuration des colonnes</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">getData</td>
-                    <td className="p-4 text-sm"><code>(sortColumns: SortColumn[], startRow: number, pageSize: number, grouping?: DataTableGrouping, filters?: ColumnFilter[]) =&gt; Promise&lt;DataTableResponse&lt;T&gt;&gt; | DataTableResponse&lt;T&gt;</code></td>
-                    <td className="p-4 text-sm">Fonction pour récupérer les données avec tri, pagination, groupement et filtrage</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">pageSize</td>
-                    <td className="p-4 text-sm"><code>number</code></td>
-                    <td className="p-4 text-sm">Taille de page pour la pagination (défaut: 50)</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">paginationMode</td>
-                    <td className="p-4 text-sm"><code>'None' | 'InfiniteScroll' | 'Pagination' | 'PaginationWithSize'</code></td>
-                    <td className="p-4 text-sm">Mode de pagination (défaut: 'PaginationWithSize')</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">showPaginationInfo</td>
-                    <td className="p-4 text-sm"><code>boolean</code></td>
-                    <td className="p-4 text-sm">Afficher les informations de pagination comme "Affichage de 1 à 10 sur 50 éléments" (défaut: true)</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">showSinglePagePagination</td>
-                    <td className="p-4 text-sm"><code>boolean</code></td>
-                    <td className="p-4 text-sm">Afficher la pagination même s'il n'y a qu'une seule page (défaut: false)</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">showLoadMoreButton</td>
-                    <td className="p-4 text-sm"><code>boolean</code></td>
-                    <td className="p-4 text-sm">Afficher un bouton "Charger plus" pour le mode InfiniteScroll (défaut: false)</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">loadingMessage</td>
-                    <td className="p-4 text-sm"><code>string</code></td>
-                    <td className="p-4 text-sm">Message à afficher pendant le chargement des données (défaut: "Chargement des données...")</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">pageSizeOptions</td>
-                    <td className="p-4 text-sm"><code>number[]</code></td>
-                    <td className="p-4 text-sm">Options de taille de page pour PaginationWithSize (défaut: [10, 25, 50, 100])</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">filterIcons</td>
-                    <td className="p-4 text-sm"><code>FilterIcons</code></td>
-                    <td className="p-4 text-sm">Configuration des icônes de filtrage personnalisées (optionnel)</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">sortIcons</td>
-                    <td className="p-4 text-sm"><code>SortIcons</code></td>
-                    <td className="p-4 text-sm">Configuration des icônes de tri personnalisées (optionnel)</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">onRowSelect</td>
-                    <td className="p-4 text-sm"><code>(row: T) =&gt; void</code></td>
-                    <td className="p-4 text-sm">Callback de sélection de ligne</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">selectedRow</td>
-                    <td className="p-4 text-sm"><code>T</code></td>
-                    <td className="p-4 text-sm">Ligne actuellement sélectionnée</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-mono text-sm">grouping</td>
-                    <td className="p-4 text-sm"><code>DataTableGrouping</code></td>
-                    <td className="p-4 text-sm">Configuration du groupement de données (optionnel)</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+        {/* DataTableProps */}
+        <div className="space-y-4">
+          <h3 className="text-xl font-medium">Props du DataTable</h3>
+          <div className="rounded-lg border overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-muted/50">
+                <tr className="border-b">
+                  <th className="text-left p-4 font-medium">Prop</th>
+                  <th className="text-left p-4 font-medium">Type</th>
+                  <th className="text-left p-4 font-medium">Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">schema</td>
+                  <td className="p-4 text-sm"><code>z.ZodSchema&lt;T&gt;</code></td>
+                  <td className="p-4 text-sm">Schéma Zod pour valider les données</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">columns</td>
+                  <td className="p-4 text-sm"><code>DataTableColumn&lt;T&gt;[]</code></td>
+                  <td className="p-4 text-sm">Configuration des colonnes</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">getData</td>
+                  <td className="p-4 text-sm"><code>function</code></td>
+                  <td className="p-4 text-sm">Fonction pour récupérer les données avec tri, pagination, groupement et filtrage</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">paginationMode</td>
+                  <td className="p-4 text-sm"><code>'None' | 'InfiniteScroll' | 'Pagination' | 'PaginationWithSize'</code></td>
+                  <td className="p-4 text-sm">Mode de pagination (défaut: 'PaginationWithSize')</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">pageSize</td>
+                  <td className="p-4 text-sm"><code>number</code></td>
+                  <td className="p-4 text-sm">Taille de page pour la pagination (défaut: 50)</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">pageSizeOptions</td>
+                  <td className="p-4 text-sm"><code>number[]</code></td>
+                  <td className="p-4 text-sm">Options de taille de page pour PaginationWithSize (défaut: [10, 25, 50, 100])</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">showPaginationInfo</td>
+                  <td className="p-4 text-sm"><code>boolean</code></td>
+                  <td className="p-4 text-sm">Afficher les informations de pagination (défaut: true)</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">showSinglePagePagination</td>
+                  <td className="p-4 text-sm"><code>boolean</code></td>
+                  <td className="p-4 text-sm">Afficher la pagination même s'il n'y a qu'une seule page (défaut: false)</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">onRowSelect</td>
+                  <td className="p-4 text-sm"><code>(row: T) =&gt; void</code></td>
+                  <td className="p-4 text-sm">Callback de sélection de ligne</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">selectedRow</td>
+                  <td className="p-4 text-sm"><code>T</code></td>
+                  <td className="p-4 text-sm">Ligne actuellement sélectionnée</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">grouping</td>
+                  <td className="p-4 text-sm"><code>DataTableGrouping</code></td>
+                  <td className="p-4 text-sm">Configuration du groupement de données (optionnel)</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">sortIcons</td>
+                  <td className="p-4 text-sm"><code>SortIcons</code></td>
+                  <td className="p-4 text-sm">Configuration des icônes de tri personnalisées (optionnel)</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">filterIcons</td>
+                  <td className="p-4 text-sm"><code>FilterIcons</code></td>
+                  <td className="p-4 text-sm">Configuration des icônes de filtrage personnalisées (optionnel)</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">emptyMessage</td>
+                  <td className="p-4 text-sm"><code>string</code></td>
+                  <td className="p-4 text-sm">Message à afficher quand il n'y a pas de données</td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-mono text-sm">loadingMessage</td>
+                  <td className="p-4 text-sm"><code>string</code></td>
+                  <td className="p-4 text-sm">Message à afficher pendant le chargement</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
+        </div>
 
-          <div>
-            <h3 className="text-lg font-medium mb-4">DataTableResponse Interface</h3>
-            <div className="rounded-lg border overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-muted/50">
-                  <tr className="border-b">
-                    <th className="text-left p-4 font-medium">Propriété</th>
-                    <th className="text-left p-4 font-medium">Type</th>
-                    <th className="text-left p-4 font-medium">Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">data</td>
-                    <td className="p-4 text-sm"><code>T[]</code></td>
-                    <td className="p-4 text-sm">Les données de la page actuelle</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">totalCount</td>
-                    <td className="p-4 text-sm"><code>number</code></td>
-                    <td className="p-4 text-sm">Nombre total d'éléments dans le dataset</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">lastRow</td>
-                    <td className="p-4 text-sm"><code>number</code></td>
-                    <td className="p-4 text-sm">Index de la dernière ligne retournée</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-mono text-sm">groups</td>
-                    <td className="p-4 text-sm"><code>DataGroup&lt;T&gt;[]?</code></td>
-                    <td className="p-4 text-sm">Groupes pré-calculés par le serveur (optionnel)</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+        {/* DataTableColumn */}
+        <div className="space-y-4">
+          <h3 className="text-xl font-medium">Configuration des colonnes</h3>
+          <div className="rounded-lg border overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-muted/50">
+                <tr className="border-b">
+                  <th className="text-left p-4 font-medium">Propriété</th>
+                  <th className="text-left p-4 font-medium">Type</th>
+                  <th className="text-left p-4 font-medium">Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">label</td>
+                  <td className="p-4 text-sm"><code>string</code></td>
+                  <td className="p-4 text-sm">Libellé affiché dans l'en-tête</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">path</td>
+                  <td className="p-4 text-sm"><code>string?</code></td>
+                  <td className="p-4 text-sm">Chemin vers la propriété (optionnel pour colonnes d'actions)</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">isSortable</td>
+                  <td className="p-4 text-sm"><code>boolean</code></td>
+                  <td className="p-4 text-sm">Si la colonne peut être triée (auto false si pas de path)</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">isFilterable</td>
+                  <td className="p-4 text-sm"><code>boolean</code></td>
+                  <td className="p-4 text-sm">Si la colonne peut être filtrée (défaut: false)</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">filterControl</td>
+                  <td className="p-4 text-sm"><code>React.ComponentType&lt;FilterControlProps&gt;</code></td>
+                  <td className="p-4 text-sm">Composant de contrôle de filtre personnalisé</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">render</td>
+                  <td className="p-4 text-sm"><code>(value: unknown, row: T) =&gt; ReactNode</code></td>
+                  <td className="p-4 text-sm">Fonction de rendu personnalisée</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">width</td>
+                  <td className="p-4 text-sm"><code>string</code></td>
+                  <td className="p-4 text-sm">Largeur de la colonne (optionnel)</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">align</td>
+                  <td className="p-4 text-sm"><code>'left' | 'center' | 'right'</code></td>
+                  <td className="p-4 text-sm">Alignement du contenu</td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-mono text-sm">type</td>
+                  <td className="p-4 text-sm"><code>'data' | 'action' | 'computed'</code></td>
+                  <td className="p-4 text-sm">Type de colonne pour clarifier l'usage</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
+        </div>
 
-          <div>
-            <h3 className="text-lg font-medium mb-4">DataTableColumn Interface</h3>
-            <div className="rounded-lg border overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-muted/50">
-                  <tr className="border-b">
-                    <th className="text-left p-4 font-medium">Propriété</th>
-                    <th className="text-left p-4 font-medium">Type</th>
-                    <th className="text-left p-4 font-medium">Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">label</td>
-                    <td className="p-4 text-sm"><code>string</code></td>
-                    <td className="p-4 text-sm">Libellé affiché dans l'en-tête</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">path</td>
-                    <td className="p-4 text-sm"><code>string?</code></td>
-                    <td className="p-4 text-sm">Chemin vers la propriété (optionnel pour colonnes d'actions)</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">isSortable</td>
-                    <td className="p-4 text-sm"><code>boolean</code></td>
-                    <td className="p-4 text-sm">Si la colonne peut être triée (auto false si pas de path)</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">render</td>
-                    <td className="p-4 text-sm"><code>(value: unknown, row: T) =&gt; ReactNode</code></td>
-                    <td className="p-4 text-sm">Fonction de rendu personnalisée</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">type</td>
-                    <td className="p-4 text-sm"><code>'data' | 'action' | 'computed'</code></td>
-                    <td className="p-4 text-sm">Type de colonne pour clarifier l'usage</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">align</td>
-                    <td className="p-4 text-sm"><code>'left' | 'center' | 'right'</code></td>
-                    <td className="p-4 text-sm">Alignement du contenu</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">isFilterable</td>
-                    <td className="p-4 text-sm"><code>boolean</code></td>
-                    <td className="p-4 text-sm">Si la colonne peut être filtrée (défaut: false)</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">filterControl</td>
-                    <td className="p-4 text-sm"><code>React.ComponentType&lt;FilterControlProps&gt;</code></td>
-                    <td className="p-4 text-sm">Composant de contrôle de filtre personnalisé</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-mono text-sm">width</td>
-                    <td className="p-4 text-sm"><code>string</code></td>
-                    <td className="p-4 text-sm">Largeur de la colonne (optionnel)</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+        {/* FilterValue */}
+        <div className="space-y-4">
+          <h3 className="text-xl font-medium">Structure des filtres</h3>
+          <div className="rounded-lg border overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-muted/50">
+                <tr className="border-b">
+                  <th className="text-left p-4 font-medium">Propriété</th>
+                  <th className="text-left p-4 font-medium">Type</th>
+                  <th className="text-left p-4 font-medium">Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">operator</td>
+                  <td className="p-4 text-sm"><code>FilterOperator</code></td>
+                  <td className="p-4 text-sm">Opérateur de filtrage (equals, contains, greater_than, etc.)</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">value</td>
+                  <td className="p-4 text-sm"><code>unknown</code></td>
+                  <td className="p-4 text-sm">Valeur principale du filtre</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">value2</td>
+                  <td className="p-4 text-sm"><code>unknown</code></td>
+                  <td className="p-4 text-sm">Valeur secondaire pour l'opérateur 'between'</td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-mono text-sm">values</td>
+                  <td className="p-4 text-sm"><code>unknown[]</code></td>
+                  <td className="p-4 text-sm">Liste de valeurs pour les opérateurs 'in' et 'not_in'</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
+        </div>
 
-          <div>
-            <h3 className="text-lg font-medium mb-4">DataTableGrouping Interface</h3>
+        {/* Opérateurs de filtre */}
+        <div className="space-y-4">
+          <h3 className="text-xl font-medium">Opérateurs de filtrage</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="rounded-lg border overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-muted/50">
-                  <tr className="border-b">
-                    <th className="text-left p-4 font-medium">Propriété</th>
-                    <th className="text-left p-4 font-medium">Type</th>
-                    <th className="text-left p-4 font-medium">Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">path</td>
-                    <td className="p-4 text-sm"><code>string</code></td>
-                    <td className="p-4 text-sm">Chemin de la colonne à grouper (ex: 'status', 'department')</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">renderGroupHeader</td>
-                    <td className="p-4 text-sm"><code>(groupValue: unknown, count: number, isExpanded: boolean) =&gt; ReactNode</code></td>
-                    <td className="p-4 text-sm">Fonction de rendu personnalisée pour l'en-tête de groupe</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">expandable</td>
-                    <td className="p-4 text-sm"><code>boolean</code></td>
-                    <td className="p-4 text-sm">Si le groupe est expandable/collapsible (défaut: true)</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">defaultExpanded</td>
-                    <td className="p-4 text-sm"><code>boolean</code></td>
-                    <td className="p-4 text-sm">État initial des groupes (défaut: true = tous expandés)</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-mono text-sm">accordion</td>
-                    <td className="p-4 text-sm"><code>boolean</code></td>
-                    <td className="p-4 text-sm">Mode accordéon - un seul groupe ouvert à la fois (défaut: false)</td>
-                  </tr>
-                </tbody>
-              </table>
+              <div className="bg-muted/50 p-3 border-b">
+                <h4 className="font-medium">Texte</h4>
+              </div>
+              <div className="p-4 space-y-2 text-sm">
+                <div><code>contains</code> - Contient le texte</div>
+                <div><code>starts_with</code> - Commence par</div>
+                <div><code>ends_with</code> - Finit par</div>
+                <div><code>equals</code> - Égalité exacte</div>
+                <div><code>not_equals</code> - Différent de</div>
+              </div>
             </div>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-medium mb-4">DataGroup Interface</h3>
             <div className="rounded-lg border overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-muted/50">
-                  <tr className="border-b">
-                    <th className="text-left p-4 font-medium">Propriété</th>
-                    <th className="text-left p-4 font-medium">Type</th>
-                    <th className="text-left p-4 font-medium">Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">groupValue</td>
-                    <td className="p-4 text-sm"><code>unknown</code></td>
-                    <td className="p-4 text-sm">Valeur de groupement (ex: "Engineering", "Active")</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">count</td>
-                    <td className="p-4 text-sm"><code>number</code></td>
-                    <td className="p-4 text-sm">Nombre d'éléments dans le groupe</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">items</td>
-                    <td className="p-4 text-sm"><code>T[]</code></td>
-                    <td className="p-4 text-sm">Les données du groupe</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-mono text-sm">isExpanded</td>
-                    <td className="p-4 text-sm"><code>boolean</code></td>
-                    <td className="p-4 text-sm">Si le groupe est actuellement expandé</td>
-                  </tr>
-                </tbody>
-              </table>
+              <div className="bg-muted/50 p-3 border-b">
+                <h4 className="font-medium">Nombres/Dates</h4>
+              </div>
+              <div className="p-4 space-y-2 text-sm">
+                <div><code>greater_than</code> - Plus grand que</div>
+                <div><code>greater_or_equal</code> - Plus grand ou égal</div>
+                <div><code>less_than</code> - Plus petit que</div>
+                <div><code>less_or_equal</code> - Plus petit ou égal</div>
+                <div><code>between</code> - Entre deux valeurs</div>
+              </div>
             </div>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-medium mb-4">SortIcons Interface</h3>
             <div className="rounded-lg border overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-muted/50">
-                  <tr className="border-b">
-                    <th className="text-left p-4 font-medium">Propriété</th>
-                    <th className="text-left p-4 font-medium">Type</th>
-                    <th className="text-left p-4 font-medium">Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">default</td>
-                    <td className="p-4 text-sm"><code>ComponentType?</code></td>
-                    <td className="p-4 text-sm">Icône affichée quand aucun tri n'est appliqué</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">asc</td>
-                    <td className="p-4 text-sm"><code>ComponentType?</code></td>
-                    <td className="p-4 text-sm">Icône affichée pour le tri croissant</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">desc</td>
-                    <td className="p-4 text-sm"><code>ComponentType?</code></td>
-                    <td className="p-4 text-sm">Icône affichée pour le tri décroissant</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-mono text-sm">classNames</td>
-                    <td className="p-4 text-sm"><code>object?</code></td>
-                    <td className="p-4 text-sm">Classes CSS personnalisées pour chaque état de tri</td>
-                  </tr>
-                </tbody>
-              </table>
+              <div className="bg-muted/50 p-3 border-b">
+                <h4 className="font-medium">Listes</h4>
+              </div>
+              <div className="p-4 space-y-2 text-sm">
+                <div><code>in</code> - Dans une liste de valeurs</div>
+                <div><code>not_in</code> - Pas dans une liste</div>
+              </div>
             </div>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-medium mb-4">FilterIcons Interface</h3>
             <div className="rounded-lg border overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-muted/50">
-                  <tr className="border-b">
-                    <th className="text-left p-4 font-medium">Propriété</th>
-                    <th className="text-left p-4 font-medium">Type</th>
-                    <th className="text-left p-4 font-medium">Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">default</td>
-                    <td className="p-4 text-sm"><code>ComponentType?</code></td>
-                    <td className="p-4 text-sm">Icône affichée pour ouvrir le filtre (défaut: Filter)</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">active</td>
-                    <td className="p-4 text-sm"><code>ComponentType?</code></td>
-                    <td className="p-4 text-sm">Icône affichée quand un filtre est actif (défaut: FilterX)</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-mono text-sm">classNames</td>
-                    <td className="p-4 text-sm"><code>object?</code></td>
-                    <td className="p-4 text-sm">Classes CSS personnalisées pour les états default et active</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-medium mb-4">ColumnFilter Interface</h3>
-            <div className="rounded-lg border overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-muted/50">
-                  <tr className="border-b">
-                    <th className="text-left p-4 font-medium">Propriété</th>
-                    <th className="text-left p-4 font-medium">Type</th>
-                    <th className="text-left p-4 font-medium">Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">path</td>
-                    <td className="p-4 text-sm"><code>string</code></td>
-                    <td className="p-4 text-sm">Chemin de la colonne filtrée (ex: 'name', 'user.email')</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-mono text-sm">filter</td>
-                    <td className="p-4 text-sm"><code>FilterValue</code></td>
-                    <td className="p-4 text-sm">Valeur du filtre avec opérateur et valeur(s) associée(s)</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-medium mb-4">FilterValue Interface</h3>
-            <div className="rounded-lg border overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-muted/50">
-                  <tr className="border-b">
-                    <th className="text-left p-4 font-medium">Propriété</th>
-                    <th className="text-left p-4 font-medium">Type</th>
-                    <th className="text-left p-4 font-medium">Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">operator</td>
-                    <td className="p-4 text-sm"><code>FilterOperator</code></td>
-                    <td className="p-4 text-sm">Opérateur de filtrage (equals, contains, greater_than, etc.)</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">value</td>
-                    <td className="p-4 text-sm"><code>unknown</code></td>
-                    <td className="p-4 text-sm">Valeur principale du filtre</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">value2</td>
-                    <td className="p-4 text-sm"><code>unknown</code></td>
-                    <td className="p-4 text-sm">Valeur secondaire pour l'opérateur 'between'</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-mono text-sm">values</td>
-                    <td className="p-4 text-sm"><code>unknown[]</code></td>
-                    <td className="p-4 text-sm">Liste de valeurs pour les opérateurs 'in' et 'not_in'</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-medium mb-4">FilterControlProps Interface</h3>
-            <div className="rounded-lg border overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-muted/50">
-                  <tr className="border-b">
-                    <th className="text-left p-4 font-medium">Propriété</th>
-                    <th className="text-left p-4 font-medium">Type</th>
-                    <th className="text-left p-4 font-medium">Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">value</td>
-                    <td className="p-4 text-sm"><code>FilterValue | undefined</code></td>
-                    <td className="p-4 text-sm">Valeur actuelle du filtre avec opérateur</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">onChange</td>
-                    <td className="p-4 text-sm"><code>(value: FilterValue | undefined) =&gt; void</code></td>
-                    <td className="p-4 text-sm">Callback appelé quand la valeur change</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-mono text-sm">onClose</td>
-                    <td className="p-4 text-sm"><code>() =&gt; void</code></td>
-                    <td className="p-4 text-sm">Callback pour fermer la popover</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-medium mb-4">Contrôles de filtre prédéfinis</h3>
-            <div className="rounded-lg border overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-muted/50">
-                  <tr className="border-b">
-                    <th className="text-left p-4 font-medium">Contrôle</th>
-                    <th className="text-left p-4 font-medium">Usage</th>
-                    <th className="text-left p-4 font-medium">Valeur retournée</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">TextFilterControl</td>
-                    <td className="p-4 text-sm">Recherche textuelle avec opérateurs (contains, starts_with, etc.)</td>
-                    <td className="p-4 text-sm"><code>FilterValue</code> - Opérateur et texte de recherche</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">NumberFilterControl</td>
-                    <td className="p-4 text-sm">Filtrage numérique avec opérateurs (=, &gt;, between, etc.)</td>
-                    <td className="p-4 text-sm"><code>FilterValue</code> - Opérateur et valeur(s) numérique(s)</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-mono text-sm">SelectFilterControl</td>
-                    <td className="p-4 text-sm">Sélection simple/multiple dans une liste</td>
-                    <td className="p-4 text-sm"><code>FilterValue</code> - Opérateur et valeur(s) sélectionnée(s)</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Sorting Behavior */}
-          <div>
-            <h3 className="text-lg font-medium mb-4">Comportement du tri</h3>
-            <div className="rounded-lg border overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-muted/50">
-                  <tr className="border-b">
-                    <th className="text-left p-4 font-medium">Action</th>
-                    <th className="text-left p-4 font-medium">Comportement</th>
-                    <th className="text-left p-4 font-medium">Indicateur visuel</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">Clic simple</td>
-                    <td className="p-4 text-sm">Tri unique - remplace les autres tris</td>
-                    <td className="p-4 text-sm">Flèche haut/bas sans numéro</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">Ctrl + Clic</td>
-                    <td className="p-4 text-sm">Ajoute un tri multi-colonnes</td>
-                    <td className="p-4 text-sm">Flèche + numéro d'ordre</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono text-sm">Shift + Clic</td>
-                    <td className="p-4 text-sm">Ajoute un tri multi-colonnes</td>
-                    <td className="p-4 text-sm">Flèche + numéro d'ordre</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-mono text-sm">3 clics consécutifs</td>
-                    <td className="p-4 text-sm">Asc → Desc → Aucun tri</td>
-                    <td className="p-4 text-sm">↑ → ↓ → ⇅</td>
-                  </tr>
-                </tbody>
-              </table>
+              <div className="bg-muted/50 p-3 border-b">
+                <h4 className="font-medium">Valeurs nulles</h4>
+              </div>
+              <div className="p-4 space-y-2 text-sm">
+                <div><code>is_null</code> - Est nul</div>
+                <div><code>is_not_null</code> - N'est pas nul</div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Pagination Demos */}
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-semibold mb-4">Démos des modes de pagination</h2>
-          <p className="text-muted-foreground mb-6">
-            Explorez les différents modes de pagination et leurs options de personnalisation.
-          </p>
-        </div>
+      {/* Exemples */}
+      <section className="space-y-8">
+        <h2 className="text-3xl font-semibold border-b pb-2">📚 Exemples</h2>
 
+        {/* Exemple de base */}
         <DocSample
-          title="Modes de pagination"
-          description="Comparaison complète des 4 modes de pagination avec options de personnalisation"
-          sourceCode={getSampleSourceCode('pagination-modes-example')}
+          title="🎯 Utilisation de base"
+          description="DataTable avec tri, sélection et pagination. Clic simple = tri unique | Ctrl/Shift + Clic = tri multi-colonnes"
+          sourceCode={getSampleSourceCode('basic-example')}
         >
-          <PaginationModesExample />
+          <BasicExample />
         </DocSample>
-      </div>
 
-      {/* Pagination Modes */}
-      <div className="space-y-4">
-        <h2 className="text-2xl font-semibold">Modes de Pagination</h2>
-        <p className="text-muted-foreground">
-          DataTable supporte 4 modes de pagination différents pour s'adapter à vos besoins :
-        </p>
-
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="space-y-4">
-            <div className="border rounded-lg p-4">
-              <h3 className="font-medium text-lg mb-2">None</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                Aucune pagination automatique. Toutes les données sont affichées en une fois.
-              </p>
-              <div className="bg-muted rounded-md p-3">
-                <code className="text-sm">
-                  {`<DataTable
-  paginationMode="None"
-  getData={getData}
-  // ...autres props
-/>`}
-                </code>
-              </div>
-            </div>
-
-            <div className="border rounded-lg p-4">
-              <h3 className="font-medium text-lg mb-2">InfiniteScroll</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                Scroll infini avec chargement automatique. Idéal pour les flux de données ou les grandes listes.
-              </p>
-              <div className="bg-muted rounded-md p-3">
-                <code className="text-sm">
-                  {`<DataTable
-  paginationMode="InfiniteScroll"
-  showLoadMoreButton={true}
-  getData={getData}
-  // ...autres props
-/>`}
-                </code>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="border rounded-lg p-4">
-              <h3 className="font-medium text-lg mb-2">Pagination</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                Pagination classique avec navigation par pages. Interface simple et épurée.
-              </p>
-              <div className="bg-muted rounded-md p-3">
-                <code className="text-sm">
-                  {`<DataTable
-  paginationMode="Pagination"
-  pageSize={20}
-  getData={getData}
-  // ...autres props
-/>`}
-                </code>
-              </div>
-            </div>
-
-            <div className="border rounded-lg p-4">
-              <h3 className="font-medium text-lg mb-2">PaginationWithSize</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                Pagination complète avec contrôle de la taille de page. Recommandé pour la plupart des cas.
-              </p>
-              <div className="bg-muted rounded-md p-3">
-                <code className="text-sm">
-                  {`<DataTable
-  paginationMode="PaginationWithSize"
-  pageSize={25}
-  pageSizeOptions={[10, 25, 50, 100]}
-  getData={getData}
-  // ...autres props
-/>`}
-                </code>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-          <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">💡 Conseil</h4>
-          <p className="text-sm text-blue-800 dark:text-blue-200">
-            La fonction <code>getData</code> reçoit les paramètres <code>startRow</code> et <code>pageSize</code> pour tous les modes.
-            En mode <code>None</code>, <code>pageSize</code> sera très élevé pour récupérer toutes les données.
-            En mode <code>InfiniteScroll</code>, <code>startRow</code> augmente à chaque chargement.
-          </p>
-        </div>
-      </div>
-
-      {/* Features */}
-      <div className="space-y-4">
-        <h2 className="text-2xl font-semibold">Fonctionnalités</h2>
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="flex items-start gap-3 p-4 border rounded-lg">
-            <span className="text-green-500 text-xl">✅</span>
-            <div>
-              <h4 className="font-medium">Validation Zod</h4>
-              <p className="text-sm text-muted-foreground">Validation automatique des données avec messages d'erreur</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 p-4 border rounded-lg">
-            <span className="text-green-500 text-xl">✅</span>
-            <div>
-              <h4 className="font-medium">Tri intelligent</h4>
-              <p className="text-sm text-muted-foreground">Tri simple (clic) ou multi-colonnes (Ctrl/Shift + clic) avec indicateurs visuels</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 p-4 border rounded-lg">
-            <span className="text-green-500 text-xl">✅</span>
-            <div>
-              <h4 className="font-medium">Rendu personnalisé</h4>
-              <p className="text-sm text-muted-foreground">Fonctions de rendu pour personnaliser l'affichage des cellules</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 p-4 border rounded-lg">
-            <span className="text-green-500 text-xl">✅</span>
-            <div>
-              <h4 className="font-medium">Pagination flexible</h4>
-              <p className="text-sm text-muted-foreground">4 modes de pagination : Aucune, Scroll infini, Simple, ou Complète avec shadcn/ui</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 p-4 border rounded-lg">
-            <span className="text-green-500 text-xl">✅</span>
-            <div>
-              <h4 className="font-medium">Sélection de lignes</h4>
-              <p className="text-sm text-muted-foreground">Gestion de la sélection avec callbacks</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 p-4 border rounded-lg">
-            <span className="text-green-500 text-xl">✅</span>
-            <div>
-              <h4 className="font-medium">Groupement de données</h4>
-              <p className="text-sm text-muted-foreground">Groupement par colonne avec expansion/collapse et rendu personnalisé</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 p-4 border rounded-lg">
-            <span className="text-green-500 text-xl">✅</span>
-            <div>
-              <h4 className="font-medium">Icônes de tri personnalisées</h4>
-              <p className="text-sm text-muted-foreground">Configuration d'icônes et de styles personnalisés pour le tri des colonnes</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Column Filtering */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Filtrage des colonnes</h3>
-        <p className="text-sm text-muted-foreground">
-          Ajoutez des fonctionnalités de filtrage interactives avec des popovers personnalisables et des contrôles de filtre adaptés à chaque type de données.
-        </p>
-
+        {/* Filtrage */}
         <DocSample
-          title="Filtrage des colonnes"
-          description="Exemple complet avec filtres texte, nombre, et sélection + icônes personnalisées"
+          title="🔍 Filtrage avancé"
+          description="Système de filtres uniformes avec opérateurs (contains, equals, between, etc.) pour tous types de données"
           sourceCode={getSampleSourceCode('filtering-example')}
         >
           <FilteringExample />
         </DocSample>
-      </div>
 
-      {/* Custom Sort Icons */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Icônes de tri personnalisées</h3>
-        <p className="text-sm text-muted-foreground">
-          Personnalisez les icônes et styles de tri pour chaque colonne avec des icônes Lucide personnalisées et des classes CSS.
-        </p>
-
+        {/* Modes de pagination */}
         <DocSample
-          title="Icônes de tri personnalisées"
-          description="Exemple avec icônes TrendingUp/TrendingDown et couleurs personnalisées"
-          sourceCode={getSampleSourceCode('custom-sort-icons-example')}
+          title="📄 Modes de pagination"
+          description="Différents modes de pagination : None, InfiniteScroll, Pagination simple, Pagination avec contrôle de taille"
+          sourceCode={getSampleSourceCode('pagination-modes-example')}
         >
-          <CustomSortIconsExample />
+          <PaginationModesExample />
         </DocSample>
-      </div>
 
-      {/* Grouping Usage */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Groupement de données</h3>
-        <p className="text-sm text-muted-foreground">
-          Le DataTable supporte le groupement des données par une colonne spécifique avec expansion/collapse.
-        </p>
-
+        {/* Groupement */}
         <DocSample
-          title="Groupement par département"
-          description="Exemple avec employés groupés par département avec mode accordéon optionnel"
+          title="📊 Groupement de données"
+          description="Groupement des données par colonnes avec en-têtes personnalisables et états d'expansion"
           sourceCode={getSampleSourceCode('grouping-example')}
         >
           <GroupingExample />
         </DocSample>
 
-        <div className="rounded-lg bg-muted p-4">
-          <pre className="text-sm overflow-x-auto"><code>{`// Configuration basique du grouping
-<DataTable
-  schema={EmployeeSchema}
-  columns={columns}
-  getData={getData}
-  grouping={{
-    path: 'department' // Grouper par département
-  }}
-/>
-
-// Configuration avancée du grouping
-<DataTable
-  schema={EmployeeSchema}
-  columns={columns}
-  getData={getData}
-  grouping={{
-    path: 'department',
-    expandable: true,              // Permet expansion/collapse (défaut: true)
-    defaultExpanded: false,        // Groupes repliés par défaut (défaut: true)
-    renderGroupHeader: (groupValue, count, isExpanded) => (
-      <div className="flex items-center gap-2">
-        <span className="font-semibold">{String(groupValue)}</span>
-        <span className="text-muted-foreground">
-          ({count} employé{count > 1 ? 's' : ''})
-        </span>
-      </div>
-    )
-  }}
-/>
-
-// La fonction getData reçoit maintenant le paramètre grouping
-const getData = async (sortColumns, startRow, pageSize, grouping) => {
-  const response = await fetch('/api/employees', {
-    method: 'POST',
-    body: JSON.stringify({
-      sort: sortColumns,
-      startRow,
-      pageSize,
-      grouping // Informations de groupement
-    })
-  })
-
-  const result = await response.json()
-
-  // Retour avec groupes (optionnel - peut être géré côté client)
-  return {
-    data: result.data,
-    totalCount: result.totalCount,
-    lastRow: startRow + result.data.length - 1,
-    groups: result.groups // Optionnel: groupes pré-calculés par le serveur
-  }
-}
-
-// Structure des groupes si fournie par le serveur
-interface DataGroup<T> {
-  groupValue: unknown      // Valeur de groupement (ex: "Engineering")
-  count: number           // Nombre d'éléments dans le groupe
-  items: T[]             // Les données du groupe
-  isExpanded: boolean    // État d'expansion initial
-}`}</code></pre>
-        </div>
-      </div>
+        {/* Icônes personnalisées */}
+        <DocSample
+          title="🎨 Icônes de tri personnalisées"
+          description="Configuration d'icônes personnalisées pour les différents états de tri avec classes CSS"
+          sourceCode={getSampleSourceCode('custom-sort-icons-example')}
+        >
+          <CustomSortIconsExample />
+        </DocSample>
+      </section>
     </div>
   )
 }
