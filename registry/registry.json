@@ -36,6 +36,18 @@
         {
           "path":"registry/new-york/components/data-table/data-table.tsx",
           "type": "registry:ui"
+        },
+        {
+          "path":"registry/new-york/components/data-table/data-table-types.tsx",
+          "type": "registry:lib"
+        },
+        {
+          "path":"registry/new-york/components/data-table/data-table-filters.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path":"registry/new-york/components/data-table/data-table-utils.tsx",
+          "type": "registry:lib"
         }
       ],
       "dependencies": ["clsx", "tailwind-merge", "lucide-react", "zod"]
