@@ -2,7 +2,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { Link } from 'react-router-dom'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
-import { RegistryItem, RegistryType } from '@/types/registry'
+import { RegistryItem, RegistryType, REGISTRY_TYPES } from '@/types/registry'
 import { getFilePath } from '@/lib/registry-parser'
 import { FileCode } from 'lucide-react'
 
@@ -70,8 +70,9 @@ export function ComponentCard({ item, type }: ComponentCardProps) {
     loadPreview()
   }, [item])
 
-  // Générer l'URL de documentation
-  const docsUrl = `/${type.replace('registry:', '')}/${item.name}`
+  // Générer l'URL de documentation en utilisant la route correcte
+  const registryConfig = REGISTRY_TYPES.find(config => config.type === type)
+  const docsUrl = registryConfig ? `${registryConfig.route}/${item.name}` : `/${type.replace('registry:', '')}/${item.name}`
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
