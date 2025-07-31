@@ -1,8 +1,8 @@
 // Test HMR - Updated at 14:45:30
-import { DataTable, DataTableColumn, SortColumn } from './data-table'
+import { DataTable, DataTableColumn, SortColumn, TextFilterControl, NumberFilterControl, SelectFilterControl, DataTableGrouping, ColumnFilter } from './data-table'
 import { z } from 'zod'
 import { useState } from 'react'
-import { TrendingUp, TrendingDown, MoreHorizontal } from 'lucide-react'
+import { TrendingUp, TrendingDown, MoreHorizontal, Filter, FilterX } from 'lucide-react'
 
 // Schémas d'exemple
 const UserSchema = z.object({
@@ -170,17 +170,32 @@ export function DataTableDocumentation() {
       path: 'name',
       description: 'Nom complet de l\'utilisateur',
       isSortable: true,
+      isFilterable: true,
+      filterControl: TextFilterControl,
     },
     {
       label: 'Email',
       path: 'email',
       isSortable: true,
+      isFilterable: true,
+      filterControl: TextFilterControl,
     },
     {
       label: 'Statut',
       path: 'status',
       isSortable: true,
       align: 'center',
+      isFilterable: true,
+      filterControl: (props) => (
+        <SelectFilterControl
+          {...props}
+          options={[
+            { label: 'Tous', value: '__all__' },
+            { label: 'Actif', value: 'active' },
+            { label: 'Inactif', value: 'inactive' }
+          ]}
+        />
+      ),
       render: (value: unknown) => (
         <span
           className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
@@ -229,11 +244,15 @@ export function DataTableDocumentation() {
       label: 'Produit',
       path: 'name',
       isSortable: true,
+      isFilterable: true,
+      filterControl: TextFilterControl,
     },
     {
       label: 'Prix',
       path: 'price',
       isSortable: true,
+      isFilterable: true,
+      filterControl: NumberFilterControl,
       align: 'right',
       render: (value: unknown) => `€${(value as number).toFixed(2)}`,
     },
@@ -242,6 +261,8 @@ export function DataTableDocumentation() {
       path: 'stock',
       isSortable: true,
       align: 'center',
+      isFilterable: true,
+      filterControl: NumberFilterControl,
       render: (value: unknown) => (
         <span className={(value as number) === 0 ? 'text-red-500' : 'text-green-500'}>
           {value as number} unités
@@ -287,22 +308,52 @@ export function DataTableDocumentation() {
       path: 'name',
       description: 'Nom complet de l\'employé',
       isSortable: true,
+      isFilterable: true,
+      filterControl: TextFilterControl,
     },
     {
       label: 'Email',
       path: 'email',
       isSortable: true,
+      isFilterable: true,
+      filterControl: TextFilterControl,
     },
     {
       label: 'Département',
       path: 'department',
       isSortable: true,
+      isFilterable: true,
+      filterControl: (props) => (
+        <SelectFilterControl
+          {...props}
+          options={[
+            { label: 'Tous', value: '__all__' },
+            { label: 'HR', value: 'HR' },
+            { label: 'Engineering', value: 'Engineering' },
+            { label: 'Sales', value: 'Sales' },
+            { label: 'Marketing', value: 'Marketing' },
+            { label: 'Finance', value: 'Finance' },
+            { label: 'IT', value: 'IT' }
+          ]}
+        />
+      ),
     },
     {
       label: 'Statut',
       path: 'status',
       isSortable: true,
       align: 'center',
+      isFilterable: true,
+      filterControl: (props) => (
+        <SelectFilterControl
+          {...props}
+          options={[
+            { label: 'Tous', value: '__all__' },
+            { label: 'Actif', value: 'active' },
+            { label: 'Inactif', value: 'inactive' }
+          ]}
+        />
+      ),
       render: (value: unknown) => (
         <span
           className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
@@ -347,15 +398,54 @@ export function DataTableDocumentation() {
 
   // Fonction pour récupérer les données utilisateurs
   // Dans un vrai projet, le tri serait géré côté serveur
-  const getUserData = async (sortColumns: SortColumn[], startRow: number, pageSize: number) => {
+  const getUserData = async (sortColumns: SortColumn[], startRow: number, pageSize: number, _grouping?: DataTableGrouping, filters?: ColumnFilter[]) => {
     await new Promise(resolve => setTimeout(resolve, 200))
 
     // Simulation d'une API qui gère le tri côté serveur
     // En production, vous enverriez sortColumns à votre API
-    console.log('Tri demandé:', sortColumns, 'startRow:', startRow, 'pageSize:', pageSize)
+    console.log('Tri demandé:', sortColumns, 'Filtres:', filters, 'startRow:', startRow, 'pageSize:', pageSize)
 
-    // Pour la démo, on applique le tri côté client pour voir l'effet
-    const sortedUsers = [...sampleUsers]
+    // Pour la démo, on applique le tri et filtrage côté client pour voir l'effet
+    let filteredUsers = [...sampleUsers]
+
+    // Appliquer les filtres
+    if (filters && filters.length > 0) {
+      filteredUsers = filteredUsers.filter(item => {
+        return filters.every(filter => {
+          const value = getValueByPath(item, filter.path)
+          const filterValue = filter.value
+
+          if (filterValue === null || filterValue === undefined || filterValue === '__all__') {
+            return true
+          }
+
+          if (typeof filterValue === 'object' && filterValue !== null && 'operator' in filterValue) {
+            const numericFilter = filterValue as { operator: string; value: number }
+            const numValue = Number(value)
+
+            if (isNaN(numValue)) return false
+
+            switch (numericFilter.operator) {
+              case '=': return numValue === numericFilter.value
+              case '!=': return numValue !== numericFilter.value
+              case '<': return numValue < numericFilter.value
+              case '<=': return numValue <= numericFilter.value
+              case '>': return numValue > numericFilter.value
+              case '>=': return numValue >= numericFilter.value
+              default: return true
+            }
+          }
+
+          if (typeof value === 'string' && typeof filterValue === 'string') {
+            return value.toLowerCase().includes(filterValue.toLowerCase())
+          }
+
+          return String(value).toLowerCase() === String(filterValue).toLowerCase()
+        })
+      })
+    }
+
+    const sortedUsers = filteredUsers
 
     if (sortColumns.length > 0) {
       sortedUsers.sort((a, b) => {
@@ -402,15 +492,54 @@ export function DataTableDocumentation() {
 
   // Fonction pour récupérer les données produits
   // Dans un vrai projet, le tri serait géré côté serveur
-  const getProductData = async (sortColumns: SortColumn[], startRow: number, pageSize: number) => {
+  const getProductData = async (sortColumns: SortColumn[], startRow: number, pageSize: number, _grouping?: DataTableGrouping, filters?: ColumnFilter[]) => {
     await new Promise(resolve => setTimeout(resolve, 200))
 
     // Simulation d'une API qui gère le tri côté serveur
     // En production, vous enverriez sortColumns à votre API
-    console.log('Tri demandé:', sortColumns, 'startRow:', startRow, 'pageSize:', pageSize)
+    console.log('Tri demandé:', sortColumns, 'Filtres:', filters, 'startRow:', startRow, 'pageSize:', pageSize)
 
-    // Pour la démo, on applique le tri côté client pour voir l'effet
-    const sortedProducts = [...sampleProducts]
+    // Pour la démo, on applique le tri et filtrage côté client pour voir l'effet
+    let filteredProducts = [...sampleProducts]
+
+    // Appliquer les filtres
+    if (filters && filters.length > 0) {
+      filteredProducts = filteredProducts.filter(item => {
+        return filters.every(filter => {
+          const value = getValueByPath(item, filter.path)
+          const filterValue = filter.value
+
+          if (filterValue === null || filterValue === undefined || filterValue === '__all__') {
+            return true
+          }
+
+          if (typeof filterValue === 'object' && filterValue !== null && 'operator' in filterValue) {
+            const numericFilter = filterValue as { operator: string; value: number }
+            const numValue = Number(value)
+
+            if (isNaN(numValue)) return false
+
+            switch (numericFilter.operator) {
+              case '=': return numValue === numericFilter.value
+              case '!=': return numValue !== numericFilter.value
+              case '<': return numValue < numericFilter.value
+              case '<=': return numValue <= numericFilter.value
+              case '>': return numValue > numericFilter.value
+              case '>=': return numValue >= numericFilter.value
+              default: return true
+            }
+          }
+
+          if (typeof value === 'string' && typeof filterValue === 'string') {
+            return value.toLowerCase().includes(filterValue.toLowerCase())
+          }
+
+          return String(value).toLowerCase() === String(filterValue).toLowerCase()
+        })
+      })
+    }
+
+    const sortedProducts = filteredProducts
 
     if (sortColumns.length > 0) {
       sortedProducts.sort((a, b) => {
@@ -457,15 +586,54 @@ export function DataTableDocumentation() {
 
   // Fonction pour récupérer les données employés
   // Dans un vrai projet, le tri serait géré côté serveur
-  const getEmployeeData = async (sortColumns: SortColumn[], startRow: number, pageSize: number) => {
+  const getEmployeeData = async (sortColumns: SortColumn[], startRow: number, pageSize: number, _grouping?: DataTableGrouping, filters?: ColumnFilter[]) => {
     await new Promise(resolve => setTimeout(resolve, 200))
 
     // Simulation d'une API qui gère le tri côté serveur
     // En production, vous enverriez sortColumns à votre API
-    console.log('Tri demandé:', sortColumns, 'startRow:', startRow, 'pageSize:', pageSize)
+    console.log('Tri demandé:', sortColumns, 'Filtres:', filters, 'startRow:', startRow, 'pageSize:', pageSize)
 
-    // Pour la démo, on applique le tri côté client pour voir l'effet
-    const sortedEmployees = [...sampleEmployees]
+    // Pour la démo, on applique le tri et filtrage côté client pour voir l'effet
+    let filteredEmployees = [...sampleEmployees]
+
+    // Appliquer les filtres
+    if (filters && filters.length > 0) {
+      filteredEmployees = filteredEmployees.filter(item => {
+        return filters.every(filter => {
+          const value = getValueByPath(item, filter.path)
+          const filterValue = filter.value
+
+          if (filterValue === null || filterValue === undefined || filterValue === '__all__') {
+            return true
+          }
+
+          if (typeof filterValue === 'object' && filterValue !== null && 'operator' in filterValue) {
+            const numericFilter = filterValue as { operator: string; value: number }
+            const numValue = Number(value)
+
+            if (isNaN(numValue)) return false
+
+            switch (numericFilter.operator) {
+              case '=': return numValue === numericFilter.value
+              case '!=': return numValue !== numericFilter.value
+              case '<': return numValue < numericFilter.value
+              case '<=': return numValue <= numericFilter.value
+              case '>': return numValue > numericFilter.value
+              case '>=': return numValue >= numericFilter.value
+              default: return true
+            }
+          }
+
+          if (typeof value === 'string' && typeof filterValue === 'string') {
+            return value.toLowerCase().includes(filterValue.toLowerCase())
+          }
+
+          return String(value).toLowerCase() === String(filterValue).toLowerCase()
+        })
+      })
+    }
+
+    const sortedEmployees = filteredEmployees
 
     if (sortColumns.length > 0) {
       sortedEmployees.sort((a, b) => {
@@ -573,6 +741,14 @@ export function DataTableDocumentation() {
                 paginationMode="PaginationWithSize"
                 pageSize={10}
                 pageSizeOptions={[5, 10, 15, 25]}
+                filterIcons={{
+                  default: Filter,
+                  active: FilterX,
+                  classNames: {
+                    default: "h-4 w-4 text-muted-foreground hover:text-primary transition-colors",
+                    active: "h-4 w-4 text-primary"
+                  }
+                }}
               />
               {selectedUser && (
                 <div className="p-3 bg-muted/50 rounded-lg text-sm">
@@ -594,6 +770,14 @@ export function DataTableDocumentation() {
                 paginationMode="PaginationWithSize"
                 pageSize={8}
                 pageSizeOptions={[5, 8, 12, 20]}
+                filterIcons={{
+                  default: Filter,
+                  active: FilterX,
+                  classNames: {
+                    default: "h-4 w-4 text-muted-foreground hover:text-primary transition-colors",
+                    active: "h-4 w-4 text-primary"
+                  }
+                }}
               />
               {selectedProduct && (
                 <div className="p-3 bg-muted/50 rounded-lg text-sm">
@@ -615,6 +799,14 @@ export function DataTableDocumentation() {
                 paginationMode="PaginationWithSize"
                 pageSize={8}
                 pageSizeOptions={[5, 8, 12, 20]}
+                filterIcons={{
+                  default: Filter,
+                  active: FilterX,
+                  classNames: {
+                    default: "h-4 w-4 text-muted-foreground hover:text-primary transition-colors",
+                    active: "h-4 w-4 text-primary"
+                  }
+                }}
               />
               {selectedEmployee && (
                 <div className="p-3 bg-muted/50 rounded-lg text-sm">
@@ -843,8 +1035,8 @@ const getData = async (sortColumns, startRow, pageSize) => {
                   </tr>
                   <tr className="border-b">
                     <td className="p-4 font-mono text-sm">getData</td>
-                    <td className="p-4 text-sm"><code>(sortColumns: SortColumn[], startRow: number, pageSize: number, grouping?: DataTableGrouping) =&gt; Promise&lt;DataTableResponse&lt;T&gt;&gt; | DataTableResponse&lt;T&gt;</code></td>
-                    <td className="p-4 text-sm">Fonction pour récupérer les données avec tri, pagination et groupement</td>
+                    <td className="p-4 text-sm"><code>(sortColumns: SortColumn[], startRow: number, pageSize: number, grouping?: DataTableGrouping, filters?: ColumnFilter[]) =&gt; Promise&lt;DataTableResponse&lt;T&gt;&gt; | DataTableResponse&lt;T&gt;</code></td>
+                    <td className="p-4 text-sm">Fonction pour récupérer les données avec tri, pagination, groupement et filtrage</td>
                   </tr>
                   <tr className="border-b">
                     <td className="p-4 font-mono text-sm">pageSize</td>
@@ -875,6 +1067,16 @@ const getData = async (sortColumns, startRow, pageSize) => {
                     <td className="p-4 font-mono text-sm">pageSizeOptions</td>
                     <td className="p-4 text-sm"><code>number[]</code></td>
                     <td className="p-4 text-sm">Options de taille de page pour PaginationWithSize (défaut: [10, 25, 50, 100])</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-4 font-mono text-sm">filterIcons</td>
+                    <td className="p-4 text-sm"><code>FilterIcons</code></td>
+                    <td className="p-4 text-sm">Configuration des icônes de filtrage personnalisées (optionnel)</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-4 font-mono text-sm">sortIcons</td>
+                    <td className="p-4 text-sm"><code>SortIcons</code></td>
+                    <td className="p-4 text-sm">Configuration des icônes de tri personnalisées (optionnel)</td>
                   </tr>
                   <tr className="border-b">
                     <td className="p-4 font-mono text-sm">onRowSelect</td>
@@ -970,10 +1172,25 @@ const getData = async (sortColumns, startRow, pageSize) => {
                     <td className="p-4 text-sm"><code>'data' | 'action' | 'computed'</code></td>
                     <td className="p-4 text-sm">Type de colonne pour clarifier l'usage</td>
                   </tr>
-                  <tr>
+                  <tr className="border-b">
                     <td className="p-4 font-mono text-sm">align</td>
                     <td className="p-4 text-sm"><code>'left' | 'center' | 'right'</code></td>
                     <td className="p-4 text-sm">Alignement du contenu</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-4 font-mono text-sm">isFilterable</td>
+                    <td className="p-4 text-sm"><code>boolean</code></td>
+                    <td className="p-4 text-sm">Si la colonne peut être filtrée (défaut: false)</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-4 font-mono text-sm">filterControl</td>
+                    <td className="p-4 text-sm"><code>React.ComponentType&lt;FilterControlProps&gt;</code></td>
+                    <td className="p-4 text-sm">Composant de contrôle de filtre personnalisé</td>
+                  </tr>
+                  <tr>
+                    <td className="p-4 font-mono text-sm">width</td>
+                    <td className="p-4 text-sm"><code>string</code></td>
+                    <td className="p-4 text-sm">Largeur de la colonne (optionnel)</td>
                   </tr>
                 </tbody>
               </table>
@@ -1090,6 +1307,129 @@ const getData = async (sortColumns, startRow, pageSize) => {
                     <td className="p-4 font-mono text-sm">classNames</td>
                     <td className="p-4 text-sm"><code>object?</code></td>
                     <td className="p-4 text-sm">Classes CSS personnalisées pour chaque état de tri</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-medium mb-4">FilterIcons Interface</h3>
+            <div className="rounded-lg border overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-muted/50">
+                  <tr className="border-b">
+                    <th className="text-left p-4 font-medium">Propriété</th>
+                    <th className="text-left p-4 font-medium">Type</th>
+                    <th className="text-left p-4 font-medium">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b">
+                    <td className="p-4 font-mono text-sm">default</td>
+                    <td className="p-4 text-sm"><code>ComponentType?</code></td>
+                    <td className="p-4 text-sm">Icône affichée pour ouvrir le filtre (défaut: Filter)</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-4 font-mono text-sm">active</td>
+                    <td className="p-4 text-sm"><code>ComponentType?</code></td>
+                    <td className="p-4 text-sm">Icône affichée quand un filtre est actif (défaut: FilterX)</td>
+                  </tr>
+                  <tr>
+                    <td className="p-4 font-mono text-sm">classNames</td>
+                    <td className="p-4 text-sm"><code>object?</code></td>
+                    <td className="p-4 text-sm">Classes CSS personnalisées pour les états default et active</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-medium mb-4">ColumnFilter Interface</h3>
+            <div className="rounded-lg border overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-muted/50">
+                  <tr className="border-b">
+                    <th className="text-left p-4 font-medium">Propriété</th>
+                    <th className="text-left p-4 font-medium">Type</th>
+                    <th className="text-left p-4 font-medium">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b">
+                    <td className="p-4 font-mono text-sm">path</td>
+                    <td className="p-4 text-sm"><code>string</code></td>
+                    <td className="p-4 text-sm">Chemin de la colonne filtrée (ex: 'name', 'user.email')</td>
+                  </tr>
+                  <tr>
+                    <td className="p-4 font-mono text-sm">value</td>
+                    <td className="p-4 text-sm"><code>unknown</code></td>
+                    <td className="p-4 text-sm">Valeur du filtre (string, object avec opérateur, etc.)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-medium mb-4">FilterControlProps Interface</h3>
+            <div className="rounded-lg border overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-muted/50">
+                  <tr className="border-b">
+                    <th className="text-left p-4 font-medium">Propriété</th>
+                    <th className="text-left p-4 font-medium">Type</th>
+                    <th className="text-left p-4 font-medium">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b">
+                    <td className="p-4 font-mono text-sm">value</td>
+                    <td className="p-4 text-sm"><code>unknown</code></td>
+                    <td className="p-4 text-sm">Valeur actuelle du filtre</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-4 font-mono text-sm">onChange</td>
+                    <td className="p-4 text-sm"><code>(value: unknown) =&gt; void</code></td>
+                    <td className="p-4 text-sm">Callback appelé quand la valeur change</td>
+                  </tr>
+                  <tr>
+                    <td className="p-4 font-mono text-sm">onClose</td>
+                    <td className="p-4 text-sm"><code>() =&gt; void</code></td>
+                    <td className="p-4 text-sm">Callback pour fermer la popover</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-medium mb-4">Contrôles de filtre prédéfinis</h3>
+            <div className="rounded-lg border overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-muted/50">
+                  <tr className="border-b">
+                    <th className="text-left p-4 font-medium">Contrôle</th>
+                    <th className="text-left p-4 font-medium">Usage</th>
+                    <th className="text-left p-4 font-medium">Valeur retournée</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b">
+                    <td className="p-4 font-mono text-sm">TextFilterControl</td>
+                    <td className="p-4 text-sm">Recherche textuelle simple</td>
+                    <td className="p-4 text-sm"><code>string</code> - Texte de recherche</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-4 font-mono text-sm">NumberFilterControl</td>
+                    <td className="p-4 text-sm">Filtrage numérique avec opérateurs</td>
+                    <td className="p-4 text-sm"><code>{`{ operator: string, value: string }`}</code></td>
+                  </tr>
+                  <tr>
+                    <td className="p-4 font-mono text-sm">SelectFilterControl</td>
+                    <td className="p-4 text-sm">Sélection dans une liste d'options</td>
+                    <td className="p-4 text-sm"><code>string</code> - Valeur sélectionnée</td>
                   </tr>
                 </tbody>
               </table>
@@ -1490,6 +1830,98 @@ const getData = async (sortColumns, startRow, pageSize) => {
         </div>
       </div>
 
+      {/* Column Filtering */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-medium">Filtrage des colonnes</h3>
+        <p className="text-sm text-muted-foreground">
+          Ajoutez des fonctionnalités de filtrage interactives avec des popovers personnalisables et des contrôles de filtre adaptés à chaque type de données.
+        </p>
+
+        {/* Filtering Example */}
+        <div className="space-y-4">
+          <h4 className="font-medium">Exemple avec filtres personnalisés</h4>
+          <FilteringExample />
+        </div>
+
+        <div className="rounded-lg bg-muted p-4">
+          <pre className="text-sm overflow-x-auto"><code>{`// Configuration des colonnes avec filtres
+const columns: DataTableColumn<Product>[] = [
+  {
+    label: 'Nom',
+    path: 'name',
+    isSortable: true,
+    isFilterable: true,           // Activer le filtrage
+    filterControl: TextFilterControl  // Contrôle de filtre personnalisé
+  },
+  {
+    label: 'Prix',
+    path: 'price',
+    isSortable: true,
+    isFilterable: true,
+    filterControl: NumberFilterControl
+  },
+  {
+    label: 'Catégorie',
+    path: 'category',
+    isSortable: true,
+    isFilterable: true,
+    filterControl: (props) => (
+      <SelectFilterControl
+        {...props}
+        options={[
+          { label: 'Électronique', value: 'electronics' },
+          { label: 'Accessoires', value: 'accessories' }
+        ]}
+      />
+    )
+  }
+]
+
+// Utilisation avec icônes personnalisées
+<DataTable
+  schema={ProductSchema}
+  columns={columns}
+  getData={getData}
+  filterIcons={{
+    default: Filter,              // Icône par défaut
+    active: FilterX,              // Icône quand filtre actif
+    classNames: {
+      default: "h-4 w-4 text-muted-foreground hover:text-primary",
+      active: "h-4 w-4 text-primary"
+    }
+  }}
+/>
+
+// Fonction getData mise à jour pour gérer les filtres
+async function getData(
+  sortColumns: SortColumn[],
+  startRow: number,
+  pageSize: number,
+  grouping?: DataTableGrouping,
+  filters?: ColumnFilter[]        // Nouveau paramètre
+) {
+  // Logique de filtrage côté serveur ou client
+  let filteredData = data
+
+  if (filters && filters.length > 0) {
+    filteredData = data.filter(item => {
+      return filters.every(filter => {
+        const value = getValueByPath(item, filter.path)
+        // Logique de filtrage selon le type
+        if (typeof filter.value === 'string') {
+          return String(value).toLowerCase().includes(filter.value.toLowerCase())
+        }
+        // Autres logiques selon le type de filtre...
+        return true
+      })
+    })
+  }
+
+  return { data: filteredData, totalCount: filteredData.length }
+}`}</code></pre>
+        </div>
+      </div>
+
       {/* Custom Sort Icons */}
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Icônes de tri personnalisées</h3>
@@ -1647,17 +2079,18 @@ function GroupingExample() {
     sortColumns: SortColumn[],
     startRow: number,
     pageSize: number,
-    _grouping?: { path: string; renderGroupHeader?: (groupValue: unknown, count: number, isExpanded: boolean) => React.ReactNode; expandable?: boolean; defaultExpanded?: boolean; accordion?: boolean }
+    _grouping?: { path: string; renderGroupHeader?: (groupValue: unknown, count: number, isExpanded: boolean) => React.ReactNode; expandable?: boolean; defaultExpanded?: boolean; accordion?: boolean },
+    filters?: ColumnFilter[]
   ) => {
     // Simulation d'un délai réseau
     await new Promise(resolve => setTimeout(resolve, 100))
 
-    const data = [...sampleEmployees]
+    let data = [...sampleEmployees]
 
-    // Appliquer le tri
-    if (sortColumns.length > 0) {
-      data.sort((a, b) => {
-        for (const sort of sortColumns) {
+    // Appliquer les filtres
+    if (filters && filters.length > 0) {
+      data = data.filter(item => {
+        return filters.every(filter => {
           // Fonction utilitaire pour obtenir une valeur par son chemin
           const getValueByPath = (obj: Record<string, unknown>, path: string): unknown => {
             return path.split('.').reduce((current: unknown, key: string) => {
@@ -1665,11 +2098,58 @@ function GroupingExample() {
                 return (current as Record<string, unknown>)[key]
               }
               return undefined
-            }, obj)
+            }, obj as unknown)
           }
 
-          const aValue = getValueByPath(a as Record<string, unknown>, sort.path)
-          const bValue = getValueByPath(b as Record<string, unknown>, sort.path)
+          const value = getValueByPath(item, filter.path)
+          const filterValue = filter.value
+
+          if (filterValue === null || filterValue === undefined || filterValue === '__all__') {
+            return true
+          }
+
+          if (typeof filterValue === 'object' && filterValue !== null && 'operator' in filterValue) {
+            const numericFilter = filterValue as { operator: string; value: number }
+            const numValue = Number(value)
+
+            if (isNaN(numValue)) return false
+
+            switch (numericFilter.operator) {
+              case '=': return numValue === numericFilter.value
+              case '!=': return numValue !== numericFilter.value
+              case '<': return numValue < numericFilter.value
+              case '<=': return numValue <= numericFilter.value
+              case '>': return numValue > numericFilter.value
+              case '>=': return numValue >= numericFilter.value
+              default: return true
+            }
+          }
+
+          if (typeof value === 'string' && typeof filterValue === 'string') {
+            return value.toLowerCase().includes(filterValue.toLowerCase())
+          }
+
+          return String(value).toLowerCase() === String(filterValue).toLowerCase()
+        })
+      })
+    }
+
+    // Appliquer le tri
+    if (sortColumns.length > 0) {
+      data.sort((a, b) => {
+        for (const sort of sortColumns) {
+          // Fonction utilitaire locale pour obtenir une valeur par son chemin
+          const getValueByPathLocal = (obj: Record<string, unknown>, path: string): unknown => {
+            return path.split('.').reduce((current: unknown, key: string) => {
+              if (current && typeof current === 'object' && key in current) {
+                return (current as Record<string, unknown>)[key]
+              }
+              return undefined
+            }, obj as unknown)
+          }
+
+          const aValue = getValueByPathLocal(a as Record<string, unknown>, sort.path)
+          const bValue = getValueByPathLocal(b as Record<string, unknown>, sort.path)
 
           const aStr = String(aValue ?? '')
           const bStr = String(bValue ?? '')
@@ -1750,6 +2230,258 @@ function GroupingExample() {
       {selectedEmployee && (
         <div className="p-3 bg-muted/50 rounded-lg text-sm">
           <strong>Sélectionné :</strong> {selectedEmployee.name} - {selectedEmployee.department} ({selectedEmployee.email})
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Composant d'exemple pour le filtrage des colonnes
+function FilteringExample() {
+  const [selectedProduct, setSelectedProduct] = useState<Product | undefined>()
+
+  // Données d'exemple de produits avec plus de variété
+  const sampleProducts: Product[] = [
+    { id: 1, name: 'MacBook Pro 16"', price: 2499.99, category: 'Electronics', stock: 12, isAvailable: true },
+    { id: 2, name: 'Souris Magic Mouse', price: 79.99, category: 'Accessories', stock: 45, isAvailable: true },
+    { id: 3, name: 'Clavier mécanique RGB', price: 149.99, category: 'Gaming', stock: 0, isAvailable: false },
+    { id: 4, name: 'Écran 4K 27"', price: 599.99, category: 'Electronics', stock: 8, isAvailable: true },
+    { id: 5, name: 'Câble USB-C vers HDMI', price: 29.99, category: 'Accessories', stock: 150, isAvailable: true },
+    { id: 6, name: 'Casque gaming premium', price: 199.99, category: 'Gaming', stock: 23, isAvailable: true },
+    { id: 7, name: 'Tablette iPad Pro', price: 1099.99, category: 'Electronics', stock: 15, isAvailable: true },
+    { id: 8, name: 'Support pour laptop', price: 49.99, category: 'Accessories', stock: 67, isAvailable: true },
+    { id: 9, name: 'Manette gaming pro', price: 89.99, category: 'Gaming', stock: 34, isAvailable: true },
+    { id: 10, name: 'Disque SSD externe', price: 299.99, category: 'Electronics', stock: 19, isAvailable: true },
+  ]
+
+  // Configuration des colonnes avec filtres personnalisés
+  const productColumns: DataTableColumn<Product>[] = [
+    {
+      label: 'Produit',
+      path: 'name',
+      isSortable: true,
+      isFilterable: true,
+      filterControl: TextFilterControl
+    },
+    {
+      label: 'Prix',
+      path: 'price',
+      isSortable: true,
+      isFilterable: true,
+      filterControl: NumberFilterControl,
+      align: 'right',
+      render: (value: unknown) => (
+        <span className="font-semibold">€{(value as number).toFixed(2)}</span>
+      )
+    },
+    {
+      label: 'Catégorie',
+      path: 'category',
+      isSortable: true,
+      isFilterable: true,
+      filterControl: (props) => (
+        <SelectFilterControl
+          {...props}
+          options={[
+            { label: 'Électronique', value: 'Electronics' },
+            { label: 'Accessoires', value: 'Accessories' },
+            { label: 'Gaming', value: 'Gaming' }
+          ]}
+        />
+      )
+    },
+    {
+      label: 'Stock',
+      path: 'stock',
+      isSortable: true,
+      isFilterable: true,
+      filterControl: NumberFilterControl,
+      align: 'center',
+      render: (value: unknown) => (
+        <span className={(value as number) === 0 ? 'text-red-500 font-medium' : 'text-green-600'}>
+          {value as number} unités
+        </span>
+      )
+    },
+    {
+      label: 'Disponible',
+      path: 'isAvailable',
+      isSortable: true,
+      isFilterable: true,
+      align: 'center',
+      filterControl: (props) => (
+        <SelectFilterControl
+          {...props}
+          options={[
+            { label: 'Disponible', value: 'true' },
+            { label: 'Indisponible', value: 'false' }
+          ]}
+        />
+      ),
+      render: (value: unknown) => (
+        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+          value ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                  'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+        }`}>
+          {value ? '✓ Disponible' : '✗ Indisponible'}
+        </span>
+      )
+    }
+  ]
+
+  // Fonction utilitaire pour obtenir une valeur par son chemin
+  const getValueByPath = (obj: Product, path: string): unknown => {
+    return path.split('.').reduce((current: Record<string, unknown>, key: string) => current?.[key] as Record<string, unknown>, obj as Record<string, unknown>)
+  }
+
+  // Fonction getData avec gestion des filtres
+  const getProductData = async (
+    sortColumns: SortColumn[],
+    startRow: number,
+    pageSize: number,
+    _grouping?: DataTableGrouping,
+    filters?: { path: string; value: unknown }[]
+  ) => {
+    // Simulation d'un délai réseau
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    let data = [...sampleProducts]
+
+    // Appliquer les filtres
+    if (filters && filters.length > 0) {
+      data = data.filter(item => {
+        return filters.every(filter => {
+          const value = getValueByPath(item, filter.path)
+
+          if (filter.path === 'name' && typeof filter.value === 'string') {
+            return String(value).toLowerCase().includes(filter.value.toLowerCase())
+          }
+
+          if (filter.path === 'price' && filter.value && typeof filter.value === 'object') {
+            const { operator, value: filterValue } = filter.value as { operator: string; value: string }
+            const numValue = parseFloat(filterValue)
+            const itemValue = value as number
+
+            switch (operator) {
+              case '=': return itemValue === numValue
+              case '!=': return itemValue !== numValue
+              case '<': return itemValue < numValue
+              case '<=': return itemValue <= numValue
+              case '>': return itemValue > numValue
+              case '>=': return itemValue >= numValue
+              default: return true
+            }
+          }
+
+          if (filter.path === 'category') {
+            return filter.value === '' || value === filter.value
+          }
+
+          if (filter.path === 'stock' && filter.value && typeof filter.value === 'object') {
+            const { operator, value: filterValue } = filter.value as { operator: string; value: string }
+            const numValue = parseFloat(filterValue)
+            const itemValue = value as unknown as number
+
+            switch (operator) {
+              case '=': return itemValue === numValue
+              case '!=': return itemValue !== numValue
+              case '<': return itemValue < numValue
+              case '<=': return itemValue <= numValue
+              case '>': return itemValue > numValue
+              case '>=': return itemValue >= numValue
+              default: return true
+            }
+          }
+
+          if (filter.path === 'isAvailable') {
+            return filter.value === '' || String(value) === filter.value
+          }
+
+          return true
+        })
+      })
+    }
+
+    // Appliquer le tri
+    if (sortColumns.length > 0) {
+      data.sort((a, b) => {
+        for (const sort of sortColumns) {
+          const aValue = sort.path.split('.').reduce((obj: unknown, key: string) => (obj as Record<string, unknown>)?.[key], a)
+          const bValue = sort.path.split('.').reduce((obj: unknown, key: string) => (obj as Record<string, unknown>)?.[key], b)
+
+          let comparison = 0
+
+          if (typeof aValue === 'string' && typeof bValue === 'string') {
+            comparison = aValue.localeCompare(bValue)
+          } else if (typeof aValue === 'number' && typeof bValue === 'number') {
+            comparison = aValue - bValue
+          } else {
+            const aStr = String(aValue ?? '')
+            const bStr = String(bValue ?? '')
+            comparison = aStr.localeCompare(bStr)
+          }
+
+          if (comparison !== 0) {
+            return sort.direction === 'asc' ? comparison : -comparison
+          }
+        }
+        return 0
+      })
+    }
+
+    // Appliquer la pagination
+    const paginatedData = data.slice(startRow, startRow + pageSize)
+
+    return {
+      data: paginatedData,
+      totalCount: data.length,
+      lastRow: startRow + paginatedData.length - 1
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="p-3 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
+        <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">💡 Démonstration du filtrage :</p>
+        <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+          <li>• <strong>Filtre texte :</strong> Recherche dans le nom du produit</li>
+          <li>• <strong>Filtre nombre :</strong> Opérateurs sur prix et stock (=, ≠, &lt;, ≤, &gt;, ≥)</li>
+          <li>• <strong>Filtre sélection :</strong> Choix dans une liste (catégorie, disponibilité)</li>
+          <li>• <strong>Icônes :</strong> 🔍 par défaut, ❌ quand filtre actif</li>
+        </ul>
+      </div>
+
+      <DataTable
+        schema={ProductSchema}
+        columns={productColumns}
+        getData={getProductData}
+        onRowSelect={setSelectedProduct}
+        selectedRow={selectedProduct}
+        pageSize={8}
+        paginationMode="Pagination"
+        filterIcons={{
+          default: Filter,
+          active: FilterX,
+          classNames: {
+            default: "h-4 w-4 text-muted-foreground hover:text-primary transition-colors",
+            active: "h-4 w-4 text-primary"
+          }
+        }}
+        sortIcons={{
+          default: MoreHorizontal,
+          asc: TrendingUp,
+          desc: TrendingDown,
+          classNames: {
+            default: "h-4 w-4 text-muted-foreground",
+            asc: "h-4 w-4 text-green-600",
+            desc: "h-4 w-4 text-red-600"
+          }
+        }}
+      />
+
+      {selectedProduct && (
+        <div className="p-3 bg-muted/50 rounded-lg text-sm">
+          <strong>Sélectionné :</strong> {selectedProduct.name} - €{selectedProduct.price} ({selectedProduct.stock} en stock)
         </div>
       )}
     </div>

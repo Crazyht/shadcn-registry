@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { cn } from '@/lib/utils'
-import { ChevronUp, ChevronDown, ChevronsUpDown, Loader2, ChevronRight } from 'lucide-react'
+import { ChevronUp, ChevronDown, ChevronsUpDown, Loader2, ChevronRight, Filter, FilterX } from 'lucide-react'
 import {
   Pagination,
   PaginationContent,
@@ -17,6 +17,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { Button } from '@/components/ui/button'
 import { z } from 'zod'
 
 /**
@@ -38,6 +44,43 @@ export interface SortIcons {
 }
 
 /**
+ * Configuration d'icônes personnalisées pour le filtrage
+ */
+export interface FilterIcons {
+  /** Icône affichée pour ouvrir le filtre */
+  default?: React.ComponentType<{ className?: string }>
+  /** Icône affichée quand un filtre est actif */
+  active?: React.ComponentType<{ className?: string }>
+  /** Classes CSS personnalisées pour chaque état de filtre */
+  classNames?: {
+    default?: string
+    active?: string
+  }
+}
+
+/**
+ * Type pour un filtre de colonne
+ */
+export interface ColumnFilter {
+  /** Chemin de la colonne filtrée */
+  path: string
+  /** Valeur du filtre */
+  value: unknown
+}
+
+/**
+ * Props pour un contrôle de filtre personnalisé
+ */
+export interface FilterControlProps {
+  /** Valeur actuelle du filtre */
+  value: unknown
+  /** Callback appelé quand la valeur change */
+  onChange: (value: unknown) => void
+  /** Callback pour fermer la popover */
+  onClose: () => void
+}
+
+/**
  * Type pour une colonne du tableau
  */
 export interface DataTableColumn<T> {
@@ -49,6 +92,10 @@ export interface DataTableColumn<T> {
   path?: string
   /** Si la colonne peut être triée - Automatiquement false si path n'est pas défini */
   isSortable?: boolean
+  /** Si la colonne peut être filtrée - Automatiquement false si path n'est pas défini */
+  isFilterable?: boolean
+  /** Contrôle de filtre personnalisé pour cette colonne */
+  filterControl?: React.ComponentType<FilterControlProps>
   /** Fonction de rendu personnalisée pour la cellule */
   render?: (value: unknown, row: T) => React.ReactNode
   /** Largeur de la colonne */
@@ -131,7 +178,7 @@ export interface DataTableProps<T> {
   /** Configuration des colonnes */
   columns: DataTableColumn<T>[]
   /** Fonction pour récupérer les données avec tri et pagination */
-  getData: (sortColumns: SortColumn[], startRow: number, pageSize: number, grouping?: DataTableGrouping) => Promise<DataTableResponse<T>> | DataTableResponse<T>
+  getData: (sortColumns: SortColumn[], startRow: number, pageSize: number, grouping?: DataTableGrouping, filters?: ColumnFilter[]) => Promise<DataTableResponse<T>> | DataTableResponse<T>
   /** Classes CSS additionnelles */
   className?: string
   /** Message à afficher quand aucune donnée */
@@ -160,6 +207,8 @@ export interface DataTableProps<T> {
   grouping?: DataTableGrouping
   /** Configuration d'icônes personnalisées pour le tri */
   sortIcons?: SortIcons
+  /** Configuration d'icônes personnalisées pour les filtres */
+  filterIcons?: FilterIcons
 }
 
 /**
@@ -329,6 +378,240 @@ function groupDataClientSide<T extends Record<string, unknown>>(
   return result
 }
 
+/**
+ * Composant FilterPopover pour gérer les filtres de colonnes
+ */
+interface FilterPopoverProps<T> {
+  column: DataTableColumn<T>
+  filterValue: unknown
+  onFilterChange: (value: unknown) => void
+  onClearFilter: () => void
+  icon: React.ReactNode
+}
+
+function FilterPopover<T>({ column, filterValue, onFilterChange, onClearFilter, icon }: FilterPopoverProps<T>) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [tempValue, setTempValue] = useState(filterValue)
+
+  // Synchroniser la valeur temporaire avec la valeur du filtre
+  useEffect(() => {
+    setTempValue(filterValue)
+  }, [filterValue])
+
+  const handleApplyFilter = () => {
+    onFilterChange(tempValue)
+    setIsOpen(false)
+  }
+
+  const handleClearFilter = () => {
+    setTempValue(undefined)
+    onClearFilter()
+    setIsOpen(false)
+  }
+
+  const handleCancel = () => {
+    setTempValue(filterValue)
+    setIsOpen(false)
+  }
+
+  const renderFilterControl = () => {
+    if (column.filterControl) {
+      const FilterControl = column.filterControl
+      return (
+        <FilterControl
+          value={tempValue}
+          onChange={setTempValue}
+          onClose={() => setIsOpen(false)}
+        />
+      )
+    }
+
+    // Contrôle par défaut : input texte
+    return (
+      <div className="space-y-3">
+        <div>
+          <label className="text-sm font-medium">Filtrer par {column.label.toLowerCase()}</label>
+          <input
+            type="text"
+            value={tempValue as string || ''}
+            onChange={(e) => setTempValue(e.target.value)}
+            onClick={(e) => e.stopPropagation()}
+            onFocus={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            className="w-full mt-1 px-3 py-2 border border-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            placeholder={`Saisir ${column.label.toLowerCase()}...`}
+          />
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-6 w-6 p-0 hover:bg-muted"
+          onClick={(e) => {
+            e.stopPropagation()
+            setIsOpen(!isOpen)
+          }}
+        >
+          {icon}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-80" onClick={(e) => e.stopPropagation()}>
+        <div className="space-y-4">
+          <div className="font-medium text-sm">Filtrer la colonne "{column.label}"</div>
+
+          {renderFilterControl()}
+
+          <div className="flex gap-2 justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleClearFilter}
+              className="text-xs"
+            >
+              Effacer
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCancel}
+              className="text-xs"
+            >
+              Annuler
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleApplyFilter}
+              className="text-xs"
+            >
+              Filtrer
+            </Button>
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+/**
+ * Contrôles de filtre prédéfinis
+ */
+
+// Filtre texte simple
+export function TextFilterControl({ value, onChange }: FilterControlProps) {
+  return (
+    <div className="space-y-3">
+      <div>
+        <label className="text-sm font-medium">Rechercher</label>
+        <input
+          type="text"
+          value={value as string || ''}
+          onChange={(e) => onChange(e.target.value)}
+          onClick={(e) => e.stopPropagation()}
+          onFocus={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          className="w-full mt-1 px-3 py-2 border border-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          placeholder="Saisir le texte à rechercher..."
+        />
+      </div>
+    </div>
+  )
+}
+
+// Filtre nombre avec opérateurs
+export function NumberFilterControl({ value, onChange }: FilterControlProps) {
+  const [operator, setOperator] = useState('=')
+  const [numberValue, setNumberValue] = useState('')
+
+  useEffect(() => {
+    if (value && typeof value === 'object' && 'operator' in value && 'value' in value) {
+      const filter = value as { operator: string; value: string }
+      setOperator(filter.operator)
+      setNumberValue(filter.value)
+    }
+  }, [value])
+
+  const handleChange = (newOperator: string, newValue: string) => {
+    setOperator(newOperator)
+    setNumberValue(newValue)
+    if (newValue) {
+      onChange({ operator: newOperator, value: newValue })
+    } else {
+      onChange(null)
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <label className="text-sm font-medium">Filtrer par nombre</label>
+        <div className="flex gap-2 mt-1">
+          <Select value={operator} onValueChange={(op) => handleChange(op, numberValue)}>
+            <SelectTrigger className="w-20">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="=">=</SelectItem>
+              <SelectItem value="!=">≠</SelectItem>
+              <SelectItem value="<">&lt;</SelectItem>
+              <SelectItem value="<=">&le;</SelectItem>
+              <SelectItem value=">">&gt;</SelectItem>
+              <SelectItem value=">=">&ge;</SelectItem>
+            </SelectContent>
+          </Select>
+          <input
+            type="number"
+            value={numberValue}
+            onChange={(e) => handleChange(operator, e.target.value)}
+            onClick={(e) => e.stopPropagation()}
+            onFocus={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            className="flex-1 px-3 py-2 border border-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            placeholder="Valeur..."
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Filtre select avec options
+export function SelectFilterControl({ value, onChange, options }: FilterControlProps & { options: { label: string; value: string }[] }) {
+  const handleValueChange = (newValue: string) => {
+    if (newValue === '__all__') {
+      onChange('') // Convertir la valeur spéciale en chaîne vide pour le filtre
+    } else {
+      onChange(newValue)
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <label className="text-sm font-medium">Sélectionner une option</label>
+        <Select value={value as string || '__all__'} onValueChange={handleValueChange}>
+          <SelectTrigger className="w-full mt-1">
+            <SelectValue placeholder="Choisir une option..." />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="__all__">Toutes les options</SelectItem>
+            {options?.map(option => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  )
+}
+
 export function DataTable<T extends Record<string, unknown>>({
   schema,
   columns,
@@ -347,6 +630,7 @@ export function DataTable<T extends Record<string, unknown>>({
   showSinglePagePagination = false,
   grouping,
   sortIcons,
+  filterIcons,
 }: DataTableProps<T>) {
   const [data, setData] = useState<T[]>([])
   const [groups, setGroups] = useState<DataGroup<T>[]>([])
@@ -354,6 +638,7 @@ export function DataTable<T extends Record<string, unknown>>({
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [sortColumns, setSortColumns] = useState<SortColumn[]>([])
+  const [filters, setFilters] = useState<ColumnFilter[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [currentPage, setCurrentPage] = useState(0)
   const [currentPageSize, setCurrentPageSize] = useState(pageSize)
@@ -403,7 +688,7 @@ export function DataTable<T extends Record<string, unknown>>({
           break
       }
 
-      const response = await getData(sortColumns, startRow, requestSize, grouping)
+      const response = await getData(sortColumns, startRow, requestSize, grouping, filters)
 
       // Valider les données avec le schéma Zod
       const validatedData = z.array(schema).parse(response.data)
@@ -443,7 +728,7 @@ export function DataTable<T extends Record<string, unknown>>({
       setLoading(false)
       setLoadingMore(false)
     }
-  }, [getData, schema, sortColumns, currentPage, currentPageSize, paginationMode, data.length, grouping])
+  }, [getData, schema, sortColumns, currentPage, currentPageSize, paginationMode, data.length, grouping, filters])
 
   // Charger les données au montage et quand le tri change
   useEffect(() => {
@@ -461,6 +746,11 @@ export function DataTable<T extends Record<string, unknown>>({
   useEffect(() => {
     setCurrentPage(0)
   }, [sortColumns])
+
+  // Remettre à zéro la pagination quand les filtres changent
+  useEffect(() => {
+    setCurrentPage(0)
+  }, [filters])
 
   // Gérer l'infinite scroll
   useEffect(() => {
@@ -581,6 +871,54 @@ export function DataTable<T extends Record<string, unknown>>({
         )}
       </div>
     )
+  }
+
+  // Fonctions de gestion des filtres
+  const handleFilterChange = (columnPath: string, value: unknown) => {
+    setFilters(prevFilters => {
+      const existingFilterIndex = prevFilters.findIndex(f => f.path === columnPath)
+
+      if (value === null || value === undefined || value === '') {
+        // Supprimer le filtre si la valeur est vide
+        return prevFilters.filter(f => f.path !== columnPath)
+      }
+
+      const newFilter: ColumnFilter = { path: columnPath, value }
+
+      if (existingFilterIndex >= 0) {
+        // Mettre à jour le filtre existant
+        return prevFilters.map((f, index) =>
+          index === existingFilterIndex ? newFilter : f
+        )
+      } else {
+        // Ajouter un nouveau filtre
+        return [...prevFilters, newFilter]
+      }
+    })
+  }
+
+  const clearFilter = (columnPath: string) => {
+    setFilters(prevFilters => prevFilters.filter(f => f.path !== columnPath))
+  }
+
+  // Obtenir l'icône de filtre pour une colonne
+  const getFilterIcon = (columnPath: string) => {
+    const hasFilter = filters.some(f => f.path === columnPath)
+
+    if (hasFilter) {
+      const ActiveIcon = filterIcons?.active || FilterX
+      const activeClassName = filterIcons?.classNames?.active || "h-4 w-4 text-primary"
+      return <ActiveIcon className={activeClassName} />
+    } else {
+      const DefaultIcon = filterIcons?.default || Filter
+      const defaultClassName = filterIcons?.classNames?.default || "h-4 w-4 text-muted-foreground"
+      return <DefaultIcon className={defaultClassName} />
+    }
+  }
+
+  const getFilterValue = (columnPath: string) => {
+    const filter = filters.find(f => f.path === columnPath)
+    return filter ? filter.value : undefined
   }
 
   // Gérer la sélection de ligne
@@ -790,7 +1128,18 @@ export function DataTable<T extends Record<string, unknown>>({
                 >
                   <div className="flex items-center gap-2">
                     <span>{column.label}</span>
-                    {column.isSortable && column.path && getSortIcon(column.path)}
+                    <div className="flex items-center gap-1">
+                      {column.isSortable && column.path && getSortIcon(column.path)}
+                      {column.isFilterable && column.path && (
+                        <FilterPopover
+                          column={column}
+                          filterValue={getFilterValue(column.path)}
+                          onFilterChange={(value) => handleFilterChange(column.path!, value)}
+                          onClearFilter={() => clearFilter(column.path!)}
+                          icon={getFilterIcon(column.path)}
+                        />
+                      )}
+                    </div>
                   </div>
                 </th>
               ))}

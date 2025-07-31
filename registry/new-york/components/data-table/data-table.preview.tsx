@@ -1,6 +1,7 @@
-import { DataTable, DataTableColumn, SortColumn, PaginationMode } from './data-table'
+import { DataTable, DataTableColumn, SortColumn, PaginationMode, TextFilterControl, SelectFilterControl, ColumnFilter, DataTableGrouping } from './data-table'
 import { z } from 'zod'
 import { useState } from 'react'
+import { Filter, FilterX } from 'lucide-react'
 
 // Schéma Zod pour un utilisateur
 const UserSchema = z.object({
@@ -55,17 +56,31 @@ const columns: DataTableColumn<User>[] = [
     path: 'name',
     description: 'Nom complet de l\'utilisateur',
     isSortable: true,
+    isFilterable: true,
+    filterControl: TextFilterControl,
   },
   {
     label: 'Email',
     path: 'email',
     isSortable: true,
+    isFilterable: true,
+    filterControl: TextFilterControl,
   },
   {
     label: 'Statut',
     path: 'status',
     isSortable: true,
     align: 'center',
+    isFilterable: true,
+    filterControl: (props) => (
+      <SelectFilterControl
+        {...props}
+        options={[
+          { label: 'Actif', value: 'active' },
+          { label: 'Inactif', value: 'inactive' }
+        ]}
+      />
+    ),
     render: (value: unknown) => (
       <span
         className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
@@ -83,6 +98,18 @@ const columns: DataTableColumn<User>[] = [
     path: 'role',
     isSortable: true,
     align: 'center',
+    isFilterable: true,
+    filterControl: (props) => (
+      <SelectFilterControl
+        {...props}
+        options={[
+          { label: 'Admin', value: 'Admin' },
+          { label: 'Utilisateur', value: 'User' },
+          { label: 'Modérateur', value: 'Moderator' },
+          { label: 'Éditeur', value: 'Editor' }
+        ]}
+      />
+    ),
   },
 ]
 
@@ -90,19 +117,40 @@ export default function DataTableDemo() {
   const [selectedUser, setSelectedUser] = useState<User | undefined>()
   const [currentMode, setCurrentMode] = useState<PaginationMode>('PaginationWithSize')
 
-  // Fonction pour récupérer les données (simule un appel API avec tri côté serveur)
-  const getData = async (sortColumns: SortColumn[], startRow: number, pageSize: number) => {
+  // Fonction pour récupérer les données (simule un appel API avec tri et filtrage côté serveur)
+  const getData = async (sortColumns: SortColumn[], startRow: number, pageSize: number, grouping?: DataTableGrouping, filters?: ColumnFilter[]) => {
     // Simulation d'un délai d'API
     await new Promise(resolve => setTimeout(resolve, 300))
 
-    // Dans un vrai projet, le tri serait géré côté serveur
-    console.log('Tri demandé:', sortColumns, 'startRow:', startRow, 'pageSize:', pageSize)
+    // Dans un vrai projet, le tri et filtrage seraient gérés côté serveur
+    console.log('Tri demandé:', sortColumns, 'Filtres:', filters, 'Grouping:', grouping, 'startRow:', startRow, 'pageSize:', pageSize)
 
-    // Pour la démo, on applique le tri côté client pour voir l'effet
-    const sortedData = [...sampleUsers]
+    // Appliquer les filtres
+    let filteredData = [...sampleUsers]
 
+    if (filters && filters.length > 0) {
+      filteredData = filteredData.filter(item => {
+        return filters.every(filter => {
+          const value = getValueByPath(item, filter.path)
+
+          if (filter.path === 'name' || filter.path === 'email') {
+            if (typeof filter.value === 'string') {
+              return String(value).toLowerCase().includes(filter.value.toLowerCase())
+            }
+          }
+
+          if (filter.path === 'status' || filter.path === 'role') {
+            return filter.value === '' || value === filter.value
+          }
+
+          return true
+        })
+      })
+    }
+
+    // Appliquer le tri
     if (sortColumns.length > 0) {
-      sortedData.sort((a, b) => {
+      filteredData.sort((a, b) => {
         for (const sort of sortColumns) {
           const aValue = getValueByPath(a, sort.path)
           const bValue = getValueByPath(b, sort.path)
@@ -134,12 +182,12 @@ export default function DataTableDemo() {
     }
 
     // Simulation de la pagination
-    const endRow = Math.min(startRow + pageSize, sortedData.length)
-    const pageData = sortedData.slice(startRow, endRow)
+    const endRow = Math.min(startRow + pageSize, filteredData.length)
+    const pageData = filteredData.slice(startRow, endRow)
 
     return {
       data: pageData,
-      totalCount: sortedData.length,
+      totalCount: filteredData.length,
       lastRow: endRow - 1
     }
   }
@@ -216,6 +264,14 @@ export default function DataTableDemo() {
             emptyMessage="Aucun utilisateur trouvé"
             loadingMessage="Chargement des utilisateurs..."
             showLoadMoreButton={true}
+            filterIcons={{
+              default: Filter,
+              active: FilterX,
+              classNames: {
+                default: "h-4 w-4 text-muted-foreground hover:text-primary transition-colors",
+                active: "h-4 w-4 text-primary"
+              }
+            }}
           />
         </div>
 
@@ -237,6 +293,7 @@ export default function DataTableDemo() {
             <li>• <strong>Pagination simple</strong> : Navigation par pages sans contrôle de taille</li>
             <li>• <strong>Pagination complète</strong> : Navigation par pages avec sélecteur de taille</li>
             <li>• Cliquez sur les en-têtes pour trier (Ctrl/Shift+clic pour tri multi-colonnes)</li>
+            <li>• Cliquez sur les icônes 🔍 pour filtrer les colonnes</li>
           </ul>
         </div>
       </div>
