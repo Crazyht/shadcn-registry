@@ -150,7 +150,15 @@ async function tryImportStrategies(docsPath: string, componentName: string): Pro
       return await import(/* @vite-ignore */ `@registry/new-york/components/${componentName}/${componentName}.docs.tsx${timestamp}`)
     },
 
-    // Strategy 4: Fallback direct import (last resort)
+    // Strategy 4: Direct path to hook docs with cache busting
+    async () => {
+      if (docsPath.includes('/hooks/')) {
+        return await import(/* @vite-ignore */ `@registry/new-york/hooks/${componentName}.docs.tsx${timestamp}`)
+      }
+      throw new Error('Not a hook path')
+    },
+
+    // Strategy 5: Fallback direct import (last resort)
     async () => {
       return await import(/* @vite-ignore */ `/${docsPath}${timestamp}`)
     }

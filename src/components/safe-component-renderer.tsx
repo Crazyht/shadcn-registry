@@ -45,6 +45,15 @@ function createLazyDocumentationComponent(docsPath: string) {
         async () => {
           const componentName = docsPath.split('/').pop()?.replace('.docs.tsx', '') || ''
           return await import(/* @vite-ignore */ `@registry/new-york/components/${componentName}/${componentName}.docs.tsx`)
+        },
+
+        // Strategy 4: Direct hook path
+        async () => {
+          const hookName = docsPath.split('/').pop()?.replace('.docs.tsx', '') || ''
+          if (docsPath.includes('/hooks/')) {
+            return await import(/* @vite-ignore */ `@registry/new-york/hooks/${hookName}.docs.tsx`)
+          }
+          throw new Error('Not a hook path')
         }
       ]
 
