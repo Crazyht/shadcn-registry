@@ -1,4 +1,4 @@
-import { DocSample } from '../../../../src/components/registry'
+import { DocSample, InstallationCommand } from '../../../../src/components/registry'
 import {
   BasicExample,
   PrefixExample,
@@ -70,9 +70,7 @@ export function AnimatedCounterDocumentation() {
         <h2 className="text-2xl font-semibold flex items-center gap-2">
           📦 Installation
         </h2>
-        <div className="rounded-lg bg-muted p-4">
-          <code className="text-sm">npx shadcn@latest add animated-counter</code>
-        </div>
+        <InstallationCommand componentPath="components/animated-counter" />
         <p className="text-sm text-muted-foreground">
           Les dépendances (clsx, tailwind-merge) sont installées automatiquement.
         </p>

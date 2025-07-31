@@ -1,5 +1,5 @@
 // Documentation DataTable - Restructuré avec exemples modulaires
-import { DocSample } from '../../../../src/components/registry'
+import { DocSample, InstallationCommand } from '../../../../src/components/registry'
 import {
   BasicExample,
   FilteringExample,
@@ -83,9 +83,7 @@ export function DataTableDocumentation() {
           <p className="text-muted-foreground">
             Installez le composant Data Table via shadcn/ui CLI :
           </p>
-          <div className="rounded-lg bg-zinc-950 dark:bg-zinc-900 p-4 text-green-400 font-mono">
-            <code>npx shadcn@latest add data-table</code>
-          </div>
+          <InstallationCommand componentPath="components/data-table" className="bg-zinc-950 dark:bg-zinc-900 text-green-400 font-mono" />
 
           <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
             <p className="text-sm text-blue-800 dark:text-blue-200">

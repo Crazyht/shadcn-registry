@@ -1,4 +1,4 @@
-import { DocSample } from '../../../src/components/registry'
+import { DocSample, InstallationCommand } from '../../../src/components/registry'
 import {
   BasicExample,
   SearchExample,
@@ -70,9 +70,7 @@ export function UseDebounceDocumentation() {
         <h2 className="text-2xl font-semibold flex items-center gap-2">
           📦 Installation
         </h2>
-        <div className="rounded-lg bg-muted p-4">
-          <code className="text-sm">npx shadcn@latest add use-debounce</code>
-        </div>
+        <InstallationCommand componentPath="hooks/use-debounce" />
         <p className="text-sm text-muted-foreground">
           Aucune dépendance externe requise, utilise uniquement les hooks React natifs.
         </p>

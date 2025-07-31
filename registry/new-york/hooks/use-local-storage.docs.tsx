@@ -1,4 +1,4 @@
-import { DocSample } from '../../../src/components/registry'
+import { DocSample, InstallationCommand } from '../../../src/components/registry'
 import {
   LocalStorageBasicExample,
   LocalStorageThemeExample,
@@ -68,9 +68,7 @@ export function UseLocalStorageDocumentation() {
         <h2 className="text-2xl font-semibold flex items-center gap-2">
           📦 Installation
         </h2>
-        <div className="bg-muted p-4 rounded-lg">
-          <code className="text-sm">npx shadcn@latest add use-local-storage</code>
-        </div>
+        <InstallationCommand componentPath="hooks/use-local-storage" />
         <p className="text-sm text-muted-foreground">
           Cette commande installera automatiquement le hook et ses dépendances.
         </p>

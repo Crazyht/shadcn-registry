@@ -1,4 +1,4 @@
-import { DocSample } from '../../../src/components/registry'
+import { DocSample, InstallationCommand } from '../../../src/components/registry'
 import {
   MediaQueryResponsiveExample,
   MediaQueryThemeExample,
@@ -22,8 +22,8 @@ export function UseMediaQueryDocumentation() {
           </span>
         </div>
         <p className="text-xl text-muted-foreground max-w-3xl leading-relaxed">
-          Un hook React pour évaluer les media queries CSS en temps réel. Idéal pour créer des 
-          interfaces responsives, détecter les préférences utilisateur, et adapter l'expérience 
+          Un hook React pour évaluer les media queries CSS en temps réel. Idéal pour créer des
+          interfaces responsives, détecter les préférences utilisateur, et adapter l'expérience
           selon le type d'appareil et les capacités du navigateur.
         </p>
       </div>
@@ -70,9 +70,7 @@ export function UseMediaQueryDocumentation() {
         <h2 className="text-2xl font-semibold flex items-center gap-2">
           📦 Installation
         </h2>
-        <div className="rounded-lg bg-muted p-4">
-          <code className="text-sm">npx shadcn@latest add use-media-query</code>
-        </div>
+        <InstallationCommand componentPath="hooks/use-media-query" />
         <p className="text-sm text-muted-foreground">
           Aucune dépendance externe requise, utilise l'API native `matchMedia`.
         </p>
