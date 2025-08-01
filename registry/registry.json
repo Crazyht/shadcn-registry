@@ -54,7 +54,8 @@
           "type": "registry:ui"
         }
       ],
-      "dependencies": ["clsx", "tailwind-merge", "lucide-react", "zod"]
+      "dependencies": ["clsx", "tailwind-merge", "lucide-react", "zod"],
+      "registryDependencies": ["pagination"]
     },
     {
       "name": "use-debounce",
