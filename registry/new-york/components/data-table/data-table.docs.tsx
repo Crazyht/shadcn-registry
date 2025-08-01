@@ -1,5 +1,6 @@
 // Documentation DataTable - Restructuré avec exemples modulaires
 import { DocSample, InstallationCommand } from '../../../../src/components/registry'
+import { DocSectionHeader, DocSubSectionHeader } from '../../../../src/components/doc-navigation-zustand'
 import {
   BasicExample,
   FilteringExample,
@@ -32,9 +33,10 @@ export function DataTableDocumentation() {
       </div>
 
       {/* Fonctionnalités */}
+      <DocSectionHeader id="features" title="Fonctionnalités">
+        🚀 Fonctionnalités
+      </DocSectionHeader>
       <section className="space-y-6">
-        <h2 className="text-3xl font-semibold border-b pb-2">🚀 Fonctionnalités</h2>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-blue-600 dark:text-blue-400">📊 Données et Validation</h3>
@@ -79,12 +81,13 @@ export function DataTableDocumentation() {
       </section>
 
       {/* Section Responsive */}
+      <DocSectionHeader id="responsive" title="Système Responsive">
+        📱 Système Responsive
+      </DocSectionHeader>
       <section className="space-y-6">
-        <h2 className="text-3xl font-semibold border-b pb-2">📱 Système Responsive</h2>
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-4">
-            <h3 className="text-xl font-medium">Breakpoints Prédéfinis</h3>
+            <DocSubSectionHeader id="responsive-breakpoints" title="Breakpoints Prédéfinis" />
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <span className="px-2 py-1 bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded text-sm font-mono">Mobile</span>
@@ -102,7 +105,7 @@ export function DataTableDocumentation() {
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-xl font-medium">Modes de Largeur</h3>
+            <DocSubSectionHeader id="responsive-width-modes" title="Modes de Largeur" />
             <div className="space-y-3">
               <div className="flex items-start gap-3">
                 <span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300 rounded text-sm font-mono">content</span>
@@ -130,8 +133,10 @@ export function DataTableDocumentation() {
       </section>
 
       {/* Installation */}
+      <DocSectionHeader id="installation" title="Installation">
+        📦 Installation
+      </DocSectionHeader>
       <section className="space-y-6">
-        <h2 className="text-3xl font-semibold border-b pb-2">📦 Installation</h2>
 
         <div className="space-y-4">
           <p className="text-muted-foreground">
@@ -148,12 +153,14 @@ export function DataTableDocumentation() {
       </section>
 
       {/* API Reference */}
+      <DocSectionHeader id="api-reference" title="Référence API">
+        📖 Référence API
+      </DocSectionHeader>
       <section className="space-y-6">
-        <h2 className="text-3xl font-semibold border-b pb-2">📖 Référence API</h2>
 
         {/* DataTableProps */}
         <div className="space-y-4">
-          <h3 className="text-xl font-medium">Props du DataTable</h3>
+          <DocSubSectionHeader id="datatable-props" title="Props du DataTable" />
           <div className="rounded-lg border overflow-hidden">
             <table className="w-full">
               <thead className="bg-muted/50">
@@ -246,7 +253,7 @@ export function DataTableDocumentation() {
 
         {/* DataTableColumn */}
         <div className="space-y-4">
-          <h3 className="text-xl font-medium">Configuration des colonnes</h3>
+          <DocSubSectionHeader id="column-configuration" title="Configuration des colonnes" />
           <div className="rounded-lg border overflow-hidden">
             <table className="w-full">
               <thead className="bg-muted/50">
@@ -309,7 +316,7 @@ export function DataTableDocumentation() {
 
         {/* FilterValue */}
         <div className="space-y-4">
-          <h3 className="text-xl font-medium">Structure des filtres</h3>
+          <DocSubSectionHeader id="filter-structure" title="Structure des filtres" />
           <div className="rounded-lg border overflow-hidden">
             <table className="w-full">
               <thead className="bg-muted/50">
@@ -347,7 +354,7 @@ export function DataTableDocumentation() {
 
         {/* Opérateurs de filtre */}
         <div className="space-y-4">
-          <h3 className="text-xl font-medium">Opérateurs de filtrage</h3>
+          <DocSubSectionHeader id="filter-operators" title="Opérateurs de filtrage" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="rounded-lg border overflow-hidden">
               <div className="bg-muted/50 p-3 border-b">
@@ -396,11 +403,14 @@ export function DataTableDocumentation() {
       </section>
 
       {/* Exemples */}
+      <DocSectionHeader id="examples" title="Exemples">
+        📚 Exemples
+      </DocSectionHeader>
       <section className="space-y-8">
-        <h2 className="text-3xl font-semibold border-b pb-2">📚 Exemples</h2>
 
         {/* Exemple de base */}
         <DocSample
+          id="basic-example"
           title="🎯 Utilisation de base"
           description="DataTable avec tri, sélection et pagination. Clic simple = tri unique | Ctrl/Shift + Clic = tri multi-colonnes"
           sourceCode={getSampleSourceCode('basic-example')}
@@ -410,6 +420,7 @@ export function DataTableDocumentation() {
 
         {/* Responsive */}
         <DocSample
+          id="responsive-example"
           title="📱 Colonnes Responsives"
           description="Gestion avancée de la visibilité des colonnes selon la taille d'écran avec breakpoints personnalisés"
           sourceCode={getSampleSourceCode('responsive-example')}
@@ -419,6 +430,7 @@ export function DataTableDocumentation() {
 
         {/* Filtrage */}
         <DocSample
+          id="filtering-example"
           title="🔍 Filtrage avancé"
           description="Système de filtres uniformes avec opérateurs (contains, equals, between, etc.) pour tous types de données"
           sourceCode={getSampleSourceCode('filtering-example')}
@@ -428,6 +440,7 @@ export function DataTableDocumentation() {
 
         {/* Modes de pagination */}
         <DocSample
+          id="pagination-modes-example"
           title="📄 Modes de pagination"
           description="Différents modes de pagination : None, InfiniteScroll, Pagination simple, Pagination avec contrôle de taille"
           sourceCode={getSampleSourceCode('pagination-modes-example')}
@@ -437,6 +450,7 @@ export function DataTableDocumentation() {
 
         {/* Groupement */}
         <DocSample
+          id="grouping-example"
           title="📊 Groupement de données"
           description="Groupement des données par colonnes avec en-têtes personnalisables et états d'expansion"
           sourceCode={getSampleSourceCode('grouping-example')}
@@ -446,6 +460,7 @@ export function DataTableDocumentation() {
 
         {/* Icônes personnalisées */}
         <DocSample
+          id="custom-sort-icons-example"
           title="🎨 Icônes de tri personnalisées"
           description="Configuration d'icônes personnalisées pour les différents états de tri avec classes CSS"
           sourceCode={getSampleSourceCode('custom-sort-icons-example')}

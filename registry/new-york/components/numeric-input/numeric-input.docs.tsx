@@ -1,4 +1,5 @@
 import { DocSample, InstallationCommand } from '../../../../src/components/registry'
+import { DocSectionHeader } from '../../../../src/components/doc-navigation-zustand'
 import {
   BasicExample,
   ConstraintsExample,
@@ -7,7 +8,7 @@ import {
 } from './samples'
 
 /**
- * Documentation pour NumericInput
+ * Documentation pour NumericInput - Migrée vers DocSample unifié
  * Fichier interne - Non inclus dans la registry
  */
 export function NumericInputDocumentation() {
@@ -28,10 +29,10 @@ export function NumericInputDocumentation() {
       </div>
 
       {/* Features */}
+      <DocSectionHeader id="features" title="Fonctionnalités">
+        ✨ Fonctionnalités
+      </DocSectionHeader>
       <div className="space-y-4">
-        <h2 className="text-2xl font-semibold flex items-center gap-2">
-          ✨ Fonctionnalités
-        </h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-3 p-4 border rounded-lg">
             <div className="text-2xl">🎛️</div>
@@ -65,10 +66,10 @@ export function NumericInputDocumentation() {
       </div>
 
       {/* Installation */}
+      <DocSectionHeader id="installation" title="Installation">
+        📦 Installation
+      </DocSectionHeader>
       <div className="space-y-4">
-        <h2 className="text-2xl font-semibold flex items-center gap-2">
-          📦 Installation
-        </h2>
         <InstallationCommand componentPath="components/numeric-input" />
         <p className="text-sm text-muted-foreground">
           Les dépendances (clsx, tailwind-merge, lucide-react) sont installées automatiquement.
@@ -76,115 +77,134 @@ export function NumericInputDocumentation() {
       </div>
 
       {/* API Reference */}
-      <div className="space-y-4">
-        <h2 className="text-2xl font-semibold flex items-center gap-2">
-          📚 Référence API
-        </h2>
-
-        <div className="space-y-6">
-          <div>
-            <h3 className="text-lg font-medium mb-3">NumericInputProps</h3>
-            <div className="rounded-lg border overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-muted/50">
-                  <tr className="border-b">
-                    <th className="text-left p-4 font-medium">Propriété</th>
-                    <th className="text-left p-4 font-medium">Type</th>
-                    <th className="text-left p-4 font-medium">Défaut</th>
-                    <th className="text-left p-4 font-medium">Description</th>
-                  </tr>
-                </thead>
-                <tbody className="text-sm">
-                  <tr className="border-b">
-                    <td className="p-4 font-mono">value</td>
-                    <td className="p-4"><code>number | undefined</code></td>
-                    <td className="p-4">-</td>
-                    <td className="p-4">Valeur contrôlée du composant</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono">defaultValue</td>
-                    <td className="p-4"><code>number</code></td>
-                    <td className="p-4">-</td>
-                    <td className="p-4">Valeur par défaut (non contrôlée)</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono">min</td>
-                    <td className="p-4"><code>number</code></td>
-                    <td className="p-4">-Infinity</td>
-                    <td className="p-4">Valeur minimum autorisée</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono">max</td>
-                    <td className="p-4"><code>number</code></td>
-                    <td className="p-4">Infinity</td>
-                    <td className="p-4">Valeur maximum autorisée</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono">step</td>
-                    <td className="p-4"><code>number</code></td>
-                    <td className="p-4">1</td>
-                    <td className="p-4">Pas d'incrémentation/décrémentation</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono">decimals</td>
-                    <td className="p-4"><code>number</code></td>
-                    <td className="p-4">0</td>
-                    <td className="p-4">Nombre de décimales à afficher</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono">prefix</td>
-                    <td className="p-4"><code>string</code></td>
-                    <td className="p-4">-</td>
-                    <td className="p-4">Texte affiché avant la valeur</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono">suffix</td>
-                    <td className="p-4"><code>string</code></td>
-                    <td className="p-4">-</td>
-                    <td className="p-4">Texte affiché après la valeur</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono">showControls</td>
-                    <td className="p-4"><code>boolean</code></td>
-                    <td className="p-4">true</td>
-                    <td className="p-4">Afficher les boutons +/-</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono">disabled</td>
-                    <td className="p-4"><code>boolean</code></td>
-                    <td className="p-4">false</td>
-                    <td className="p-4">Désactiver le composant</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-4 font-mono">readOnly</td>
-                    <td className="p-4"><code>boolean</code></td>
-                    <td className="p-4">false</td>
-                    <td className="p-4">Lecture seule</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-mono">onValueChange</td>
-                    <td className="p-4"><code>(value: number | undefined) =&gt; void</code></td>
-                    <td className="p-4">-</td>
-                    <td className="p-4">Callback de changement de valeur</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+      <DocSectionHeader id="api-reference" title="Référence API">
+        📚 Référence API
+      </DocSectionHeader>
+      <div className="space-y-6">
+        <div>
+          <h4 className="font-medium mb-4">NumericInputProps</h4>
+          <div className="rounded-lg border overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-muted/50">
+                <tr className="border-b">
+                  <th className="text-left p-4 font-medium">Propriété</th>
+                  <th className="text-left p-4 font-medium">Type</th>
+                  <th className="text-left p-4 font-medium">Défaut</th>
+                  <th className="text-left p-4 font-medium">Description</th>
+                </tr>
+              </thead>
+              <tbody className="text-sm">
+                <tr className="border-b">
+                  <td className="p-4 font-mono">value</td>
+                  <td className="p-4"><code>number | undefined</code></td>
+                  <td className="p-4">-</td>
+                  <td className="p-4">Valeur contrôlée du composant</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono">defaultValue</td>
+                  <td className="p-4"><code>number</code></td>
+                  <td className="p-4">-</td>
+                  <td className="p-4">Valeur par défaut (non contrôlée)</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono">min</td>
+                  <td className="p-4"><code>number</code></td>
+                  <td className="p-4">-Infinity</td>
+                  <td className="p-4">Valeur minimum autorisée</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono">max</td>
+                  <td className="p-4"><code>number</code></td>
+                  <td className="p-4">Infinity</td>
+                  <td className="p-4">Valeur maximum autorisée</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono">step</td>
+                  <td className="p-4"><code>number</code></td>
+                  <td className="p-4">1</td>
+                  <td className="p-4">Pas d'incrémentation/décrémentation</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono">decimals</td>
+                  <td className="p-4"><code>number</code></td>
+                  <td className="p-4">0</td>
+                  <td className="p-4">Nombre de décimales à afficher</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono">prefix</td>
+                  <td className="p-4"><code>string</code></td>
+                  <td className="p-4">-</td>
+                  <td className="p-4">Texte affiché avant la valeur</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono">suffix</td>
+                  <td className="p-4"><code>string</code></td>
+                  <td className="p-4">-</td>
+                  <td className="p-4">Texte affiché après la valeur</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono">showControls</td>
+                  <td className="p-4"><code>boolean</code></td>
+                  <td className="p-4">true</td>
+                  <td className="p-4">Afficher les boutons +/-</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono">disabled</td>
+                  <td className="p-4"><code>boolean</code></td>
+                  <td className="p-4">false</td>
+                  <td className="p-4">Désactiver le composant</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono">readOnly</td>
+                  <td className="p-4"><code>boolean</code></td>
+                  <td className="p-4">false</td>
+                  <td className="p-4">Lecture seule</td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-mono">onValueChange</td>
+                  <td className="p-4"><code>(value: number | undefined) =&gt; void</code></td>
+                  <td className="p-4">-</td>
+                  <td className="p-4">Callback de changement de valeur</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
+        </div>
+
+        <div className="mt-6 p-4 bg-muted/30 border-l-4 border-blue-500 rounded-r-lg">
+          <h5 className="font-medium mb-2">Interface TypeScript</h5>
+          <pre className="bg-background p-3 rounded text-sm overflow-x-auto">
+            <code>{`interface NumericInputProps {
+  value?: number | undefined
+  defaultValue?: number
+  min?: number
+  max?: number
+  step?: number
+  decimals?: number
+  prefix?: string
+  suffix?: string
+  showControls?: boolean
+  disabled?: boolean
+  readOnly?: boolean
+  onValueChange?: (value: number | undefined) => void
+  placeholder?: string
+  className?: string
+}`}</code>
+          </pre>
         </div>
       </div>
 
       {/* Examples */}
-      <div className="space-y-6">
-        <h2 className="text-2xl font-semibold flex items-center gap-2">
-          🎯 Exemples
-        </h2>
+      <DocSectionHeader id="examples" title="Exemples">
+        🎯 Exemples
+      </DocSectionHeader>
+      <div className="space-y-8">
 
-        <div className="grid gap-6">
-          <DocSample
-            title="Utilisation de base"
-            description="Input numérique simple avec contrôles +/- et navigation clavier"
-            sourceCode={`import { useState } from 'react'
+        <DocSample
+          id="basic-usage"
+          title="Utilisation de base"
+          description="Input numérique simple avec contrôles +/- et navigation clavier"
+          sourceCode={`import { useState } from 'react'
 import { NumericInput } from './numeric-input'
 
 export function BasicExample() {
@@ -206,14 +226,15 @@ export function BasicExample() {
     </div>
   )
 }`}
-          >
-            <BasicExample />
-          </DocSample>
+        >
+          <BasicExample />
+        </DocSample>
 
-          <DocSample
-            title="Avec contraintes min/max"
-            description="Validation automatique avec limites et pas d'incrémentation"
-            sourceCode={`import { useState } from 'react'
+        <DocSample
+          id="constraints-example"
+          title="Avec contraintes min/max"
+          description="Validation automatique avec limites et pas d'incrémentation"
+          sourceCode={`import { useState } from 'react'
 import { NumericInput } from './numeric-input'
 
 export function ConstraintsExample() {
@@ -238,14 +259,15 @@ export function ConstraintsExample() {
     </div>
   )
 }`}
-          >
-            <ConstraintsExample />
-          </DocSample>
+        >
+          <ConstraintsExample />
+        </DocSample>
 
-          <DocSample
-            title="Préfixes et suffixes"
-            description="Formatage pour devises, pourcentages et unités"
-            sourceCode={`import { useState } from 'react'
+        <DocSample
+          id="prefix-suffix-example"
+          title="Préfixes et suffixes"
+          description="Formatage pour devises, pourcentages et unités"
+          sourceCode={`import { useState } from 'react'
 import { NumericInput } from './numeric-input'
 
 export function PrefixSuffixExample() {
@@ -286,14 +308,15 @@ export function PrefixSuffixExample() {
     </div>
   )
 }`}
-          >
-            <PrefixSuffixExample />
-          </DocSample>
+        >
+          <PrefixSuffixExample />
+        </DocSample>
 
-          <DocSample
-            title="Sans contrôles visuels"
-            description="Input simple sans boutons +/- pour un design épuré"
-            sourceCode={`import { useState } from 'react'
+        <DocSample
+          id="no-controls-example"
+          title="Sans contrôles visuels"
+          description="Input simple sans boutons +/- pour un design épuré"
+          sourceCode={`import { useState } from 'react'
 import { NumericInput } from './numeric-input'
 
 export function NoControlsExample() {
@@ -316,10 +339,9 @@ export function NoControlsExample() {
     </div>
   )
 }`}
-          >
-            <NoControlsExample />
-          </DocSample>
-        </div>
+        >
+          <NoControlsExample />
+        </DocSample>
       </div>
     </div>
   )

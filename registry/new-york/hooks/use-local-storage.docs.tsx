@@ -1,4 +1,5 @@
 import { DocSample, InstallationCommand } from '../../../src/components/registry'
+import { DocSectionHeader, DocSubSectionHeader } from '../../../src/components/doc-navigation-zustand'
 import {
   LocalStorageBasicExample,
   LocalStorageThemeExample,
@@ -27,10 +28,10 @@ export function UseLocalStorageDocumentation() {
       </div>
 
       {/* Features */}
+      <DocSectionHeader id="features" title="Fonctionnalités">
+        ✨ Fonctionnalités
+      </DocSectionHeader>
       <div className="space-y-4">
-        <h2 className="text-2xl font-semibold flex items-center gap-2">
-          ✨ Fonctionnalités
-        </h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-3 p-4 border rounded-lg">
             <div className="text-2xl">💾</div>
@@ -64,10 +65,10 @@ export function UseLocalStorageDocumentation() {
       </div>
 
       {/* Installation */}
+      <DocSectionHeader id="installation" title="Installation">
+        📦 Installation
+      </DocSectionHeader>
       <div className="space-y-4">
-        <h2 className="text-2xl font-semibold flex items-center gap-2">
-          📦 Installation
-        </h2>
         <InstallationCommand componentPath="hooks/use-local-storage" />
         <p className="text-sm text-muted-foreground">
           Cette commande installera automatiquement le hook et ses dépendances.
@@ -75,12 +76,14 @@ export function UseLocalStorageDocumentation() {
       </div>
 
       {/* API Reference */}
+      <DocSectionHeader id="api-reference" title="Référence API">
+        📖 Référence API
+      </DocSectionHeader>
       <div className="space-y-4">
-        <h2 className="text-2xl font-semibold">📖 Référence API</h2>
 
         <div className="space-y-6">
           <div>
-            <h3 className="text-lg font-semibold mb-3">useLocalStorage</h3>
+            <DocSubSectionHeader id="use-local-storage-hook" title="useLocalStorage" />
             <div className="overflow-x-auto">
               <table className="w-full border-collapse border border-border">
                 <thead>
@@ -107,7 +110,7 @@ export function UseLocalStorageDocumentation() {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-3">Valeur de retour</h3>
+            <DocSubSectionHeader id="return-value" title="Valeur de retour" />
             <div className="overflow-x-auto">
               <table className="w-full border-collapse border border-border">
                 <thead>
@@ -141,13 +144,27 @@ export function UseLocalStorageDocumentation() {
       </div>
 
       {/* Examples */}
-      <div className="space-y-6">
-        <h2 className="text-2xl font-semibold">🚀 Exemples</h2>
-
-        <div className="space-y-8">
-          <DocSample
-            title="Utilisation basique"
-            description="Persistance simple d'une valeur string dans localStorage"
+      <DocSectionHeader id="examples" title="Exemples">
+        🚀 Exemples
+      </DocSectionHeader>
+      <div className="space-y-8">
+        <DocSample
+          id="basic-example"
+          title="Utilisation basique"
+          description={
+            <div>
+              <p className="mb-3">Persistance simple d'une valeur string dans localStorage avec gestion automatique.</p>
+              <div>
+                <p><strong>💡 Points clés :</strong></p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li><strong>Persistance automatique :</strong> Sauvegarde à chaque modification</li>
+                  <li><strong>Valeur par défaut :</strong> Utilisée si aucune donnée stockée</li>
+                  <li><strong>Fonction de suppression :</strong> Nettoie la valeur du localStorage</li>
+                  <li><strong>Synchronisation :</strong> Réactive aux changements externes</li>
+                </ul>
+              </div>
+            </div>
+          }
             sourceCode={`import { useLocalStorage } from './use-local-storage'
 
 export function BasicExample() {
@@ -176,9 +193,23 @@ export function BasicExample() {
             <LocalStorageBasicExample />
           </DocSample>
 
-          <DocSample
-            title="Gestion des préférences de thème"
-            description="Stockage de préférences utilisateur avec types TypeScript"
+        <DocSample
+          id="theme-preferences"
+          title="Gestion des préférences de thème"
+          description={
+            <div>
+              <p className="mb-3">Stockage de préférences utilisateur avec types TypeScript stricts et interface interactive.</p>
+              <div>
+                <p><strong>🎨 Fonctionnalités :</strong></p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li><strong>Types TypeScript :</strong> Union types pour validation stricte</li>
+                  <li><strong>Interface visuelle :</strong> Boutons adaptatifs selon le thème sélectionné</li>
+                  <li><strong>Prévisualisation :</strong> Zone d'aperçu qui s'adapte au thème choisi</li>
+                  <li><strong>Réinitialisation :</strong> Retour à la valeur par défaut</li>
+                </ul>
+              </div>
+            </div>
+          }
             sourceCode={`import { useLocalStorage } from './use-local-storage'
 
 export function ThemeExample() {
@@ -220,9 +251,24 @@ export function ThemeExample() {
             <LocalStorageThemeExample />
           </DocSample>
 
-          <DocSample
-            title="Liste de tâches persistée"
-            description="Gestion d'objets complexes avec ajout, modification et suppression"
+        <DocSample
+          id="todo-list"
+          title="Liste de tâches persistée"
+          description={
+            <div>
+              <p className="mb-3">Gestion complète d'objets complexes avec opérations CRUD persistées dans localStorage.</p>
+              <div>
+                <p><strong>📝 Fonctionnalités :</strong></p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li><strong>Types complexes :</strong> Interface TodoItem avec validation</li>
+                  <li><strong>Opérations CRUD :</strong> Ajout, modification, suppression de tâches</li>
+                  <li><strong>État interactif :</strong> Basculement terminé/non terminé</li>
+                  <li><strong>Persistance automatique :</strong> Toutes les modifications sauvegardées</li>
+                  <li><strong>Nettoyage global :</strong> Fonction pour vider toute la liste</li>
+                </ul>
+              </div>
+            </div>
+          }
             sourceCode={`import { useState } from 'react'
 import { useLocalStorage } from './use-local-storage'
 
@@ -291,9 +337,24 @@ export function TodoListExample() {
             <LocalStorageTodoExample />
           </DocSample>
 
-          <DocSample
-            title="Paramètres utilisateur complexes"
-            description="Gestion d'un objet de configuration avec différents types de données"
+        <DocSample
+          id="user-settings"
+          title="Paramètres utilisateur complexes"
+          description={
+            <div>
+              <p className="mb-3">Gestion avancée d'un objet de configuration avec différents types de données et mise à jour partielle.</p>
+              <div>
+                <p><strong>⚙️ Fonctionnalités avancées :</strong></p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li><strong>Interface complexe :</strong> Objet UserSettings avec propriétés typées</li>
+                  <li><strong>Mise à jour partielle :</strong> Fonction updateSetting générique</li>
+                  <li><strong>Contrôles variés :</strong> Select, range, checkbox selon le type</li>
+                  <li><strong>Prévisualisation temps réel :</strong> Aperçu immédiat des changements</li>
+                  <li><strong>Réinitialisation complète :</strong> Retour aux valeurs par défaut</li>
+                </ul>
+              </div>
+            </div>
+          }
             sourceCode={`import { useLocalStorage } from './use-local-storage'
 
 interface UserSettings {
@@ -355,7 +416,6 @@ export function SettingsExample() {
           >
             <LocalStorageSettingsExample />
           </DocSample>
-        </div>
       </div>
     </div>
   )

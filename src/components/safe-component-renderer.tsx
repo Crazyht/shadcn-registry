@@ -6,65 +6,59 @@ interface SafeComponentRendererProps {
   docsPath: string
 }
 
-// Create a lazy component loader that doesn't store components in state
+// Pre-load all docs modules using import.meta.glob (Vite's recommended way)
+// Use relative pattern from src to registry
+const docsModules = import.meta.glob('../../registry/**/*.docs.tsx', { eager: false })
+
+// Create a lazy component loader that uses the pre-loaded modules
 function createLazyDocumentationComponent(docsPath: string) {
   return lazy(async () => {
+    console.log('🔍 Attempting to load:', docsPath)
+
     try {
-      console.log('Loading documentation from:', docsPath)
+      // Normalize the path for our glob pattern (absolute from project root)
+      const normalizedPath = docsPath.startsWith('/')
+        ? docsPath
+        : `/${docsPath}`
 
-      // Use our import strategies
-      const strategies = [
-        // Strategy 1: Use import.meta.glob first (most reliable)
-        async () => {
-          const modules = import.meta.glob('@registry/**/*.docs.tsx', { eager: false })
-          const registryPath = docsPath.startsWith('registry/') ? docsPath.replace('registry/', '@registry/') : `@registry/${docsPath}`
+      console.log('🔄 Looking for module at:', normalizedPath)
 
-          // Try exact match first
-          if (modules[registryPath]) {
-            return await modules[registryPath]()
-          }
+      // Try to find the exact match first
+      if (docsModules[normalizedPath]) {
+        console.log('✅ Found exact match for:', normalizedPath)
+        const module = await docsModules[normalizedPath]() as Record<string, unknown>
 
-          // Try finding by component name
-          const componentKey = Object.keys(modules).find(key =>
-            key.includes(docsPath.split('/').pop() || '')
-          )
-          if (componentKey && modules[componentKey]) {
-            return await modules[componentKey]()
-          }
-
-          throw new Error('Module not found in glob')
-        },
-
-        // Strategy 2: Import from registry alias
-        async () => {
-          const registryPath = docsPath.replace('registry/', '')
-          return await import(/* @vite-ignore */ `@registry/${registryPath}`)
-        },
-
-        // Strategy 3: Direct component path
-        async () => {
-          const componentName = docsPath.split('/').pop()?.replace('.docs.tsx', '') || ''
-          return await import(/* @vite-ignore */ `@registry/new-york/components/${componentName}/${componentName}.docs.tsx`)
-        },
-
-        // Strategy 4: Direct hook path
-        async () => {
-          const hookName = docsPath.split('/').pop()?.replace('.docs.tsx', '') || ''
-          if (docsPath.includes('/hooks/')) {
-            return await import(/* @vite-ignore */ `@registry/new-york/hooks/${hookName}.docs.tsx`)
-          }
-          throw new Error('Not a hook path')
+        if (module.default && typeof module.default === 'function') {
+          return { default: module.default as React.ComponentType }
         }
-      ]
 
-      for (let i = 0; i < strategies.length; i++) {
+        // Try named exports
+        const namedExports = Object.keys(module).filter(key => key !== 'default')
+        for (const exportName of namedExports) {
+          const component = module[exportName]
+          if (typeof component === 'function') {
+            console.log('✅ Found component via named export:', exportName)
+            return { default: component as React.ComponentType }
+          }
+        }
+      }
+
+      // If no exact match, try to find by pattern
+      const matchingPaths = Object.keys(docsModules).filter(path => {
+        const componentName = docsPath.split('/').pop()?.replace('.docs.tsx', '') || ''
+        return path.includes(componentName) && path.endsWith('.docs.tsx')
+      })
+
+      console.log('🔍 Matching paths found:', matchingPaths)
+
+      for (const matchingPath of matchingPaths) {
         try {
-          console.log(`Trying import strategy ${i + 1} for ${docsPath}`)
-          const module = await strategies[i]()
+          console.log('🔄 Trying matching path:', matchingPath)
+          const module = await docsModules[matchingPath]() as Record<string, unknown>
 
           if (module.default && typeof module.default === 'function') {
-            console.log(`Successfully loaded with strategy ${i + 1}`)
-            return { default: module.default }
+            console.log('✅ Found component via pattern match at:', matchingPath)
+            return { default: module.default as React.ComponentType }
           }
 
           // Try named exports
@@ -72,18 +66,19 @@ function createLazyDocumentationComponent(docsPath: string) {
           for (const exportName of namedExports) {
             const component = module[exportName]
             if (typeof component === 'function') {
-              console.log(`Successfully loaded named export '${exportName}' with strategy ${i + 1}`)
-              return { default: component }
+              console.log('✅ Found component via named export in pattern match:', exportName)
+              return { default: component as React.ComponentType }
             }
           }
-        } catch (err) {
-          console.log(`Strategy ${i + 1} failed:`, err)
+        } catch (error) {
+          console.log('❌ Pattern match failed for:', matchingPath, error)
           continue
         }
       }
 
       // Fallback component
-      console.log('All strategies failed, using fallback component')
+      console.log('❌ SafeComponentRenderer - All strategies failed, using fallback component')
+      console.log('📋 Available modules:', Object.keys(docsModules))
       return {
         default: function FallbackDocumentation() {
           return (
@@ -92,6 +87,15 @@ function createLazyDocumentationComponent(docsPath: string) {
               <p className="text-muted-foreground">
                 Could not load documentation for this component.
               </p>
+              <p className="text-xs text-gray-500 mt-2">
+                Tried to load: {docsPath}
+              </p>
+              <details className="mt-4 text-left">
+                <summary className="cursor-pointer text-sm">Available modules ({Object.keys(docsModules).length})</summary>
+                <pre className="text-xs mt-2 bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-auto max-h-40">
+                  {Object.keys(docsModules).join('\n')}
+                </pre>
+              </details>
             </div>
           )
         }

@@ -1,0 +1,67 @@
+/* Styles pour intégrer Shiki avec notre design */
+
+.shiki-container {
+  /* Assurer que le code a notre police mono */
+  font-family: "Fira Code", "JetBrains Mono", "SF Mono", Monaco, Inconsolata, "Roboto Mono", "Droid Sans Mono", "Liberation Mono", Menlo, Courier, monospace !important;
+}
+
+.shiki-container pre {
+  /* Réinitialiser les styles par défaut */
+  margin: 0 !important;
+  padding: 1.5rem !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  overflow-x: auto;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  tab-size: 2;
+}
+
+.shiki-container code {
+  font-family: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+}
+
+/* Personnalisation pour les thèmes */
+.shiki-container .shiki {
+  background: transparent !important;
+}
+
+/* Scrollbar personnalisée pour le thème sombre */
+.dark .shiki-container pre::-webkit-scrollbar {
+  height: 8px;
+}
+
+.dark .shiki-container pre::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.dark .shiki-container pre::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.dark .shiki-container pre::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Scrollbar personnalisée pour le thème clair */
+.shiki-container pre::-webkit-scrollbar {
+  height: 8px;
+}
+
+.shiki-container pre::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.shiki-container pre::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.shiki-container pre::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}

@@ -1,4 +1,5 @@
 import { DocSample, InstallationCommand } from '../../../src/components/registry'
+import { DocSectionHeader, DocSubSectionHeader } from '../../../src/components/doc-navigation-zustand'
 import {
   MediaQueryResponsiveExample,
   MediaQueryThemeExample,
@@ -29,10 +30,10 @@ export function UseMediaQueryDocumentation() {
       </div>
 
       {/* Features */}
+      <DocSectionHeader id="features" title="Fonctionnalités">
+        ✨ Fonctionnalités
+      </DocSectionHeader>
       <div className="space-y-4">
-        <h2 className="text-2xl font-semibold flex items-center gap-2">
-          ✨ Fonctionnalités
-        </h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-3 p-4 border rounded-lg">
             <div className="text-2xl">📱</div>
@@ -66,10 +67,10 @@ export function UseMediaQueryDocumentation() {
       </div>
 
       {/* Installation */}
+      <DocSectionHeader id="installation" title="Installation">
+        📦 Installation
+      </DocSectionHeader>
       <div className="space-y-4">
-        <h2 className="text-2xl font-semibold flex items-center gap-2">
-          📦 Installation
-        </h2>
         <InstallationCommand componentPath="hooks/use-media-query" />
         <p className="text-sm text-muted-foreground">
           Aucune dépendance externe requise, utilise l'API native `matchMedia`.
@@ -77,14 +78,13 @@ export function UseMediaQueryDocumentation() {
       </div>
 
       {/* API Reference */}
+      <DocSectionHeader id="api-reference" title="Référence API">
+        📚 Référence API
+      </DocSectionHeader>
       <div className="space-y-4">
-        <h2 className="text-2xl font-semibold flex items-center gap-2">
-          📚 Référence API
-        </h2>
-
         <div className="space-y-6">
           <div>
-            <h3 className="text-lg font-medium mb-3">useMediaQuery</h3>
+            <DocSubSectionHeader id="use-media-query-hook" title="useMediaQuery" />
             <div className="rounded-lg border overflow-hidden">
               <table className="w-full">
                 <thead className="bg-muted/50">
@@ -106,7 +106,7 @@ export function UseMediaQueryDocumentation() {
           </div>
 
           <div>
-            <h3 className="text-lg font-medium mb-3">Valeur de retour</h3>
+            <DocSubSectionHeader id="return-value" title="Valeur de retour" />
             <div className="rounded-lg border overflow-hidden">
               <table className="w-full">
                 <thead className="bg-muted/50">
@@ -126,7 +126,7 @@ export function UseMediaQueryDocumentation() {
           </div>
 
           <div>
-            <h3 className="text-lg font-medium mb-3">Media Queries courantes</h3>
+            <DocSubSectionHeader id="common-media-queries" title="Media Queries courantes" />
             <div className="grid gap-3 md:grid-cols-2">
               <div className="p-4 border rounded-lg">
                 <h4 className="font-medium text-blue-600 mb-2">📏 Breakpoints</h4>
@@ -165,16 +165,28 @@ export function UseMediaQueryDocumentation() {
       </div>
 
       {/* Examples */}
-      <div className="space-y-6">
-        <h2 className="text-2xl font-semibold flex items-center gap-2">
-          🎯 Exemples
-        </h2>
+      <DocSectionHeader id="examples" title="Exemples">
+        🎯 Exemples
+      </DocSectionHeader>
+      <div className="space-y-8">
 
-        <div className="grid gap-6">
-          <DocSample
-            title="Design responsif"
-            description="Adaptation automatique selon la taille d'écran avec breakpoints"
-            sourceCode={`import { useMediaQuery } from './use-media-query'
+        <DocSample
+          id="responsive-example"
+          title="Design responsif"
+          description={
+            <div>
+              <p className="mb-3">Adaptation automatique selon la taille d'écran avec breakpoints courants.</p>
+              <div>
+                <p><strong>📏 Breakpoints testés :</strong></p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li><strong>Mobile :</strong> ≤ 768px - Affichage en 1 colonne</li>
+                  <li><strong>Tablette :</strong> 769px - 1024px - Affichage en 2 colonnes</li>
+                  <li><strong>Desktop :</strong> ≥ 1025px - Affichage en 3 colonnes</li>
+                </ul>
+              </div>
+            </div>
+          }
+          sourceCode={`import { useMediaQuery } from './use-media-query'
 
 export function ResponsiveExample() {
   const isMobile = useMediaQuery('(max-width: 768px)')
@@ -193,14 +205,27 @@ export function ResponsiveExample() {
     </div>
   )
 }`}
-          >
-            <MediaQueryResponsiveExample />
-          </DocSample>
+        >
+          <MediaQueryResponsiveExample />
+        </DocSample>
 
-          <DocSample
-            title="Préférences système"
-            description="Détection des préférences utilisateur (thème, accessibilité, etc.)"
-            sourceCode={`import { useMediaQuery } from './use-media-query'
+        <DocSample
+          id="system-preferences"
+          title="Préférences système"
+          description={
+            <div>
+              <p className="mb-3">Détection automatique des préférences utilisateur configurées dans le système d'exploitation.</p>
+              <div>
+                <p><strong>🎨 Préférences détectées :</strong></p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li><strong>Thème :</strong> Sombre/Clair selon les paramètres OS</li>
+                  <li><strong>Animation :</strong> Détection du mode "mouvement réduit"</li>
+                  <li><strong>Contraste :</strong> Support du contraste élevé</li>
+                </ul>
+              </div>
+            </div>
+          }
+          sourceCode={`import { useMediaQuery } from './use-media-query'
 
 export function SystemPreferencesExample() {
   const prefersDark = useMediaQuery('(prefers-color-scheme: dark)')
@@ -216,14 +241,27 @@ export function SystemPreferencesExample() {
     </div>
   )
 }`}
-          >
-            <MediaQueryThemeExample />
-          </DocSample>
+        >
+          <MediaQueryThemeExample />
+        </DocSample>
 
-          <DocSample
-            title="Testeur de media queries"
-            description="Interface pour tester des media queries personnalisées en temps réel"
-            sourceCode={`import { useState } from 'react'
+        <DocSample
+          id="custom-query-tester"
+          title="Testeur de media queries"
+          description={
+            <div>
+              <p className="mb-3">Interface interactive pour tester des media queries personnalisées en temps réel.</p>
+              <div>
+                <p><strong>🔧 Fonctionnalités :</strong></p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li><strong>Test en temps réel :</strong> Saisissez une query et voyez le résultat</li>
+                  <li><strong>Requêtes prédéfinies :</strong> Boutons rapides pour les queries courantes</li>
+                  <li><strong>Infos appareil :</strong> Dimensions et capacités détectées</li>
+                </ul>
+              </div>
+            </div>
+          }
+          sourceCode={`import { useState } from 'react'
 import { useMediaQuery } from './use-media-query'
 
 export function MediaQueryTester() {
@@ -253,8 +291,21 @@ export function MediaQueryTester() {
           </DocSample>
 
           <DocSample
+            id="adaptive-navigation"
             title="Navigation adaptative"
-            description="Exemple complet d'interface qui s'adapte selon l'appareil"
+            description={
+              <div>
+                <p className="mb-3">Interface complète qui s'adapte automatiquement selon l'appareil utilisé.</p>
+                <div>
+                  <p><strong>🧭 Comportements adaptatifs :</strong></p>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li><strong>Mobile :</strong> Menu burger avec navigation simplifiée</li>
+                    <li><strong>Desktop :</strong> Barre de navigation horizontale complète</li>
+                    <li><strong>Transitions :</strong> Respect des préférences d'animation</li>
+                  </ul>
+                </div>
+              </div>
+            }
             sourceCode={`import { useMediaQuery } from './use-media-query'
 
 export function AdaptiveNavigation() {
@@ -286,7 +337,6 @@ export function AdaptiveNavigation() {
           >
             <MediaQueryNavigationExample />
           </DocSample>
-        </div>
       </div>
     </div>
   )
