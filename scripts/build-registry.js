@@ -17,9 +17,18 @@ console.log('📁 Root dir:', rootDir);
 console.log('📁 Registry dir:', registryDir);
 console.log('📁 Dist dir:', distDir);
 
-// First, generate public registry files
+// First, generate public registry files using shadcn CLI
 console.log('📦 Generating public registry files...');
-execSync('node scripts/generate-public-registry.js', { cwd: rootDir, stdio: 'inherit' });
+try {
+  execSync('npm run registry:generate', { 
+    cwd: rootDir, 
+    stdio: 'inherit' 
+  });
+  console.log('✅ Public registry files generated successfully!');
+} catch (error) {
+  console.error('❌ Failed to generate public registry files:', error.message);
+  process.exit(1);
+}
 
 // Create dist/registry directory
 if (!existsSync(distRegistryDir)) {
@@ -68,8 +77,9 @@ if (existsSync(newYorkSrc)) {
 function countFiles(dir) {
   let count = 0;
   if (!existsSync(dir)) return count;
-
+  
   const items = readdirSync(dir);
+  
   for (const item of items) {
     const itemPath = join(dir, item);
     if (statSync(itemPath).isDirectory()) {
@@ -78,6 +88,7 @@ function countFiles(dir) {
       count++;
     }
   }
+  
   return count;
 }
 

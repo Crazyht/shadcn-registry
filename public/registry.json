@@ -1,0 +1,36 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "shadcn-registry",
+  "url": "https://crazyht.github.io/shadcn-registry",
+  "homepage": "https://crazyht.github.io/shadcn-registry",
+  "version": "1.0.0",
+  "description": "Registry personnalisée avec des composants React/TypeScript",
+  "author": "CrazyHT",
+  "license": "MIT",
+  "items": [
+    {
+      "name": "animated-counter",
+      "url": "https://crazyht.github.io/shadcn-registry/r/animated-counter.json"
+    },
+    {
+      "name": "numeric-input",
+      "url": "https://crazyht.github.io/shadcn-registry/r/numeric-input.json"
+    },
+    {
+      "name": "data-table",
+      "url": "https://crazyht.github.io/shadcn-registry/r/data-table.json"
+    },
+    {
+      "name": "use-debounce",
+      "url": "https://crazyht.github.io/shadcn-registry/r/use-debounce.json"
+    },
+    {
+      "name": "use-local-storage",
+      "url": "https://crazyht.github.io/shadcn-registry/r/use-local-storage.json"
+    },
+    {
+      "name": "use-media-query",
+      "url": "https://crazyht.github.io/shadcn-registry/r/use-media-query.json"
+    }
+  ]
+}
