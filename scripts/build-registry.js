@@ -3,6 +3,7 @@
 import { mkdirSync, copyFileSync, existsSync, readdirSync, statSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { execSync } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -15,6 +16,10 @@ console.log('🚀 Building registry...');
 console.log('📁 Root dir:', rootDir);
 console.log('📁 Registry dir:', registryDir);
 console.log('📁 Dist dir:', distDir);
+
+// First, generate public registry files
+console.log('📦 Generating public registry files...');
+execSync('node scripts/generate-public-registry.js', { cwd: rootDir, stdio: 'inherit' });
 
 // Create dist/registry directory
 if (!existsSync(distRegistryDir)) {

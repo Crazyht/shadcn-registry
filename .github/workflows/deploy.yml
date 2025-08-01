@@ -83,6 +83,13 @@ jobs:
       - name: Validate registry
         run: npm run registry:validate
 
+      - name: Verify public registry files
+        run: |
+          echo "Checking if public/r/ directory exists..."
+          ls -la public/r/ || echo "public/r/ directory not found"
+          echo "Number of files in public/r/:"
+          ls public/r/ | wc -l || echo "0"
+
       - name: Run linter
         run: npm run lint
 
@@ -96,6 +103,15 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
+
+      - name: Verify dist files
+        run: |
+          echo "Checking if dist/r/ directory exists..."
+          ls -la dist/r/ || echo "dist/r/ directory not found"
+          echo "Number of files in dist/r/:"
+          ls dist/r/ | wc -l || echo "0"
+          echo "Checking dist/registry/:"
+          ls -la dist/registry/ || echo "dist/registry/ directory not found"
 
       - name: Create 404.html for SPA
         run: cp dist/index.html dist/404.html
