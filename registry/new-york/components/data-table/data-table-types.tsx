@@ -1,6 +1,48 @@
 import { z } from 'zod'
 
 /**
+ * Breakpoints prédéfinis pour la gestion responsive
+ */
+export type MediaBreakpoint = 'Mobile' | 'Tablet' | 'Desktop'
+
+/**
+ * Media query personnalisée
+ */
+export interface CustomMediaQuery {
+  min?: string
+  max?: string
+}
+
+/**
+ * Type pour définir les media queries (breakpoint prédéfini ou personnalisé)
+ */
+export type MediaQuery = MediaBreakpoint | CustomMediaQuery
+
+/**
+ * Mode de largeur pour les colonnes
+ */
+export type ColumnWidthMode =
+  | 'content'     // Largeur ajustée au contenu
+  | 'range'       // Largeur entre min et max
+  | 'fill'        // Prend la place restante
+
+/**
+ * Configuration responsive pour une colonne
+ */
+export interface ColumnResponsive {
+  /** Breakpoints où la colonne est visible. Si vide ou undefined = visible partout */
+  medias?: MediaQuery[]
+  /** Mode de largeur */
+  widthMode?: ColumnWidthMode
+  /** Largeur minimale */
+  minWidth?: string
+  /** Largeur maximale */
+  maxWidth?: string
+  /** Largeur fixe */
+  width?: string
+}
+
+/**
  * Configuration d'icônes personnalisées pour le tri
  */
 export interface SortIcons {
@@ -112,6 +154,8 @@ export interface DataTableColumn<T> {
   align?: 'left' | 'center' | 'right'
   /** Type de colonne pour clarifier l'usage */
   type?: 'data' | 'action' | 'computed'
+  /** Configuration responsive */
+  responsive?: ColumnResponsive
 }
 
 /**

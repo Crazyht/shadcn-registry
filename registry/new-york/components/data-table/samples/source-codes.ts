@@ -388,6 +388,105 @@ export function PaginationModesExample() {
       />
     </div>
   )
+}`,
+
+  'responsive-example': `import { DataTable, DataTableColumn } from '../data-table'
+import { z } from 'zod'
+
+// Schéma pour les données d'exemple
+const UserSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  email: z.string(),
+  phone: z.string(),
+  department: z.string(),
+  role: z.string(),
+  status: z.enum(['active', 'inactive', 'pending']),
+  salary: z.number(),
+  lastLogin: z.string(),
+})
+
+type User = z.infer<typeof UserSchema>
+
+export function ResponsiveDataTableExample() {
+  // Configuration des colonnes avec gestion responsive
+  const columns: DataTableColumn<User>[] = [
+    {
+      label: "ID",
+      path: "id",
+      isSortable: true,
+      responsive: {
+        medias: ['Desktop'], // Visible uniquement sur desktop
+        widthMode: "content",
+        width: "60px"
+      }
+    },
+    {
+      label: "Nom",
+      path: "name",
+      isSortable: true,
+      responsive: {
+        // Pas de medias défini = visible partout
+        widthMode: "range",
+        minWidth: "120px",
+        maxWidth: "200px"
+      }
+    },
+    {
+      label: "Email",
+      path: "email",
+      isSortable: true,
+      responsive: {
+        medias: ['Tablet', 'Desktop'], // Masqué sur mobile
+        widthMode: "fill",
+        minWidth: "150px"
+      }
+    },
+    {
+      label: "Téléphone",
+      path: "phone",
+      responsive: {
+        medias: ['Mobile'], // Visible uniquement sur mobile
+        widthMode: "content",
+        width: "120px"
+      }
+    },
+    {
+      label: "Département",
+      path: "department",
+      isSortable: true,
+      responsive: {
+        medias: [{ min: '900px' }], // Media query personnalisée
+        widthMode: "content",
+        width: "120px"
+      }
+    }
+  ]
+
+  // Données d'exemple
+  const sampleUsers = [
+    {
+      id: 1, name: "Marie Dubois", email: "marie.dubois@example.com",
+      phone: "+33 1 23 45 67 89", department: "IT", role: "Developer",
+      status: "active" as const, salary: 55000, lastLogin: "2024-01-15T10:30:00Z"
+    },
+    // ... plus de données
+  ]
+
+  const getData = async () => ({
+    data: sampleUsers,
+    totalCount: sampleUsers.length
+  })
+
+  return (
+    <DataTable
+      schema={UserSchema}
+      columns={columns}
+      getData={getData}
+      paginationMode="None"
+      emptyMessage="Aucun utilisateur trouvé"
+    />
+  )
 }`
 } as const
 

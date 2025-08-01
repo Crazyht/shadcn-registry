@@ -48,6 +48,10 @@
         {
           "path":"registry/new-york/components/data-table/data-table-utils.tsx",
           "type": "registry:lib"
+        },
+        {
+          "path":"registry/new-york/components/data-table/data-table-responsive.tsx",
+          "type": "registry:lib"
         }
       ],
       "dependencies": ["clsx", "tailwind-merge", "lucide-react", "zod"]

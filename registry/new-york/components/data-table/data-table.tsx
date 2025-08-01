@@ -30,11 +30,13 @@ import {
 } from './data-table-types'
 import { generatePageNumbers, getNestedValue, groupDataClientSide } from './data-table-utils'
 import { FilterPopover } from './data-table-filters'
+import { useResponsiveColumns, getColumnClasses, getColumnStyles } from './data-table-responsive'
 
 // Exporter les types et composants pour l'usage externe
 export * from './data-table-types'
 export { TextFilterControl, NumberFilterControl, SelectFilterControl } from './data-table-filters'
 export { evaluateFilter, applyFilters } from './data-table-utils'
+export { useResponsiveColumns, getColumnClasses, getColumnStyles } from './data-table-responsive'
 
 /**
  * Normalise les colonnes selon les règles définies
@@ -91,6 +93,9 @@ export function DataTable<T extends Record<string, unknown>>({
 
   // Normaliser les colonnes selon les règles définies
   const normalizedColumns = normalizeColumns(columns)
+
+  // Utiliser les utilitaires responsive
+  const { columns: responsiveColumns } = useResponsiveColumns(normalizedColumns)
 
   // Calculer les métriques de pagination
   const totalPages = Math.ceil(totalCount / currentPageSize)
@@ -450,7 +455,7 @@ export function DataTable<T extends Record<string, unknown>>({
           onClick={() => isExpandable && toggleGroupExpansion(group.groupValue)}
         >
           <td
-            colSpan={normalizedColumns.length}
+            colSpan={responsiveColumns.length}
             className="h-12 px-4 font-medium"
           >
             {renderGroupHeader(group)}
@@ -471,7 +476,7 @@ export function DataTable<T extends Record<string, unknown>>({
               )}
               onClick={() => handleRowClick(row)}
             >
-              {normalizedColumns.map((column, colIndex) => {
+              {responsiveColumns.map((column, colIndex) => {
                 const value = column.path ? getValueByPath(row, column.path) : undefined
                 const displayValue = column.render ? column.render(value, row) : (value as React.ReactNode)
 
@@ -481,8 +486,10 @@ export function DataTable<T extends Record<string, unknown>>({
                     className={cn(
                       'p-4 align-middle',
                       column.align === 'center' && 'text-center',
-                      column.align === 'right' && 'text-right'
+                      column.align === 'right' && 'text-right',
+                      getColumnClasses(column)
                     )}
+                    style={getColumnStyles(column)}
                   >
                     {displayValue}
                   </td>
@@ -509,7 +516,7 @@ export function DataTable<T extends Record<string, unknown>>({
         )}
         onClick={() => handleRowClick(row)}
       >
-        {normalizedColumns.map((column, colIndex) => {
+        {responsiveColumns.map((column, colIndex) => {
           const value = column.path ? getValueByPath(row, column.path) : undefined
           const displayValue = column.render ? column.render(value, row) : (value as React.ReactNode)
 
@@ -519,8 +526,10 @@ export function DataTable<T extends Record<string, unknown>>({
               className={cn(
                 'p-4 align-middle',
                 column.align === 'center' && 'text-center',
-                column.align === 'right' && 'text-right'
+                column.align === 'right' && 'text-right',
+                getColumnClasses(column)
               )}
+              style={getColumnStyles(column)}
             >
               {displayValue}
             </td>
@@ -567,23 +576,24 @@ export function DataTable<T extends Record<string, unknown>>({
       <div
         ref={tableRef}
         className={cn(
-          'rounded-md border',
+          'rounded-md border overflow-x-auto',
           paginationMode === 'InfiniteScroll' && 'max-h-96 overflow-auto'
         )}
       >
         <table className="w-full caption-bottom text-sm">
           <thead className="[&_tr]:border-b sticky top-0 bg-background">
             <tr className="border-b transition-colors hover:bg-muted/50">
-              {normalizedColumns.map((column, index) => (
+              {responsiveColumns.map((column, index) => (
                 <th
                   key={index}
                   className={cn(
                     'h-12 px-4 text-left align-middle font-medium text-muted-foreground',
                     column.isSortable && column.path && 'cursor-pointer select-none hover:text-foreground',
                     column.align === 'center' && 'text-center',
-                    column.align === 'right' && 'text-right'
+                    column.align === 'right' && 'text-right',
+                    getColumnClasses(column)
                   )}
-                  style={{ width: column.width }}
+                  style={{ ...getColumnStyles(column), width: column.width }}
                   onClick={(event) => column.isSortable && column.path && handleSort(column.path, event)}
                   title={
                     column.isSortable && column.path
@@ -614,7 +624,7 @@ export function DataTable<T extends Record<string, unknown>>({
             {data.length === 0 && groups.length === 0 ? (
               <tr>
                 <td
-                  colSpan={normalizedColumns.length}
+                  colSpan={responsiveColumns.length}
                   className="h-24 px-4 text-center text-muted-foreground"
                 >
                   {emptyMessage}

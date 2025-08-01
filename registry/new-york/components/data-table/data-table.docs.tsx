@@ -5,7 +5,8 @@ import {
   FilteringExample,
   GroupingExample,
   CustomSortIconsExample,
-  PaginationModesExample
+  PaginationModesExample,
+  ResponsiveDataTableExample
 } from './samples'
 import { getSampleSourceCode } from './samples/source-codes'
 
@@ -75,7 +76,60 @@ export function DataTableDocumentation() {
             </ul>
           </div>
         </div>
-      </section>      {/* Installation */}
+      </section>
+
+      {/* Section Responsive */}
+      <section className="space-y-6">
+        <h2 className="text-3xl font-semibold border-b pb-2">📱 Système Responsive</h2>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="space-y-4">
+            <h3 className="text-xl font-medium">Breakpoints Prédéfinis</h3>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded text-sm font-mono">Mobile</span>
+                <span className="text-sm text-muted-foreground">max: 639px</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="px-2 py-1 bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300 rounded text-sm font-mono">Tablet</span>
+                <span className="text-sm text-muted-foreground">640px - 1023px</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="px-2 py-1 bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 rounded text-sm font-mono">Desktop</span>
+                <span className="text-sm text-muted-foreground">min: 1024px</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-xl font-medium">Modes de Largeur</h3>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300 rounded text-sm font-mono">content</span>
+                <span className="text-sm text-muted-foreground">Largeur fixe</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="px-2 py-1 bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 rounded text-sm font-mono">range</span>
+                <span className="text-sm text-muted-foreground">Entre min et max</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="px-2 py-1 bg-pink-100 dark:bg-pink-950 text-pink-700 dark:text-pink-300 rounded text-sm font-mono">fill</span>
+                <span className="text-sm text-muted-foreground">Prend l'espace restant</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-4 bg-muted/50 rounded-lg">
+          <h4 className="font-medium mb-2">💡 Configuration</h4>
+          <p className="text-sm text-muted-foreground">
+            Utilisez la propriété <code className="px-1 py-0.5 bg-background rounded">responsive</code> sur chaque colonne
+            pour définir sa visibilité et son comportement selon la taille d'écran.
+          </p>
+        </div>
+      </section>
+
+      {/* Installation */}
       <section className="space-y-6">
         <h2 className="text-3xl font-semibold border-b pb-2">📦 Installation</h2>
 
@@ -352,6 +406,15 @@ export function DataTableDocumentation() {
           sourceCode={getSampleSourceCode('basic-example')}
         >
           <BasicExample />
+        </DocSample>
+
+        {/* Responsive */}
+        <DocSample
+          title="📱 Colonnes Responsives"
+          description="Gestion avancée de la visibilité des colonnes selon la taille d'écran avec breakpoints personnalisés"
+          sourceCode={getSampleSourceCode('responsive-example')}
+        >
+          <ResponsiveDataTableExample />
         </DocSample>
 
         {/* Filtrage */}
