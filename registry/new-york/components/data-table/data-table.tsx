@@ -695,7 +695,7 @@ export function DataTable<T extends Record<string, unknown>>({
               <PaginationItem>
                 <PaginationPrevious
                   href="#"
-                  onClick={(e) => {
+                  onClick={(e: React.MouseEvent) => {
                     e.preventDefault()
                     if (hasPrevPage) handlePageChange(currentPage - 1)
                   }}
@@ -710,7 +710,7 @@ export function DataTable<T extends Record<string, unknown>>({
                   ) : (
                     <PaginationLink
                       href="#"
-                      onClick={(e) => {
+                      onClick={(e: React.MouseEvent) => {
                         e.preventDefault()
                         handlePageChange(page)
                       }}
@@ -727,7 +727,7 @@ export function DataTable<T extends Record<string, unknown>>({
               <PaginationItem>
                 <PaginationNext
                   href="#"
-                  onClick={(e) => {
+                  onClick={(e: React.MouseEvent) => {
                     e.preventDefault()
                     if (hasNextPage) handlePageChange(currentPage + 1)
                   }}
