@@ -1,6 +1,6 @@
 import { useState, ReactNode } from 'react'
 import { Button } from '../ui/button'
-import { CodeBlock } from '../ui/code-block'
+import { LazyCodeBlock } from '../ui/lazy-code-block'
 import { DocSubSectionHeader } from '../doc-sub-section-header-zustand'
 import { Copy, Eye, Code2, Check, Maximize2, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -200,7 +200,7 @@ export function DocSample({
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-indigo-500/5" />
               <div className="relative p-6 overflow-x-auto">
-                <CodeBlock
+                <LazyCodeBlock
                   code={sourceCode}
                   language="tsx"
                   className="!bg-transparent !m-0 !p-0"

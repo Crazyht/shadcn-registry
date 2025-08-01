@@ -85,6 +85,39 @@ export default defineConfig({
   define: {
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Separate vendor chunks
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-popover', '@radix-ui/react-select'],
+          'vendor-utils': ['clsx', 'tailwind-merge', 'zod', 'zustand'],
+          'vendor-icons': ['lucide-react'],
+
+          // Separate Shiki syntax highlighting into smaller chunks
+          'syntax-core': ['shiki/core'],
+          'syntax-langs-web': ['shiki/langs'],
+          'syntax-themes': ['shiki/themes'],
+        },
+        // Optimize chunk size
+        chunkFileNames: (chunkInfo) => {
+          // Create separate chunks for different language groups
+          if (chunkInfo.name?.includes('lang')) {
+            return 'assets/langs/[name]-[hash].js'
+          }
+          if (chunkInfo.name?.includes('theme')) {
+            return 'assets/themes/[name]-[hash].js'
+          }
+          return 'assets/[name]-[hash].js'
+        }
+      }
+    },
+    // Increase chunk size warning limit to 1MB for syntax highlighting
+    chunkSizeWarningLimit: 1000,
+    // Enable source maps for better debugging
+    sourcemap: false
+  },
   server: {
     fs: {
       allow: ['..', '.']
@@ -95,6 +128,7 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    exclude: ['@registry']
+    exclude: ['@registry'],
+    include: ['react', 'react-dom']
   }
 })
