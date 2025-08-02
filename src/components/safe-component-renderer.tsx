@@ -132,7 +132,11 @@ export function SafeComponentRenderer({ componentName, docsPath }: SafeComponent
       componentRegistry.set(cacheKey, createLazyDocumentationComponent(docsPath))
     }
 
-    return componentRegistry.get(cacheKey)!
+    const component = componentRegistry.get(cacheKey)
+    if (!component) {
+      throw new Error(`Failed to load component: ${componentName}`)
+    }
+    return component
   })()
 
   // Listen for HMR updates in development

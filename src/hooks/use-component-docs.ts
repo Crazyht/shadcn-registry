@@ -48,8 +48,11 @@ export function useComponentDocs({ item, componentName }: UseComponentDocsOption
       const moduleCache = getDocModuleCache()
       const cacheKey = docsPath
       if (moduleCache.has(cacheKey)) {
-        setDocumentation(moduleCache.get(cacheKey)!)
-        return
+        const cachedComponent = moduleCache.get(cacheKey)
+        if (cachedComponent) {
+          setDocumentation(cachedComponent)
+          return
+        }
       }
 
       console.log('Loading documentation from:', docsPath)

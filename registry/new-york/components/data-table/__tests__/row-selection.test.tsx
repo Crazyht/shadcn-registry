@@ -24,7 +24,9 @@ describe('DataTable - Row Selection', () => {
 
     // Cliquer sur la première ligne
     const firstRow = screen.getByText('Alice').closest('tr')
-    fireEvent.click(firstRow!)
+    if (firstRow) {
+      fireEvent.click(firstRow)
+    }
 
     expect(onRowSelect).toHaveBeenCalledWith(testData[0])
   })

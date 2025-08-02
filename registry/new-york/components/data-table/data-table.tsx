@@ -609,8 +609,8 @@ export function DataTable<T extends Record<string, unknown>>({
                         <FilterPopover
                           column={column}
                           filterValue={getFilterValue(column.path)}
-                          onFilterChange={(value) => handleFilterChange(column.path!, value)}
-                          onClearFilter={() => clearFilter(column.path!)}
+                          onFilterChange={(value) => column.path && handleFilterChange(column.path, value)}
+                          onClearFilter={() => column.path && clearFilter(column.path)}
                           icon={getFilterIcon(column.path)}
                         />
                       )}

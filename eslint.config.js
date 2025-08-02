@@ -53,6 +53,8 @@ export default [
         varsIgnorePattern: '^_'
       }],
       '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'warn',
 
       // Console - Adaptatif selon NODE_ENV
       'no-console': process.env.NODE_ENV === 'production'

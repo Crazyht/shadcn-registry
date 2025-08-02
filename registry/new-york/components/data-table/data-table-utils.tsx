@@ -70,7 +70,10 @@ export function groupDataClientSide<T extends Record<string, unknown>>(
     if (!groups.has(groupValue)) {
       groups.set(groupValue, [])
     }
-    groups.get(groupValue)!.push(item)
+    const group = groups.get(groupValue)
+    if (group) {
+      group.push(item)
+    }
   })
 
   // Convertir en format DataGroup avec état d'expansion

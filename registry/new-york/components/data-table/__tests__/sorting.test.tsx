@@ -24,7 +24,9 @@ describe('DataTable - Sorting Functionality', () => {
     const nameHeader = screen.getByText('Nom').closest('th')
     expect(nameHeader).toBeInTheDocument()
 
-    fireEvent.click(nameHeader!)
+    if (nameHeader) {
+      fireEvent.click(nameHeader)
+    }
 
     // Vérifier que getData a été appelé avec les paramètres de tri
     await waitFor(() => {
@@ -52,7 +54,9 @@ describe('DataTable - Sorting Functionality', () => {
 
     // Cliquer sur l'en-tête "Email" (non triable)
     const emailHeader = screen.getByText('Email').closest('th')
-    fireEvent.click(emailHeader!)
+    if (emailHeader) {
+      fireEvent.click(emailHeader)
+    }
 
     // Vérifier que getData n'a pas été appelé à nouveau
     expect(getData).not.toHaveBeenCalled()
