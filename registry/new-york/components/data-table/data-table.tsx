@@ -27,6 +27,7 @@ import {
   ColumnFilter,
   DataGroup,
   FilterValue,
+  DataTableMessages,
 } from './data-table-types'
 import { generatePageNumbers, getNestedValue, groupDataClientSide } from './data-table-utils'
 import { FilterPopover } from './data-table-filters'
@@ -61,7 +62,7 @@ export function DataTable<T extends Record<string, unknown>>({
   schema,
   columns,
   getData,
-  emptyMessage = 'Aucune donnée disponible',
+  messages,
   paginationMode = 'PaginationWithSize',
   defaultPageSize = 50,
   pageSize,
@@ -76,7 +77,6 @@ export function DataTable<T extends Record<string, unknown>>({
   sortIcons,
   filterIcons,
   showLoadMoreButton = false,
-  loadingMessage = 'Chargement des données...',
 }: DataTableProps<T>) {
   const [data, setData] = useState<T[]>([])
   const [groups, setGroups] = useState<DataGroup<T>[]>([])
@@ -91,7 +91,19 @@ export function DataTable<T extends Record<string, unknown>>({
   const tableRef = useRef<HTMLDivElement>(null)
   const dataLengthRef = useRef(0)
 
-  // Normaliser les colonnes selon les règles définies
+  // Fonction utilitaire pour récupérer les messages avec fallback
+  const getMessage = useCallback((key: keyof DataTableMessages, defaultValue: string, interpolations?: Record<string, string | number>): string => {
+    let message = messages?.[key] || defaultValue
+
+    // Interpolation des variables dans le message
+    if (interpolations) {
+      Object.entries(interpolations).forEach(([placeholder, value]) => {
+        message = message.replace(`{${placeholder}}`, String(value))
+      })
+    }
+
+    return message
+  }, [messages])  // Normaliser les colonnes selon les règles définies
   const normalizedColumns = normalizeColumns(columns)
 
   // Utiliser les utilitaires responsive
@@ -170,9 +182,9 @@ export function DataTable<T extends Record<string, unknown>>({
       }
     } catch (err) {
       if (err instanceof z.ZodError) {
-        setError(`Erreur de validation : ${err.issues?.map(issue => issue.message).join(', ') || 'Données invalides'}`)
+        setError(getMessage('validationError', `Erreur de validation : ${err.issues?.map(issue => issue.message).join(', ') || 'Données invalides'}`))
       } else {
-        setError(`Erreur lors du chargement des données : ${err instanceof Error ? err.message : 'Erreur inconnue'}`)
+        setError(getMessage('loadingError', `Erreur lors du chargement des données : ${err instanceof Error ? err.message : getMessage('unknownError', 'Erreur inconnue')}`))
       }
       if (!append) {
         setData([])
@@ -188,7 +200,7 @@ export function DataTable<T extends Record<string, unknown>>({
         // Ignorer les erreurs si le composant est démonté
       }
     }
-  }, [getData, schema, sortColumns, currentPage, currentPageSize, paginationMode, grouping, filters])
+  }, [getData, schema, sortColumns, currentPage, currentPageSize, paginationMode, grouping, filters, getMessage])
 
   // Charger les données au montage et quand le tri change
   useEffect(() => {
@@ -557,7 +569,7 @@ export function DataTable<T extends Record<string, unknown>>({
       <div className="flex items-center justify-center p-8">
         <div className="flex items-center gap-2 text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" />
-          {loadingMessage}
+          {getMessage('loadingMessage', 'Chargement des données...')}
         </div>
       </div>
     )
@@ -597,7 +609,7 @@ export function DataTable<T extends Record<string, unknown>>({
                   onClick={(event) => column.isSortable && column.path && handleSort(column.path, event)}
                   title={
                     column.isSortable && column.path
-                      ? `${column.description || column.label} - Cliquez pour trier, Ctrl/Shift+Clic pour tri multi-colonnes`
+                      ? getMessage('sortColumnAriaLabel', `${column.description || column.label} - Cliquez pour trier, Ctrl/Shift+Clic pour tri multi-colonnes`, { column: column.description || column.label })
                       : column.description
                   }
                 >
@@ -627,7 +639,7 @@ export function DataTable<T extends Record<string, unknown>>({
                   colSpan={responsiveColumns.length}
                   className="h-24 px-4 text-center text-muted-foreground"
                 >
-                  {emptyMessage}
+                  {getMessage('emptyMessage', 'Aucune donnée disponible')}
                 </td>
               </tr>
             ) : grouping && groups.length > 0 ? (
@@ -642,7 +654,7 @@ export function DataTable<T extends Record<string, unknown>>({
         {paginationMode === 'InfiniteScroll' && loadingMore && (
           <div className="flex items-center justify-center p-4 border-t">
             <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            <span className="text-sm text-muted-foreground">Chargement...</span>
+            <span className="text-sm text-muted-foreground">{getMessage('loadingIndicator', 'Chargement...')}</span>
           </div>
         )}
       </div>
@@ -654,7 +666,7 @@ export function DataTable<T extends Record<string, unknown>>({
             onClick={handleLoadMore}
             className="px-4 py-2 text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20 rounded-md transition-colors"
           >
-            Charger plus
+            {getMessage('loadMoreButton', 'Charger plus')}
           </button>
         </div>
       )}
@@ -664,13 +676,17 @@ export function DataTable<T extends Record<string, unknown>>({
           <div className="flex items-center gap-4">
             {showPaginationInfo && (
               <div className="text-sm text-muted-foreground">
-                Affichage de {startItem} à {endItem} sur {totalCount} éléments
+                {getMessage('displayInfo', 'Affichage de {start} à {end} sur {total} éléments', {
+                  start: startItem,
+                  end: endItem,
+                  total: totalCount
+                })}
               </div>
             )}
 
             {paginationMode === 'PaginationWithSize' && (
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Éléments par page:</span>
+                <span className="text-sm text-muted-foreground">{getMessage('elementsPerPage', 'Éléments par page:')}</span>
                 <Select
                   value={currentPageSize.toString()}
                   onValueChange={(value) => handlePageSizeChange(Number(value))}
@@ -690,7 +706,7 @@ export function DataTable<T extends Record<string, unknown>>({
             )}
           </div>
 
-          <Pagination role="navigation" aria-label="pagination">
+          <Pagination role="navigation" aria-label={getMessage('paginationAriaLabel', 'pagination')}>
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
@@ -743,7 +759,7 @@ export function DataTable<T extends Record<string, unknown>>({
       {paginationMode === 'None' && totalCount > 0 && (
         <div className="flex items-center justify-center px-2 py-4">
           <div className="text-sm text-muted-foreground">
-            {totalCount} éléments au total
+            {getMessage('totalElements', '{total} éléments au total', { total: totalCount })}
           </div>
         </div>
       )}

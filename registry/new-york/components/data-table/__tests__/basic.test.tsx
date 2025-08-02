@@ -44,7 +44,9 @@ describe('DataTable - Basic Functionality', () => {
         schema={TestSchema}
         columns={testColumns}
         getData={getData}
-        loadingMessage="Chargement des données..."
+        messages={{
+          loadingMessage: "Chargement des données..."
+        }}
       />
     )
 
@@ -59,7 +61,9 @@ describe('DataTable - Basic Functionality', () => {
         schema={TestSchema}
         columns={testColumns}
         getData={getData}
-        emptyMessage="Aucune donnée trouvée"
+        messages={{
+          emptyMessage: "Aucune donnée trouvée"
+        }}
       />
     )
 

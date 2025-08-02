@@ -290,8 +290,10 @@ export default function DataTableDemo() {
             pageSizeOptions={[5, 10, 20, 50]}
             onRowSelect={setSelectedUser}
             selectedRow={selectedUser}
-            emptyMessage="Aucun utilisateur trouvé"
-            loadingMessage="Chargement des utilisateurs..."
+            messages={{
+              emptyMessage: "Aucun utilisateur trouvé",
+              loadingMessage: "Chargement des utilisateurs..."
+            }}
             showLoadMoreButton={true}
             filterIcons={{
               default: Filter,
@@ -464,8 +466,10 @@ export function DataTablePreview() {
           getData={getData}
           onRowSelect={setSelectedUser}
           selectedRow={selectedUser}
-          emptyMessage="Aucun utilisateur trouvé"
-          loadingMessage="Chargement des utilisateurs..."
+          messages={{
+            emptyMessage: "Aucun utilisateur trouvé",
+            loadingMessage: "Chargement des utilisateurs..."
+          }}
         />
 
         {selectedUser && (

@@ -32,7 +32,9 @@ describe('DataTable - Infinite Scroll & Load More', () => {
           schema={TestSchema}
           columns={testColumns}
           getData={getData}
-          loadingMessage="Loading users..."
+          messages={{
+            loadingMessage: "Loading users..."
+          }}
         />
       )
 

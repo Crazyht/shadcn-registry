@@ -213,6 +213,38 @@ export interface DataTableResponse<T> {
 }
 
 /**
+ * Interface pour les messages du DataTable
+ */
+export interface DataTableMessages {
+  /** Messages généraux */
+  emptyMessage?: string
+  loadingMessage?: string
+
+  /** Messages d'erreur */
+  validationError?: string
+  loadingError?: string
+  unknownError?: string
+
+  /** Messages de pagination */
+  loadingIndicator?: string
+  loadMoreButton?: string
+  displayInfo?: string // Template: "Affichage de {start} à {end} sur {total} éléments"
+  elementsPerPage?: string
+  totalElements?: string // Template: "{total} éléments au total"
+
+  /** Messages d'accessibilité */
+  sortColumnAriaLabel?: string // Template: "{column} - Cliquez pour trier, Ctrl/Shift+Clic pour tri multi-colonnes"
+  paginationAriaLabel?: string
+
+  /** Messages de tri et filtrage */
+  sortAscending?: string
+  sortDescending?: string
+  noSort?: string
+  filterActive?: string
+  filterInactive?: string
+}
+
+/**
  * Mode de pagination pour le DataTable
  */
 export type PaginationMode =
@@ -237,6 +269,8 @@ export interface DataTableProps<T> {
     grouping?: DataTableGrouping,
     filters?: ColumnFilter[]
   ) => Promise<DataTableResponse<T>> | DataTableResponse<T>
+  /** Configuration des messages personnalisés */
+  messages?: DataTableMessages
   /** Mode de pagination */
   paginationMode?: PaginationMode
   /** Taille de page par défaut */
@@ -249,8 +283,6 @@ export interface DataTableProps<T> {
   showPaginationInfo?: boolean
   /** Afficher la pagination même s'il n'y a qu'une seule page */
   showSinglePagePagination?: boolean
-  /** Message à afficher quand il n'y a pas de données */
-  emptyMessage?: string
   /** Callback appelé quand une ligne est sélectionnée */
   onRowSelect?: (row: T) => void
   /** Ligne actuellement sélectionnée (pour surlignage) */
@@ -267,6 +299,4 @@ export interface DataTableProps<T> {
   filterIcons?: FilterIcons
   /** Afficher un bouton "Charger plus" pour le mode InfiniteScroll (défaut: false) */
   showLoadMoreButton?: boolean
-  /** Message à afficher pendant le chargement des données */
-  loadingMessage?: string
 }

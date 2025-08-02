@@ -215,7 +215,9 @@ export function ResponsiveDataTableExample() {
         columns={columns}
         getData={getData}
         paginationMode="None"
-        emptyMessage="Aucun utilisateur trouvé"
+        messages={{
+          emptyMessage: "Aucun utilisateur trouvé"
+        }}
       />
     </div>
   )

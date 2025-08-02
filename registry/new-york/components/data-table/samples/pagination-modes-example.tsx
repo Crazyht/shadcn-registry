@@ -187,8 +187,10 @@ export function PaginationModesExample() {
           paginationMode={currentMode}
           pageSize={10}
           pageSizeOptions={[5, 10, 20, 50]}
-          emptyMessage="Aucun utilisateur trouvé"
-          loadingMessage="Chargement des utilisateurs..."
+          messages={{
+            emptyMessage: "Aucun utilisateur trouvé",
+            loadingMessage: "Chargement des utilisateurs..."
+          }}
           showLoadMoreButton={true}
         />
       </div>

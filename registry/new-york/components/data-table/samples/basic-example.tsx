@@ -134,7 +134,9 @@ export function BasicExample() {
         paginationMode="PaginationWithSize"
         pageSize={10}
         pageSizeOptions={[5, 10, 15, 25]}
-        emptyMessage="Aucun utilisateur trouvé"
+        messages={{
+          emptyMessage: "Aucun utilisateur trouvé"
+        }}
       />
 
       {selectedUser && (

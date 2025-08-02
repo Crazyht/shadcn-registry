@@ -7,7 +7,8 @@ import {
   GroupingExample,
   CustomSortIconsExample,
   PaginationModesExample,
-  ResponsiveDataTableExample
+  ResponsiveDataTableExample,
+  I18nExample
 } from './samples'
 import { getSampleSourceCode } from './samples/source-codes'
 
@@ -187,6 +188,11 @@ export function DataTableDocumentation() {
                   <td className="p-4 text-sm">Fonction pour récupérer les données avec tri, pagination, groupement et filtrage</td>
                 </tr>
                 <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">messages</td>
+                  <td className="p-4 text-sm"><code>DataTableMessages</code></td>
+                  <td className="p-4 text-sm">Configuration pour la personnalisation des messages (optionnel)</td>
+                </tr>
+                <tr className="border-b">
                   <td className="p-4 font-mono text-sm">paginationMode</td>
                   <td className="p-4 text-sm"><code>'None' | 'InfiniteScroll' | 'Pagination' | 'PaginationWithSize'</code></td>
                   <td className="p-4 text-sm">Mode de pagination (défaut: 'PaginationWithSize')</td>
@@ -235,16 +241,6 @@ export function DataTableDocumentation() {
                   <td className="p-4 font-mono text-sm">filterIcons</td>
                   <td className="p-4 text-sm"><code>FilterIcons</code></td>
                   <td className="p-4 text-sm">Configuration des icônes de filtrage personnalisées (optionnel)</td>
-                </tr>
-                <tr className="border-b">
-                  <td className="p-4 font-mono text-sm">emptyMessage</td>
-                  <td className="p-4 text-sm"><code>string</code></td>
-                  <td className="p-4 text-sm">Message à afficher quand il n'y a pas de données</td>
-                </tr>
-                <tr>
-                  <td className="p-4 font-mono text-sm">loadingMessage</td>
-                  <td className="p-4 text-sm"><code>string</code></td>
-                  <td className="p-4 text-sm">Message à afficher pendant le chargement</td>
                 </tr>
               </tbody>
             </table>
@@ -308,6 +304,84 @@ export function DataTableDocumentation() {
                   <td className="p-4 font-mono text-sm">type</td>
                   <td className="p-4 text-sm"><code>'data' | 'action' | 'computed'</code></td>
                   <td className="p-4 text-sm">Type de colonne pour clarifier l'usage</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* DataTableMessages */}
+        <div className="space-y-4">
+          <DocSubSectionHeader id="messages-configuration" title="Configuration des messages" />
+          <div className="rounded-lg border overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-muted/50">
+                <tr className="border-b">
+                  <th className="text-left p-4 font-medium">Propriété</th>
+                  <th className="text-left p-4 font-medium">Type</th>
+                  <th className="text-left p-4 font-medium">Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">emptyMessage</td>
+                  <td className="p-4 text-sm"><code>string</code></td>
+                  <td className="p-4 text-sm">Message affiché quand il n'y a pas de données</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">loadingMessage</td>
+                  <td className="p-4 text-sm"><code>string</code></td>
+                  <td className="p-4 text-sm">Message affiché pendant le chargement</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">loadingIndicator</td>
+                  <td className="p-4 text-sm"><code>string</code></td>
+                  <td className="p-4 text-sm">Texte affiché pendant le chargement de données supplémentaires</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">loadMoreButton</td>
+                  <td className="p-4 text-sm"><code>string</code></td>
+                  <td className="p-4 text-sm">Texte du bouton "Charger plus"</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">displayInfo</td>
+                  <td className="p-4 text-sm"><code>string</code></td>
+                  <td className="p-4 text-sm">Template d'information de pagination : "{"{start}"} à {"{end}"} sur {"{total}"} éléments"</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">elementsPerPage</td>
+                  <td className="p-4 text-sm"><code>string</code></td>
+                  <td className="p-4 text-sm">Label pour le sélecteur de taille de page</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">totalElements</td>
+                  <td className="p-4 text-sm"><code>string</code></td>
+                  <td className="p-4 text-sm">Template pour le total d'éléments : "{"{total}"} éléments au total"</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">sortColumnAriaLabel</td>
+                  <td className="p-4 text-sm"><code>string</code></td>
+                  <td className="p-4 text-sm">Label aria pour colonnes triables avec placeholder {"{column}"}</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">paginationAriaLabel</td>
+                  <td className="p-4 text-sm"><code>string</code></td>
+                  <td className="p-4 text-sm">Label aria pour la navigation de pagination</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">validationError</td>
+                  <td className="p-4 text-sm"><code>string</code></td>
+                  <td className="p-4 text-sm">Message d'erreur de validation des données</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-4 font-mono text-sm">loadingError</td>
+                  <td className="p-4 text-sm"><code>string</code></td>
+                  <td className="p-4 text-sm">Message d'erreur de chargement des données</td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-mono text-sm">unknownError</td>
+                  <td className="p-4 text-sm"><code>string</code></td>
+                  <td className="p-4 text-sm">Message pour erreur inconnue</td>
                 </tr>
               </tbody>
             </table>
@@ -416,6 +490,16 @@ export function DataTableDocumentation() {
           sourceCode={getSampleSourceCode('basic-example')}
         >
           <BasicExample />
+        </DocSample>
+
+        {/* Internationalisation */}
+        <DocSample
+          id="i18n-example"
+          title="🌍 Messages personnalisés et i18n"
+          description="Personnalisation des messages du DataTable avec support de l'internationalisation. Changez la langue pour voir les messages mis à jour."
+          sourceCode={getSampleSourceCode('i18n-example')}
+        >
+          <I18nExample />
         </DocSample>
 
         {/* Responsive */}
