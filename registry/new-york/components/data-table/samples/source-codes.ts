@@ -2,7 +2,8 @@
 // En production, ces codes sources seraient récupérés via une API ou bundlés
 
 export const sampleSourceCodes = {
-  'basic-example': `import { DataTable, DataTableColumn } from '../data-table'
+  'basic-example': `import { DataTable } from '../data-table'
+import { defineColumn } from '../data-table-types'
 import { z } from 'zod'
 import { useState } from 'react'
 
@@ -28,30 +29,28 @@ export function BasicExample() {
     // ... plus de données
   ]
 
-  // Configuration des colonnes
-  const columns: DataTableColumn<User>[] = [
-    {
+  // Configuration des colonnes avec helper
+  const userColumn = defineColumn<User, typeof UserSchema>(UserSchema)
+  const columns = [
+    userColumn('id', {
       label: 'ID',
-      path: 'id',
       isSortable: true,
       width: '80px',
       align: 'center',
-    },
-    {
+    }),
+    userColumn('name', {
       label: 'Nom',
-      path: 'name',
       isSortable: true,
-    },
-    {
+    }),
+    userColumn('status', {
       label: 'Statut',
-      path: 'status',
       isSortable: true,
       render: (value) => (
         <span className={\`badge \${value === 'active' ? 'success' : 'error'}\`}>
           {value === 'active' ? 'Actif' : 'Inactif'}
         </span>
       ),
-    },
+    }),
     // ... autres colonnes
   ]
 
@@ -94,7 +93,8 @@ export function BasicExample() {
   )
 }`,
 
-  'filtering-example': `import { DataTable, DataTableColumn, TextFilterControl, NumberFilterControl, SelectFilterControl } from '../data-table'
+  'filtering-example': `import { DataTable, TextFilterControl, NumberFilterControl, SelectFilterControl } from '../data-table'
+import { defineColumn } from '../data-table-types'
 import { z } from 'zod'
 import { useState } from 'react'
 import { Filter, FilterX } from 'lucide-react'
@@ -108,28 +108,30 @@ const ProductSchema = z.object({
   isAvailable: z.boolean(),
 })
 
+type Product = z.infer<typeof ProductSchema>
+
 export function FilteringExample() {
   const [selectedProduct, setSelectedProduct] = useState()
 
+  // Configuration avec helper
+  const productColumn = defineColumn<Product, typeof ProductSchema>(ProductSchema)
+
   const columns = [
-    {
+    productColumn('name', {
       label: 'Produit',
-      path: 'name',
       isSortable: true,
       isFilterable: true,
       filterControl: TextFilterControl
-    },
-    {
+    }),
+    productColumn('price', {
       label: 'Prix',
-      path: 'price',
       isSortable: true,
       isFilterable: true,
       filterControl: NumberFilterControl,
       render: (value) => \`€\${value.toFixed(2)}\`
-    },
-    {
+    }),
+    productColumn('category', {
       label: 'Catégorie',
-      path: 'category',
       isFilterable: true,
       filterControl: (props) => (
         <SelectFilterControl
@@ -140,7 +142,7 @@ export function FilteringExample() {
           ]}
         />
       )
-    }
+    })
   ]
 
   const getData = async (sortColumns, startRow, pageSize, grouping, filters) => {
@@ -197,7 +199,8 @@ export function FilteringExample() {
   )
 }`,
 
-  'grouping-example': `import { DataTable, DataTableColumn } from '../data-table'
+  'grouping-example': `import { DataTable } from '../data-table'
+import { defineColumn } from '../data-table-types'
 import { z } from 'zod'
 import { useState } from 'react'
 
@@ -209,22 +212,26 @@ const EmployeeSchema = z.object({
   status: z.enum(['active', 'inactive']),
 })
 
+type Employee = z.infer<typeof EmployeeSchema>
+
 export function GroupingExample() {
   const [accordionMode, setAccordionMode] = useState(false)
 
+  // Configuration avec helper
+  const employeeColumn = defineColumn<Employee, typeof EmployeeSchema>(EmployeeSchema)
+
   const columns = [
-    { label: 'ID', path: 'id', isSortable: true },
-    { label: 'Nom', path: 'name', isSortable: true },
-    { label: 'Email', path: 'email' },
-    {
+    employeeColumn('id', { label: 'ID', isSortable: true }),
+    employeeColumn('name', { label: 'Nom', isSortable: true }),
+    employeeColumn('email', { label: 'Email' }),
+    employeeColumn('status', {
       label: 'Statut',
-      path: 'status',
       render: (value) => (
         <span className={\`badge \${value === 'active' ? 'success' : 'error'}\`}>
           {value === 'active' ? 'Actif' : 'Inactif'}
         </span>
       )
-    }
+    })
   ]
 
   const getData = async (sortColumns, startRow, pageSize) => {
@@ -261,7 +268,8 @@ export function GroupingExample() {
   )
 }`,
 
-  'custom-sort-icons-example': `import { DataTable, DataTableColumn } from '../data-table'
+  'custom-sort-icons-example': `import { DataTable } from '../data-table'
+import { defineColumn } from '../data-table-types'
 import { MoreHorizontal, TrendingUp, TrendingDown } from 'lucide-react'
 import { z } from 'zod'
 
@@ -272,25 +280,28 @@ const ProductSchema = z.object({
   stock: z.number(),
 })
 
+type Product = z.infer<typeof ProductSchema>
+
 export function CustomSortIconsExample() {
+  // Configuration avec helper
+  const productColumn = defineColumn<Product, typeof ProductSchema>(ProductSchema)
+
   const columns = [
-    { label: 'Produit', path: 'name', isSortable: true },
-    {
+    productColumn('name', { label: 'Produit', isSortable: true }),
+    productColumn('price', {
       label: 'Prix',
-      path: 'price',
       isSortable: true,
       render: (value) => \`€\${value.toFixed(2)}\`
-    },
-    {
+    }),
+    productColumn('stock', {
       label: 'Stock',
-      path: 'stock',
       isSortable: true,
       render: (value) => (
         <span className={value === 0 ? 'text-red-500' : 'text-green-600'}>
           {value} unités
         </span>
       )
-    }
+    })
   ]
 
   const getData = async (sortColumns, startRow, pageSize) => {
@@ -317,7 +328,8 @@ export function CustomSortIconsExample() {
   )
 }`,
 
-  'pagination-modes-example': `import { DataTable, DataTableColumn } from '../data-table'
+  'pagination-modes-example': `import { DataTable } from '../data-table'
+import { defineColumn } from '../data-table-types'
 import { z } from 'zod'
 import { useState } from 'react'
 
@@ -327,6 +339,8 @@ const UserSchema = z.object({
   email: z.string().email(),
   status: z.enum(['active', 'inactive']),
 })
+
+type User = z.infer<typeof UserSchema>
 
 export function PaginationModesExample() {
   const [currentMode, setCurrentMode] = useState('PaginationWithSize')
@@ -338,19 +352,21 @@ export function PaginationModesExample() {
     { value: 'PaginationWithSize', label: 'Pagination complète' },
   ]
 
+  // Configuration avec helper
+  const userColumn = defineColumn<User, typeof UserSchema>(UserSchema)
+
   const columns = [
-    { label: 'ID', path: 'id', isSortable: true },
-    { label: 'Nom', path: 'name', isSortable: true },
-    { label: 'Email', path: 'email', isSortable: true },
-    {
+    userColumn('id', { label: 'ID', isSortable: true }),
+    userColumn('name', { label: 'Nom', isSortable: true }),
+    userColumn('email', { label: 'Email', isSortable: true }),
+    userColumn('status', {
       label: 'Statut',
-      path: 'status',
       render: (value) => (
         <span className={\`badge \${value === 'active' ? 'success' : 'error'}\`}>
           {value === 'active' ? 'Actif' : 'Inactif'}
         </span>
       )
-    }
+    })
   ]
 
   const getData = async (sortColumns, startRow, pageSize) => {
@@ -401,7 +417,8 @@ export function PaginationModesExample() {
   )
 }`,
 
-  'responsive-example': `import { DataTable, DataTableColumn } from '../data-table'
+  'responsive-example': `import { DataTable } from '../data-table'
+import { defineColumn } from '../data-table-types'
 import { z } from 'zod'
 
 // Schéma pour les données d'exemple
@@ -420,21 +437,22 @@ const UserSchema = z.object({
 type User = z.infer<typeof UserSchema>
 
 export function ResponsiveDataTableExample() {
+  // Configuration avec helper
+  const userColumn = defineColumn<User, typeof UserSchema>(UserSchema)
+
   // Configuration des colonnes avec gestion responsive
-  const columns: DataTableColumn<User>[] = [
-    {
+  const columns = [
+    userColumn('id', {
       label: "ID",
-      path: "id",
       isSortable: true,
       responsive: {
         medias: ['Desktop'], // Visible uniquement sur desktop
         widthMode: "content",
         width: "60px"
       }
-    },
-    {
+    }),
+    userColumn('name', {
       label: "Nom",
-      path: "name",
       isSortable: true,
       responsive: {
         // Pas de medias défini = visible partout
@@ -442,36 +460,33 @@ export function ResponsiveDataTableExample() {
         minWidth: "120px",
         maxWidth: "200px"
       }
-    },
-    {
+    }),
+    userColumn('email', {
       label: "Email",
-      path: "email",
       isSortable: true,
       responsive: {
         medias: ['Tablet', 'Desktop'], // Masqué sur mobile
         widthMode: "fill",
         minWidth: "150px"
       }
-    },
-    {
+    }),
+    userColumn('phone', {
       label: "Téléphone",
-      path: "phone",
       responsive: {
         medias: ['Mobile'], // Visible uniquement sur mobile
         widthMode: "content",
         width: "120px"
       }
-    },
-    {
+    }),
+    userColumn('department', {
       label: "Département",
-      path: "department",
       isSortable: true,
       responsive: {
         medias: [{ min: '900px' }], // Media query personnalisée
         widthMode: "content",
         width: "120px"
       }
-    }
+    })
   ]
 
   // Données d'exemple
@@ -501,6 +516,7 @@ export function ResponsiveDataTableExample() {
 }`,
 
   'i18n-example': `import { DataTable } from '../data-table'
+import { defineColumn } from '../data-table-types'
 import { z } from 'zod'
 import { useState } from 'react'
 
@@ -536,23 +552,23 @@ export function I18nExample() {
   const [isLoading, setIsLoading] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
 
+  // Configuration avec helper
+  const userColumn = defineColumn<User, typeof UserSchema>(UserSchema)
+
   const columns = [
-    {
+    userColumn('name', {
       label: currentLanguage === 'fr' ? 'Nom' : currentLanguage === 'en' ? 'Name' : 'Nombre',
-      path: 'name',
       isSortable: true
-    },
-    {
+    }),
+    userColumn('email', {
       label: currentLanguage === 'fr' ? 'Email' : currentLanguage === 'en' ? 'Email' : 'Correo',
-      path: 'email',
       isSortable: true
-    },
-    {
+    }),
+    userColumn('status', {
       label: currentLanguage === 'fr' ? 'Statut' : currentLanguage === 'en' ? 'Status' : 'Estado',
-      path: 'status',
       isSortable: true,
       isFilterable: true
-    },
+    }),
   ]
 
   const getData = async () => {
