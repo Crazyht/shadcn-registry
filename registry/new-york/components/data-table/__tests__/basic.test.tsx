@@ -4,7 +4,6 @@ import { DataTable } from '../data-table'
 import '@testing-library/jest-dom'
 import { z } from 'zod'
 import { TestSchema, testColumns, testData, createMockResponse } from './shared/test-setup'
-import { defaultTestMessages } from './shared/test-messages'
 
 describe('DataTable - Basic Functionality', () => {
   it('renders with default props', async () => {
