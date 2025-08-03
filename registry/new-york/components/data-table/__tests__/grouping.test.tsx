@@ -11,7 +11,7 @@ describe('DataTable - Grouping Functionality', () => {
     render(
       <DataTable
         schema={TestSchema}
-        columns={testColumns}
+        columns={testColumns as never}
         getData={getData}
         grouping={{ path: 'status' }}
       />
@@ -34,7 +34,7 @@ describe('DataTable - Grouping Functionality', () => {
     render(
       <DataTable
         schema={TestSchema}
-        columns={testColumns}
+        columns={testColumns as never}
         getData={getData}
         grouping={{ path: 'status' }}
       />
@@ -73,7 +73,7 @@ describe('DataTable - Grouping Functionality', () => {
     render(
       <DataTable
         schema={TestSchema}
-        columns={testColumns}
+        columns={testColumns as never}
         getData={getData}
         grouping={{
           path: 'status',
@@ -97,7 +97,7 @@ describe('DataTable - Grouping Functionality', () => {
     render(
       <DataTable
         schema={TestSchema}
-        columns={testColumns}
+        columns={testColumns as never}
         getData={getData}
         grouping={{
           path: 'status',
@@ -121,7 +121,7 @@ describe('DataTable - Grouping Functionality', () => {
     render(
       <DataTable
         schema={TestSchema}
-        columns={testColumns}
+        columns={testColumns as never}
         getData={getData}
         grouping={{
           path: 'status',
@@ -178,7 +178,7 @@ describe('DataTable - Grouping Functionality', () => {
     render(
       <DataTable
         schema={TestSchema}
-        columns={testColumns}
+        columns={testColumns as never}
         getData={getData}
         grouping={{ path: 'status' }}
       />
@@ -233,7 +233,7 @@ describe('DataTable - Grouping Functionality', () => {
     render(
       <DataTable
         schema={TestSchema}
-        columns={testColumns}
+        columns={testColumns as never}
         getData={getData}
         grouping={{ path: 'status' }}
       />
@@ -252,7 +252,7 @@ describe('DataTable - Grouping Functionality', () => {
     render(
       <DataTable
         schema={TestSchema}
-        columns={testColumns}
+        columns={testColumns as never}
         getData={getData}
         grouping={{ path: 'status' }}
         onRowSelect={onRowSelect}
@@ -279,9 +279,9 @@ describe('DataTable - Grouping Functionality', () => {
     render(
       <DataTable
         schema={TestSchema}
-        columns={testColumns}
+        columns={testColumns as never}
         getData={getData}
-        grouping={groupingConfig}
+        grouping={groupingConfig as never}
       />
     )
 
@@ -297,7 +297,7 @@ describe('DataTable - Grouping Functionality', () => {
       render(
         <DataTable
           schema={TestSchema}
-          columns={testColumns}
+          columns={testColumns as never}
           getData={getData}
           grouping={{
             path: 'status',
@@ -333,7 +333,7 @@ describe('DataTable - Grouping Functionality', () => {
       render(
         <DataTable
           schema={TestSchema}
-          columns={testColumns}
+          columns={testColumns as never}
           getData={getData}
           grouping={{
             path: 'status',
@@ -374,7 +374,7 @@ describe('DataTable - Grouping Functionality', () => {
       render(
         <DataTable
           schema={TestSchema}
-          columns={testColumns}
+          columns={testColumns as never}
           getData={getData}
           grouping={{
             path: 'status',
@@ -414,7 +414,7 @@ describe('DataTable - Grouping Functionality', () => {
       render(
         <DataTable
           schema={TestSchema}
-          columns={testColumns}
+          columns={testColumns as never}
           getData={getData}
           grouping={{
             path: 'status',

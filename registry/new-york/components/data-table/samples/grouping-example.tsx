@@ -1,4 +1,5 @@
-import { DataTable, DataTableColumn, SortColumn, ColumnFilter } from '../data-table'
+import { DataTable, SortColumn, ColumnFilter, DataTableResponse, DataTableGrouping } from '../data-table'
+import { defineColumn } from '../data-table-types'
 import { z } from 'zod'
 import { useState } from 'react'
 
@@ -31,15 +32,15 @@ export function GroupingExample() {
   ]
 
   // Configuration des colonnes pour les employés
-  const employeeColumns: DataTableColumn<Employee>[] = [
-    { label: 'ID', path: 'id', isSortable: true, width: '80px' },
-    { label: 'Nom', path: 'name', isSortable: true },
-    { label: 'Email', path: 'email', isSortable: false },
-    {
+  const employeeColumn = defineColumn<Employee, typeof EmployeeSchema>(EmployeeSchema)
+  const employeeColumns = [
+    employeeColumn('id', { label: 'ID', isSortable: true, width: '80px' }),
+    employeeColumn('name', { label: 'Nom', isSortable: true }),
+    employeeColumn('email', { label: 'Email', isSortable: false }),
+    employeeColumn('status', {
       label: 'Statut',
-      path: 'status',
       isSortable: true,
-      render: (value: unknown) => (
+      render: (value) => (
         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
           value === 'active'
             ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
@@ -48,18 +49,18 @@ export function GroupingExample() {
           {value === 'active' ? 'Actif' : 'Inactif'}
         </span>
       )
-    },
-    { label: 'Date d\'embauche', path: 'joinedAt', isSortable: true },
+    }),
+    employeeColumn('joinedAt', { label: 'Date d\'embauche', isSortable: true }),
   ]
 
   // Fonction getData pour les employés avec support du grouping
   const getEmployeeData = async (
-    sortColumns: SortColumn[],
+    sortColumns: SortColumn<Employee>[],
     startRow: number,
     pageSize: number,
-    _grouping?: { path: string; renderGroupHeader?: (groupValue: unknown, count: number, isExpanded: boolean) => React.ReactNode; expandable?: boolean; defaultExpanded?: boolean; accordion?: boolean },
-    filters?: ColumnFilter[]
-  ) => {
+    _grouping?: DataTableGrouping<Employee>,
+    filters?: ColumnFilter<Employee>[]
+  ): Promise<DataTableResponse<Employee>> => {
     // Simulation d'un délai réseau
     await new Promise(resolve => setTimeout(resolve, 100))
 
@@ -69,17 +70,7 @@ export function GroupingExample() {
     if (filters && filters.length > 0) {
       data = data.filter(item => {
         return filters.every(filter => {
-          // Fonction utilitaire pour obtenir une valeur par son chemin
-          const getValueByPath = (obj: Record<string, unknown>, path: string): unknown => {
-            return path.split('.').reduce((current: unknown, key: string) => {
-              if (current && typeof current === 'object' && key in current) {
-                return (current as Record<string, unknown>)[key]
-              }
-              return undefined
-            }, obj as unknown)
-          }
-
-          const value = getValueByPath(item, filter.path)
+          const value = item[filter.path as keyof Employee]
           const filterValue = filter.filter
 
           if (!filterValue) {
@@ -87,55 +78,57 @@ export function GroupingExample() {
           }
 
           // Gestion des différents opérateurs
-          switch (filterValue.operator) {
+          switch ((filterValue as Record<string, unknown>).operator) {
             case 'equals':
-              return value === filterValue.value
+              return value === (filterValue as Record<string, unknown>).value
 
             case 'not_equals':
-              return value !== filterValue.value
+              return value !== (filterValue as Record<string, unknown>).value
 
             case 'contains':
-              if (typeof value === 'string' && typeof filterValue.value === 'string') {
-                return value.toLowerCase().includes(filterValue.value.toLowerCase())
+              if (typeof value === 'string' && typeof (filterValue as Record<string, unknown>).value === 'string') {
+                return value.toLowerCase().includes(((filterValue as Record<string, unknown>).value as string).toLowerCase())
               }
               return false
 
             case 'starts_with':
-              if (typeof value === 'string' && typeof filterValue.value === 'string') {
-                return value.toLowerCase().startsWith(filterValue.value.toLowerCase())
+              if (typeof value === 'string' && typeof (filterValue as Record<string, unknown>).value === 'string') {
+                return value.toLowerCase().startsWith(((filterValue as Record<string, unknown>).value as string).toLowerCase())
               }
               return false
 
             case 'ends_with':
-              if (typeof value === 'string' && typeof filterValue.value === 'string') {
-                return value.toLowerCase().endsWith(filterValue.value.toLowerCase())
+              if (typeof value === 'string' && typeof (filterValue as Record<string, unknown>).value === 'string') {
+                return value.toLowerCase().endsWith(((filterValue as Record<string, unknown>).value as string).toLowerCase())
               }
               return false
 
             case 'greater_than':
-              return Number(value) > Number(filterValue.value)
+              return Number(value) > Number((filterValue as Record<string, unknown>).value)
 
             case 'greater_or_equal':
-              return Number(value) >= Number(filterValue.value)
+              return Number(value) >= Number((filterValue as Record<string, unknown>).value)
 
             case 'less_than':
-              return Number(value) < Number(filterValue.value)
+              return Number(value) < Number((filterValue as Record<string, unknown>).value)
 
             case 'less_or_equal':
-              return Number(value) <= Number(filterValue.value)
+              return Number(value) <= Number((filterValue as Record<string, unknown>).value)
 
             case 'between': {
               const numValue = Number(value)
-              const min = Number(filterValue.value)
-              const max = Number(filterValue.value2)
+              const min = Number((filterValue as Record<string, unknown>).value)
+              const max = Number((filterValue as Record<string, unknown>).value2)
               return numValue >= min && numValue <= max
             }
 
             case 'in':
-              return filterValue.values?.includes(value)
+              return Array.isArray((filterValue as Record<string, unknown>).values) &&
+                     ((filterValue as Record<string, unknown>).values as unknown[]).includes(value)
 
             case 'not_in':
-              return !filterValue.values?.includes(value)
+              return !(Array.isArray((filterValue as Record<string, unknown>).values) &&
+                      ((filterValue as Record<string, unknown>).values as unknown[]).includes(value))
 
             case 'is_null':
               return value === null || value === undefined
@@ -154,24 +147,24 @@ export function GroupingExample() {
     if (sortColumns.length > 0) {
       data.sort((a, b) => {
         for (const sort of sortColumns) {
-          // Fonction utilitaire locale pour obtenir une valeur par son chemin
-          const getValueByPathLocal = (obj: Record<string, unknown>, path: string): unknown => {
-            return path.split('.').reduce((current: unknown, key: string) => {
-              if (current && typeof current === 'object' && key in current) {
-                return (current as Record<string, unknown>)[key]
-              }
-              return undefined
-            }, obj as unknown)
+          const aValue = a[sort.path as keyof Employee]
+          const bValue = b[sort.path as keyof Employee]
+
+          let comparison = 0
+
+          if (typeof aValue === 'string' && typeof bValue === 'string') {
+            comparison = aValue.localeCompare(bValue)
+          } else if (typeof aValue === 'number' && typeof bValue === 'number') {
+            comparison = aValue - bValue
+          } else {
+            const aStr = String(aValue ?? '')
+            const bStr = String(bValue ?? '')
+            comparison = aStr.localeCompare(bStr)
           }
 
-          const aValue = getValueByPathLocal(a as Record<string, unknown>, sort.path)
-          const bValue = getValueByPathLocal(b as Record<string, unknown>, sort.path)
-
-          const aStr = String(aValue ?? '')
-          const bStr = String(bValue ?? '')
-
-          if (aStr < bStr) return sort.direction === 'asc' ? -1 : 1
-          if (aStr > bStr) return sort.direction === 'asc' ? 1 : -1
+          if (comparison !== 0) {
+            return sort.direction === 'asc' ? comparison : -comparison
+          }
         }
         return 0
       })

@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import { DataTable } from '../data-table'
-import { DataTableColumn } from '../data-table-types'
 import { z } from 'zod'
 import '@testing-library/jest-dom'
 
@@ -50,7 +49,7 @@ const createMockResponse = (data: TestUser[]) => ({
   totalCount: data.length
 })
 
-const responsiveColumns: DataTableColumn<TestUser>[] = [
+const responsiveColumns = [
   {
     label: "Nom",
     path: "name",
@@ -100,7 +99,7 @@ describe('DataTable Responsive', () => {
       <DataTable<TestUser>
         schema={TestUserSchema}
         getData={mockGetData}
-        columns={responsiveColumns}
+        columns={responsiveColumns as never}
       />
     )
 
@@ -126,7 +125,7 @@ describe('DataTable Responsive', () => {
       <DataTable<TestUser>
         schema={TestUserSchema}
         getData={mockGetData}
-        columns={responsiveColumns}
+        columns={responsiveColumns as never}
       />
     )
 
@@ -152,7 +151,7 @@ describe('DataTable Responsive', () => {
       <DataTable<TestUser>
         schema={TestUserSchema}
         getData={mockGetData}
-        columns={responsiveColumns}
+        columns={responsiveColumns as never}
       />
     )
 
@@ -178,7 +177,7 @@ describe('DataTable Responsive', () => {
       <DataTable<TestUser>
         schema={TestUserSchema}
         getData={mockGetData}
-        columns={responsiveColumns}
+        columns={responsiveColumns as never}
       />
     )
 
@@ -195,7 +194,7 @@ describe('DataTable Responsive', () => {
   })
 
   it('should handle columns without responsive config as always visible', async () => {
-    const simpleColumns: DataTableColumn<TestUser>[] = [
+    const simpleColumns = [
       {
         label: "Nom",
         path: "name",
@@ -219,7 +218,7 @@ describe('DataTable Responsive', () => {
       <DataTable<TestUser>
         schema={TestUserSchema}
         getData={mockGetData}
-        columns={simpleColumns}
+        columns={simpleColumns as never}
       />
     )
 
@@ -234,7 +233,7 @@ describe('DataTable Responsive', () => {
   })
 
   it('should apply column width styles correctly', async () => {
-    const styledColumns: DataTableColumn<TestUser>[] = [
+    const styledColumns = [
       {
         label: "Nom",
         path: "name",
@@ -268,7 +267,7 @@ describe('DataTable Responsive', () => {
       <DataTable<TestUser>
         schema={TestUserSchema}
         getData={mockGetData}
-        columns={styledColumns}
+        columns={styledColumns as never}
       />
     )
 

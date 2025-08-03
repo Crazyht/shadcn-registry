@@ -1,4 +1,5 @@
-import { DataTable, DataTableColumn, SortColumn } from '../data-table'
+import { DataTable, SortColumn, DataTableGrouping, ColumnFilter,DataTableResponse } from '../data-table'
+import { defineColumn } from '../data-table-types'
 import { z } from 'zod'
 import { useState } from 'react'
 
@@ -26,57 +27,52 @@ export function BasicExample() {
     { id: 5, name: 'Emma Durand', email: 'emma.durand@example.com', status: 'inactive', role: 'Admin', joinedAt: '2024-01-25' },
   ]
 
+  const userColumn = defineColumn<User, typeof UserSchema>(UserSchema)
   // Configuration des colonnes
-  const columns: DataTableColumn<User>[] = [
-    {
-      label: 'ID',
-      path: 'id',
-      isSortable: true,
-      width: '80px',
-      align: 'center',
-    },
-    {
-      label: 'Nom',
-      path: 'name',
-      isSortable: true,
-    },
-    {
-      label: 'Email',
-      path: 'email',
-      isSortable: true,
-    },
-    {
-      label: 'Statut',
-      path: 'status',
-      isSortable: true,
-      align: 'center',
-      render: (value: unknown) => (
-        <span
-          className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-            value === 'active'
-              ? 'bg-green-50 text-green-700 dark:bg-green-950/50 dark:text-green-300'
-              : 'bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-300'
-          }`}
-        >
-          {value === 'active' ? 'Actif' : 'Inactif'}
-        </span>
-      ),
-    },
-    {
-      label: 'Rôle',
-      path: 'role',
-      isSortable: true,
-      align: 'center',
-    },
-    {
-      label: 'Date d\'inscription',
-      path: 'joinedAt',
-      isSortable: true,
-    },
+  const columns = [
+    userColumn('id', {
+    label: 'ID',
+    isSortable: true,
+    width: '80px',
+    align: 'center',
+  }),
+  userColumn('name', {
+    label: 'Nom',
+    isSortable: true,
+  }),
+  userColumn('email', {
+    label: 'Email',
+    isSortable: true,
+  }),
+  userColumn('status', {
+    label: 'Statut',
+    isSortable: true,
+    align: 'center',
+    render: (value: unknown) => (
+      <span
+        className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+          value === 'active'
+            ? 'bg-green-50 text-green-700 dark:bg-green-950/50 dark:text-green-300'
+            : 'bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-300'
+        }`}
+      >
+        {value === 'active' ? 'Actif' : 'Inactif'}
+      </span>
+    ),
+  }),
+  userColumn('role', {
+    label: 'Rôle',
+    isSortable: true,
+    align: 'center',
+  }),
+  userColumn('joinedAt', {
+    label: 'Date d\'inscription',
+    isSortable: true,
+  }),
   ]
 
   // Fonction getData pour récupérer les données
-  const getData = async (sortColumns: SortColumn[], startRow: number, pageSize: number) => {
+  const getData = async (sortColumns: SortColumn<User>[], startRow: number, pageSize: number, _grouping?: DataTableGrouping<User>, _filters?: ColumnFilter<User>[]):Promise<DataTableResponse<User>> => {
     // Simulation d'un délai réseau
     await new Promise(resolve => setTimeout(resolve, 300))
 

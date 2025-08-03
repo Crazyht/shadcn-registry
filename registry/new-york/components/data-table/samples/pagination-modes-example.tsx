@@ -1,4 +1,5 @@
-import { DataTable, DataTableColumn, SortColumn, PaginationMode } from '../data-table'
+import { DataTable, SortColumn, PaginationMode } from '../data-table'
+import { defineColumn } from '../data-table-types'
 import { z } from 'zod'
 import { useState } from 'react'
 
@@ -37,30 +38,27 @@ export function PaginationModesExample() {
   const sampleUsers = generateUsers(50)
 
   // Configuration des colonnes
-  const columns: DataTableColumn<User>[] = [
-    {
+  const userColumn = defineColumn<User, typeof UserSchema>(UserSchema)
+  const columns = [
+    userColumn('id', {
       label: 'ID',
-      path: 'id',
       isSortable: true,
       width: '80px',
       align: 'center',
-    },
-    {
+    }),
+    userColumn('name', {
       label: 'Nom',
-      path: 'name',
       isSortable: true,
-    },
-    {
+    }),
+    userColumn('email', {
       label: 'Email',
-      path: 'email',
       isSortable: true,
-    },
-    {
+    }),
+    userColumn('status', {
       label: 'Statut',
-      path: 'status',
       isSortable: true,
       align: 'center',
-      render: (value: unknown) => (
+      render: (value) => (
         <span
           className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
             value === 'active'
@@ -71,17 +69,16 @@ export function PaginationModesExample() {
           {value === 'active' ? 'Actif' : 'Inactif'}
         </span>
       ),
-    },
-    {
+    }),
+    userColumn('role', {
       label: 'Rôle',
-      path: 'role',
       isSortable: true,
       align: 'center',
-    },
+    }),
   ]
 
   // Fonction getData commune
-  const getData = async (sortColumns: SortColumn[], startRow: number, pageSize: number) => {
+  const getData = async (sortColumns: SortColumn<User>[], startRow: number, pageSize: number) => {
     // Simulation d'un délai réseau
     await new Promise(resolve => setTimeout(resolve, 300))
 
@@ -91,8 +88,8 @@ export function PaginationModesExample() {
     if (sortColumns.length > 0) {
       data.sort((a, b) => {
         for (const sort of sortColumns) {
-          const aValue = (a as User)[sort.path as keyof User]
-          const bValue = (b as User)[sort.path as keyof User]
+          const aValue = a[sort.path as keyof User]
+          const bValue = b[sort.path as keyof User]
 
           let comparison = 0
           if (typeof aValue === 'string' && typeof bValue === 'string') {

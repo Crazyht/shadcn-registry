@@ -12,7 +12,7 @@ describe('DataTable - Basic Functionality', () => {
     render(
       <DataTable
         schema={TestSchema}
-        columns={testColumns}
+        columns={testColumns as never}
         getData={getData}
       />
     )
@@ -42,7 +42,7 @@ describe('DataTable - Basic Functionality', () => {
     render(
       <DataTable
         schema={TestSchema}
-        columns={testColumns}
+        columns={testColumns as never}
         getData={getData}
         messages={{
           loadingMessage: "Chargement des données..."
@@ -59,7 +59,7 @@ describe('DataTable - Basic Functionality', () => {
     render(
       <DataTable
         schema={TestSchema}
-        columns={testColumns}
+        columns={testColumns as never}
         getData={getData}
         messages={{
           emptyMessage: "Aucune donnée trouvée"
@@ -85,7 +85,7 @@ describe('DataTable - Basic Functionality', () => {
     render(
       <DataTable
         schema={TestSchema}
-        columns={testColumns}
+        columns={testColumns as never}
         getData={getData}
       />
     )
@@ -101,7 +101,7 @@ describe('DataTable - Basic Functionality', () => {
     render(
       <DataTable
         schema={TestSchema}
-        columns={testColumns}
+        columns={testColumns as never}
         getData={getData}
       />
     )
@@ -119,7 +119,7 @@ describe('DataTable - Basic Functionality', () => {
     render(
       <DataTable
         schema={TestSchema}
-        columns={testColumns}
+        columns={testColumns as never}
         getData={getData}
       />
     )
@@ -135,7 +135,7 @@ describe('DataTable - Basic Functionality', () => {
     render(
       <DataTable
         schema={TestSchema}
-        columns={testColumns}
+        columns={testColumns as never}
         getData={getData}
       />
     )
@@ -159,7 +159,7 @@ describe('DataTable - Basic Functionality', () => {
     render(
       <DataTable
         schema={TestSchema}
-        columns={columnsWithAlignment}
+        columns={columnsWithAlignment as never}
         getData={getData}
       />
     )
@@ -210,7 +210,7 @@ describe('DataTable - Basic Functionality', () => {
     render(
       <DataTable
         schema={NestedSchema}
-        columns={nestedColumns}
+        columns={nestedColumns as never}
         getData={getData}
       />
     )

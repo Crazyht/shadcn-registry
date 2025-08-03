@@ -85,6 +85,11 @@ export function BasicExample() {
       paginationMode="PaginationWithSize"
       pageSize={10}
       pageSizeOptions={[5, 10, 15, 25]}
+      messages={{
+        emptyMessage: "Aucun utilisateur trouvé",
+        loadingMessage: "Chargement des utilisateurs...",
+        sortColumnAriaLabel: "{column} - Cliquez pour trier, Ctrl/Shift+Clic pour tri multi-colonnes"
+      }}
     />
   )
 }`,
@@ -181,6 +186,12 @@ export function FilteringExample() {
           default: "h-4 w-4 text-muted-foreground",
           active: "h-4 w-4 text-primary"
         }
+      }}
+      messages={{
+        emptyMessage: "Aucun produit trouvé",
+        sortColumnAriaLabel: "{column} - Cliquez pour trier, Ctrl/Shift+Clic pour tri multi-colonnes",
+        filterActive: "Filtre actif",
+        filterInactive: "Filtre inactif"
       }}
     />
   )
@@ -569,20 +580,154 @@ export function I18nExample() {
     switch (currentLanguage) {
       case 'en':
         return {
+          // Messages généraux
           emptyMessage: 'No data available',
           loadingMessage: 'Loading data...',
           displayInfo: 'Showing {start} to {end} of {total} items',
           elementsPerPage: 'Items per page:',
+          totalElements: '{total} total items',
+          loadMoreButton: 'Load more',
+          loadingIndicator: 'Loading...',
+
+          // Messages de filtrage
+          filterPopupApply: 'Apply',
+          filterPopupCancel: 'Cancel',
+          filterPopupClear: 'Clear',
+          filterOperatorLabel: 'Operator',
+          filterValueLabel: 'Value',
+          filterValue2Label: 'Value 2',
+          filterValuesLabel: 'Values',
+          filterValuePlaceholder: 'Enter a value...',
+          filterNumberPlaceholder: 'Enter a number...',
+          filterSelectPlaceholder: 'Select...',
+
+          // Messages de tri
+          sortAscending: 'Sort ascending',
+          sortDescending: 'Sort descending',
+          noSort: 'No sort',
+          filterActive: 'Filter active',
+          filterInactive: 'Filter inactive',
+
+          // Opérateurs de filtrage
+          filterOperatorEquals: 'Equals',
+          filterOperatorNotEquals: 'Not equals',
+          filterOperatorContains: 'Contains',
+          filterOperatorStartsWith: 'Starts with',
+          filterOperatorEndsWith: 'Ends with',
+          filterOperatorGreaterThan: 'Greater than',
+          filterOperatorGreaterOrEqual: 'Greater or equal',
+          filterOperatorLessThan: 'Less than',
+          filterOperatorLessOrEqual: 'Less or equal',
+          filterOperatorBetween: 'Between',
+          filterOperatorIn: 'In list',
+          filterOperatorNotIn: 'Not in list',
+          filterOperatorIsNull: 'Is empty',
+          filterOperatorIsNotNull: 'Is not empty',
+
+          // Messages des filtres booléens
+          filterBooleanTrue: 'True',
+          filterBooleanFalse: 'False',
         }
       case 'es':
         return {
+          // Messages généraux
           emptyMessage: 'No hay datos disponibles',
           loadingMessage: 'Cargando datos...',
           displayInfo: 'Mostrando {start} a {end} de {total} elementos',
           elementsPerPage: 'Elementos por página:',
+          totalElements: '{total} elementos en total',
+          loadMoreButton: 'Cargar más',
+          loadingIndicator: 'Cargando...',
+
+          // Messages de filtrage
+          filterPopupApply: 'Aplicar',
+          filterPopupCancel: 'Cancelar',
+          filterPopupClear: 'Limpiar',
+          filterOperatorLabel: 'Operador',
+          filterValueLabel: 'Valor',
+          filterValue2Label: 'Valor 2',
+          filterValuesLabel: 'Valores',
+          filterValuePlaceholder: 'Ingrese un valor...',
+          filterNumberPlaceholder: 'Ingrese un número...',
+          filterSelectPlaceholder: 'Seleccionar...',
+
+          // Messages de tri
+          sortAscending: 'Orden ascendente',
+          sortDescending: 'Orden descendente',
+          noSort: 'Sin orden',
+          filterActive: 'Filtro activo',
+          filterInactive: 'Filtro inactivo',
+
+          // Opérateurs de filtrage
+          filterOperatorEquals: 'Igual a',
+          filterOperatorNotEquals: 'Diferente de',
+          filterOperatorContains: 'Contiene',
+          filterOperatorStartsWith: 'Comienza con',
+          filterOperatorEndsWith: 'Termina con',
+          filterOperatorGreaterThan: 'Mayor que',
+          filterOperatorGreaterOrEqual: 'Mayor o igual',
+          filterOperatorLessThan: 'Menor que',
+          filterOperatorLessOrEqual: 'Menor o igual',
+          filterOperatorBetween: 'Entre',
+          filterOperatorIn: 'En la lista',
+          filterOperatorNotIn: 'No en la lista',
+          filterOperatorIsNull: 'Está vacío',
+          filterOperatorIsNotNull: 'No está vacío',
+
+          // Messages des filtres booléens
+          filterBooleanTrue: 'Verdadero',
+          filterBooleanFalse: 'Falso',
         }
       default:
-        return undefined // Utilise les messages par défaut en français
+        return {
+          // Messages en français (par défaut)
+          emptyMessage: 'Aucune donnée disponible',
+          loadingMessage: 'Chargement des données...',
+          displayInfo: 'Affichage de {start} à {end} sur {total} éléments',
+          elementsPerPage: 'Éléments par page :',
+          totalElements: '{total} éléments au total',
+          loadMoreButton: 'Charger plus',
+          loadingIndicator: 'Chargement...',
+
+          // Messages de filtrage
+          filterPopupApply: 'Appliquer',
+          filterPopupCancel: 'Annuler',
+          filterPopupClear: 'Effacer',
+          filterOperatorLabel: 'Opérateur',
+          filterValueLabel: 'Valeur',
+          filterValue2Label: 'Valeur 2',
+          filterValuesLabel: 'Valeurs',
+          filterValuePlaceholder: 'Entrez une valeur...',
+          filterNumberPlaceholder: 'Entrez un nombre...',
+          filterSelectPlaceholder: 'Sélectionnez...',
+
+          // Messages de tri
+          sortAscending: 'Tri croissant',
+          sortDescending: 'Tri décroissant',
+          noSort: 'Aucun tri',
+          filterActive: 'Filtre actif',
+          filterInactive: 'Filtre inactif',
+
+          // Opérateurs de filtrage
+          filterOperatorEquals: 'Égal à',
+          filterOperatorNotEquals: 'Différent de',
+          filterOperatorContains: 'Contient',
+          filterOperatorStartsWith: 'Commence par',
+          filterOperatorEndsWith: 'Finit par',
+          filterOperatorGreaterThan: 'Plus grand que',
+          filterOperatorGreaterOrEqual: 'Plus grand ou égal',
+          filterOperatorLessThan: 'Plus petit que',
+          filterOperatorLessOrEqual: 'Plus petit ou égal',
+          filterOperatorBetween: 'Entre',
+          filterOperatorIn: 'Dans la liste',
+          filterOperatorNotIn: 'Pas dans la liste',
+          filterOperatorIsNull: 'Est vide',
+          filterOperatorIsNotNull: 'N\\'est pas vide',
+
+          // Messages des filtres booléens
+          filterBooleanTrue: 'Vrai',
+          filterBooleanFalse: 'Faux',
+        }
     }
   }
 

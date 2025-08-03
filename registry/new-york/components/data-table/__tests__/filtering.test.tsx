@@ -1,11 +1,11 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { DataTable, DataTableColumn } from '../data-table'
+import { DataTable } from '../data-table'
 import '@testing-library/jest-dom'
-import { TestSchema, TestData, testData, createMockResponse } from './shared/test-setup'
+import { TestSchema, testData, createMockResponse } from './shared/test-setup'
 
 describe('DataTable - Column Filtering', () => {
-  const filterableColumns: DataTableColumn<TestData>[] = [
+  const filterableColumns = [
     {
       label: 'Name',
       path: 'name',
@@ -24,7 +24,7 @@ describe('DataTable - Column Filtering', () => {
     render(
       <DataTable
         schema={TestSchema}
-        columns={filterableColumns}
+        columns={filterableColumns as never}
         getData={getData}
       />
     )
@@ -41,7 +41,7 @@ describe('DataTable - Column Filtering', () => {
     render(
       <DataTable
         schema={TestSchema}
-        columns={filterableColumns}
+        columns={filterableColumns as never}
         getData={getData}
       />
     )
@@ -79,7 +79,7 @@ describe('DataTable - Column Filtering', () => {
     render(
       <DataTable
         schema={TestSchema}
-        columns={filterableColumns}
+        columns={filterableColumns as never}
         getData={getData}
         filterIcons={{
           active: ({ className }) => <span className={className} data-testid="active-filter">X</span>
@@ -114,7 +114,7 @@ describe('DataTable - Column Filtering', () => {
     render(
       <DataTable
         schema={TestSchema}
-        columns={filterableColumns}
+        columns={filterableColumns as never}
         getData={getData}
       />
     )

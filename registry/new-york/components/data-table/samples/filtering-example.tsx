@@ -1,4 +1,5 @@
-import { DataTable, DataTableColumn, TextFilterControl, NumberFilterControl, SelectFilterControl, SortColumn, ColumnFilter } from '../data-table'
+import { DataTable, SortColumn, ColumnFilter, DataTableResponse, DataTableGrouping } from '../data-table'
+import { defineColumn } from '../data-table-types'
 import { z } from 'zod'
 import { useState } from 'react'
 import { Filter, FilterX, MoreHorizontal, TrendingUp, TrendingDown } from 'lucide-react'
@@ -33,70 +34,44 @@ export function FilteringExample() {
   ]
 
   // Configuration des colonnes avec filtres personnalisés
-  const productColumns: DataTableColumn<Product>[] = [
-    {
+  const productColumn = defineColumn<Product, typeof ProductSchema>(ProductSchema)
+  const productColumns = [
+    productColumn('name', {
       label: 'Produit',
-      path: 'name',
       isSortable: true,
       isFilterable: true,
-      filterControl: TextFilterControl
-    },
-    {
+    }),
+    productColumn('price', {
       label: 'Prix',
-      path: 'price',
       isSortable: true,
       isFilterable: true,
-      filterControl: NumberFilterControl,
       align: 'right',
-      render: (value: unknown) => (
-        <span className="font-semibold">€{(value as number).toFixed(2)}</span>
+      render: (value) => (
+        <span className="font-semibold">€{value.toFixed(2)}</span>
       )
-    },
-    {
+    }),
+    productColumn('category', {
       label: 'Catégorie',
-      path: 'category',
       isSortable: true,
       isFilterable: true,
-      filterControl: (props) => (
-        <SelectFilterControl
-          {...props}
-          options={[
-            { label: 'Électronique', value: 'Electronics' },
-            { label: 'Accessoires', value: 'Accessories' },
-            { label: 'Gaming', value: 'Gaming' }
-          ]}
-        />
-      )
-    },
-    {
+    }),
+    productColumn('stock', {
       label: 'Stock',
-      path: 'stock',
       isSortable: true,
       isFilterable: true,
-      filterControl: NumberFilterControl,
       align: 'center',
-      render: (value: unknown) => (
-        <span className={(value as number) === 0 ? 'text-red-500 font-medium' : 'text-green-600'}>
-          {value as number} unités
+      render: (value) => (
+        <span className={value === 0 ? 'text-red-500 font-medium' : 'text-green-600'}>
+          {value} unités
         </span>
       )
-    },
-    {
+    }),
+    productColumn('isAvailable', {
       label: 'Disponible',
-      path: 'isAvailable',
       isSortable: true,
       isFilterable: true,
       align: 'center',
-      filterControl: (props) => (
-        <SelectFilterControl
-          {...props}
-          options={[
-            { label: 'Disponible', value: 'true' },
-            { label: 'Indisponible', value: 'false' }
-          ]}
-        />
-      ),
-      render: (value: unknown) => (
+      render: (value) => (
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
           value ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
                   'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
@@ -104,17 +79,17 @@ export function FilteringExample() {
           {value ? '✓ Disponible' : '✗ Indisponible'}
         </span>
       )
-    }
+    })
   ]
 
   // Fonction getData avec support des filtres
   const getProductData = async (
-    sortColumns: SortColumn[],
+    sortColumns: SortColumn<Product>[],
     startRow: number,
     pageSize: number,
-    _grouping?: unknown,
-    filters?: ColumnFilter[]
-  ) => {
+    _grouping?: DataTableGrouping<Product>,
+    filters?: ColumnFilter<Product>[]
+  ): Promise<DataTableResponse<Product>> => {
     // Simulation d'un délai réseau
     await new Promise(resolve => setTimeout(resolve, 100))
 
@@ -142,55 +117,57 @@ export function FilteringExample() {
           }
 
           // Gestion des différents opérateurs
-          switch (filterValue.operator) {
+          switch ((filterValue as Record<string, unknown>).operator) {
             case 'equals':
-              return value === filterValue.value
+              return value === (filterValue as Record<string, unknown>).value
 
             case 'not_equals':
-              return value !== filterValue.value
+              return value !== (filterValue as Record<string, unknown>).value
 
             case 'contains':
-              if (typeof value === 'string' && typeof filterValue.value === 'string') {
-                return value.toLowerCase().includes(filterValue.value.toLowerCase())
+              if (typeof value === 'string' && typeof (filterValue as Record<string, unknown>).value === 'string') {
+                return value.toLowerCase().includes(((filterValue as Record<string, unknown>).value as string).toLowerCase())
               }
               return false
 
             case 'starts_with':
-              if (typeof value === 'string' && typeof filterValue.value === 'string') {
-                return value.toLowerCase().startsWith(filterValue.value.toLowerCase())
+              if (typeof value === 'string' && typeof (filterValue as Record<string, unknown>).value === 'string') {
+                return value.toLowerCase().startsWith(((filterValue as Record<string, unknown>).value as string).toLowerCase())
               }
               return false
 
             case 'ends_with':
-              if (typeof value === 'string' && typeof filterValue.value === 'string') {
-                return value.toLowerCase().endsWith(filterValue.value.toLowerCase())
+              if (typeof value === 'string' && typeof (filterValue as Record<string, unknown>).value === 'string') {
+                return value.toLowerCase().endsWith(((filterValue as Record<string, unknown>).value as string).toLowerCase())
               }
               return false
 
             case 'greater_than':
-              return Number(value) > Number(filterValue.value)
+              return Number(value) > Number((filterValue as Record<string, unknown>).value)
 
             case 'greater_or_equal':
-              return Number(value) >= Number(filterValue.value)
+              return Number(value) >= Number((filterValue as Record<string, unknown>).value)
 
             case 'less_than':
-              return Number(value) < Number(filterValue.value)
+              return Number(value) < Number((filterValue as Record<string, unknown>).value)
 
             case 'less_or_equal':
-              return Number(value) <= Number(filterValue.value)
+              return Number(value) <= Number((filterValue as Record<string, unknown>).value)
 
             case 'between': {
               const numValue = Number(value)
-              const min = Number(filterValue.value)
-              const max = Number(filterValue.value2)
+              const min = Number((filterValue as Record<string, unknown>).value)
+              const max = Number((filterValue as Record<string, unknown>).value2)
               return numValue >= min && numValue <= max
             }
 
             case 'in':
-              return filterValue.values?.includes(value)
+              return Array.isArray((filterValue as Record<string, unknown>).values) &&
+                     ((filterValue as Record<string, unknown>).values as unknown[]).includes(value)
 
             case 'not_in':
-              return !filterValue.values?.includes(value)
+              return !(Array.isArray((filterValue as Record<string, unknown>).values) &&
+                      ((filterValue as Record<string, unknown>).values as unknown[]).includes(value))
 
             case 'is_null':
               return value === null || value === undefined
@@ -206,11 +183,11 @@ export function FilteringExample() {
     }
 
     // Appliquer le tri
-    if (sortColumns.length > 0) {
+    if (sortColumns?.length) {
       data.sort((a, b) => {
         for (const sort of sortColumns) {
-          const aValue = sort.path.split('.').reduce((obj: unknown, key: string) => (obj as Record<string, unknown>)?.[key], a)
-          const bValue = sort.path.split('.').reduce((obj: unknown, key: string) => (obj as Record<string, unknown>)?.[key], b)
+          const aValue = a[sort.path as keyof Product]
+          const bValue = b[sort.path as keyof Product]
 
           let comparison = 0
 
@@ -233,12 +210,14 @@ export function FilteringExample() {
     }
 
     // Appliquer la pagination
-    const paginatedData = data.slice(startRow, startRow + pageSize)
+    const start = startRow ?? 0
+    const size = pageSize ?? 10
+    const paginatedData = data.slice(start, start + size)
 
     return {
       data: paginatedData,
       totalCount: data.length,
-      lastRow: startRow + paginatedData.length - 1
+      lastRow: start + paginatedData.length - 1
     }
   }
 

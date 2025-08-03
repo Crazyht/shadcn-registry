@@ -13,22 +13,28 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Button } from '@/components/ui/button'
-import { DataTableColumn, FilterControlProps, FilterValue, FilterOperator } from './data-table-types'
+import { DataTableColumn, FilterOperator, FilterValue, Path, DataTableMessages } from './data-table-types'
 
 /**
  * Composant FilterPopover pour gérer les filtres de colonnes
  */
 interface FilterPopoverProps<T> {
-  column: DataTableColumn<T>
-  filterValue: FilterValue | undefined
-  onFilterChange: (value: FilterValue | undefined) => void
+  column: DataTableColumn<T, Path<T> | undefined>
+  filterValue: FilterValue<T> | undefined
+  onFilterChange: (value: FilterValue<T> | undefined) => void
   onClearFilter: () => void
   icon: React.ReactNode
+  messages?: DataTableMessages
 }
 
-export function FilterPopover<T>({ column, filterValue, onFilterChange, onClearFilter, icon }: FilterPopoverProps<T>) {
+export function FilterPopover<T>({ column, filterValue, onFilterChange, onClearFilter, icon, messages }: FilterPopoverProps<T>) {
   const [isOpen, setIsOpen] = useState(false)
-  const [tempValue, setTempValue] = useState<FilterValue | undefined>(filterValue)
+  const [tempValue, setTempValue] = useState<FilterValue<T> | undefined>(filterValue)
+
+  // Fonction utilitaire pour récupérer les messages avec fallback
+  const getMessage = (key: keyof DataTableMessages, defaultValue: string): string => {
+    return messages?.[key] || defaultValue
+  }
 
   // Synchroniser la valeur temporaire avec la valeur du filtre
   useEffect(() => {
@@ -51,87 +57,31 @@ export function FilterPopover<T>({ column, filterValue, onFilterChange, onClearF
     setIsOpen(false)
   }
 
-  const renderFilterControl = () => {
-    if (column.filterControl) {
-      const FilterControl = column.filterControl
-      return (
-        <FilterControl
-          value={tempValue}
-          onChange={setTempValue}
-          onClose={() => setIsOpen(false)}
-        />
-      )
-    }
-
-    // Contrôle par défaut : filtre texte avec 'contains'
-    return (
-      <div className="space-y-3">
-        <div>
-          <label className="text-sm font-medium">Filtrer par {column.label.toLowerCase()}</label>
-          <Input
-            type="text"
-            value={tempValue?.value as string || ''}
-            onChange={(e) => setTempValue(e.target.value ? {
-              operator: 'contains' as const,
-              value: e.target.value
-            } : undefined)}
-            onClick={(e) => e.stopPropagation()}
-            onFocus={(e) => e.stopPropagation()}
-            onMouseDown={(e) => e.stopPropagation()}
-            className="w-full mt-1"
-            placeholder={`Saisir ${column.label.toLowerCase()}...`}
-          />
-        </div>
-      </div>
-    )
-  }
-
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-6 w-6 p-0 hover:bg-muted"
-          onClick={(e) => {
-            e.stopPropagation()
-            setIsOpen(!isOpen)
-          }}
-        >
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
           {icon}
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-80" onClick={(e) => e.stopPropagation()}>
-        <div className="space-y-4">
-          <div className="font-medium text-sm">Filtrer la colonne "{column.label}"</div>
+      <PopoverContent className="w-80" align="start">
+        <DefaultFilterControl
+          column={column}
+          value={tempValue}
+          onChange={setTempValue}
+          messages={messages}
+        />
 
-          {renderFilterControl()}
-
-          <div className="flex gap-2 justify-end">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleClearFilter}
-              className="text-xs"
-            >
-              Effacer
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleCancel}
-              className="text-xs"
-            >
-              Annuler
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleApplyFilter}
-              className="text-xs"
-            >
-              Filtrer
-            </Button>
-          </div>
+        <div className="flex justify-end gap-2 mt-4">
+          <Button variant="outline" size="sm" onClick={handleCancel}>
+            {getMessage('filterPopupCancel', 'Annuler')}
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleClearFilter}>
+            {getMessage('filterPopupClear', 'Effacer')}
+          </Button>
+          <Button size="sm" onClick={handleApplyFilter}>
+            {getMessage('filterPopupApply', 'Appliquer')}
+          </Button>
         </div>
       </PopoverContent>
     </Popover>
@@ -139,264 +89,389 @@ export function FilterPopover<T>({ column, filterValue, onFilterChange, onClearF
 }
 
 /**
- * Contrôles de filtre prédéfinis avec structure uniforme
+ * Contrôle de filtre par défaut
  */
+interface DefaultFilterControlProps<T> {
+  column: DataTableColumn<T, Path<T> | undefined>
+  value: FilterValue<T> | undefined
+  onChange: (value: FilterValue<T> | undefined) => void
+  messages?: DataTableMessages
+}
 
-// Filtre texte avec choix d'opérateur
-export function TextFilterControl({ value, onChange }: FilterControlProps) {
+function DefaultFilterControl<T>({ column, value, onChange, messages }: DefaultFilterControlProps<T>) {
+  if (column.type === 'string' || column.type === 'email' || column.type === 'url') {
+    return <TextFilterControl
+      value={value as FilterValue<string> | undefined}
+      onChange={onChange as (value: FilterValue<string> | undefined) => void}
+      messages={messages}
+    />
+  }
+
+  if (column.type === 'int' || column.type === 'decimal') {
+    return <NumberFilterControl
+      value={value as FilterValue<number> | undefined}
+      onChange={onChange as (value: FilterValue<number> | undefined) => void}
+      messages={messages}
+    />
+  }
+
+  if (column.type === 'boolean') {
+    return <SelectFilterControl
+      value={value as FilterValue<string> | undefined}
+      onChange={onChange as (value: FilterValue<string> | undefined) => void}
+      options={[
+        { value: 'true', label: messages?.filterBooleanTrue || 'Vrai' },
+        { value: 'false', label: messages?.filterBooleanFalse || 'Faux' }
+      ]}
+      messages={messages}
+    />
+  }
+
+  // Type par défaut : texte
+  return <TextFilterControl
+    value={value as FilterValue<string> | undefined}
+    onChange={onChange as (value: FilterValue<string> | undefined) => void}
+    messages={messages}
+  />
+}
+
+/**
+ * Contrôle de filtre pour le texte
+ */
+export function TextFilterControl({ value, onChange, messages }: {
+  value: FilterValue<string> | undefined
+  onChange: (value: FilterValue<string> | undefined) => void
+  messages?: DataTableMessages
+}) {
   const [operator, setOperator] = useState<FilterOperator>(value?.operator || 'contains')
-  const [textValue, setTextValue] = useState(value?.value as string || '')
+  const [textValue, setTextValue] = useState(() => {
+    if (value && 'value' in value) {
+      return value.value as string || ''
+    }
+    return ''
+  })
+
+  // Fonction utilitaire pour récupérer les messages avec fallback
+  const getMessage = (key: keyof DataTableMessages, defaultValue: string): string => {
+    return messages?.[key] || defaultValue
+  }
 
   useEffect(() => {
     if (value) {
       setOperator(value.operator)
-      setTextValue(value.value as string || '')
-    } else {
-      setOperator('contains')
-      setTextValue('')
+      if ('value' in value) {
+        setTextValue(value.value as string || '')
+      } else {
+        setTextValue('')
+      }
     }
   }, [value])
 
-  const handleChange = (newOperator: FilterOperator, newValue: string) => {
-    setOperator(newOperator)
-    setTextValue(newValue)
-    if (newValue.trim()) {
+  const handleUpdate = (newOperator: FilterOperator, newValue: string) => {
+    if (newOperator === 'is_null' || newOperator === 'is_not_null') {
+      onChange({ operator: newOperator } as FilterValue<string>)
+    } else if (!newValue.trim()) {
+      onChange(undefined)
+    } else {
       onChange({
         operator: newOperator,
         value: newValue.trim()
-      })
-    } else {
-      onChange(undefined)
+      } as FilterValue<string>)
     }
   }
 
   return (
     <div className="space-y-3">
       <div>
-        <label className="text-sm font-medium">Rechercher</label>
-        <div className="flex gap-2 mt-1">
-          <Select value={operator} onValueChange={(op) => handleChange(op as FilterOperator, textValue)}>
-            <SelectTrigger className="w-36">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="contains">Contient</SelectItem>
-              <SelectItem value="starts_with">Commence par</SelectItem>
-              <SelectItem value="ends_with">Finit par</SelectItem>
-              <SelectItem value="equals">Égal à</SelectItem>
-              <SelectItem value="not_equals">Différent de</SelectItem>
-            </SelectContent>
-          </Select>
+        <label className="text-sm font-medium">{getMessage('filterOperatorLabel', 'Opérateur')}</label>
+        <Select value={operator} onValueChange={(newOp) => {
+          setOperator(newOp as FilterOperator)
+          handleUpdate(newOp as FilterOperator, textValue)
+        }}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="contains">{getMessage('filterOperatorContains', 'Contient')}</SelectItem>
+            <SelectItem value="equals">{getMessage('filterOperatorEquals', 'Égal à')}</SelectItem>
+            <SelectItem value="not_equals">{getMessage('filterOperatorNotEquals', 'Différent de')}</SelectItem>
+            <SelectItem value="starts_with">{getMessage('filterOperatorStartsWith', 'Commence par')}</SelectItem>
+            <SelectItem value="ends_with">{getMessage('filterOperatorEndsWith', 'Finit par')}</SelectItem>
+            <SelectItem value="is_null">{getMessage('filterOperatorIsNull', 'Est vide')}</SelectItem>
+            <SelectItem value="is_not_null">{getMessage('filterOperatorIsNotNull', 'N\'est pas vide')}</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {operator !== 'is_null' && operator !== 'is_not_null' && (
+        <div>
+          <label className="text-sm font-medium">{getMessage('filterValueLabel', 'Valeur')}</label>
           <Input
-            type="text"
             value={textValue}
-            onChange={(e) => handleChange(operator, e.target.value)}
-            onClick={(e) => e.stopPropagation()}
-            onFocus={(e) => e.stopPropagation()}
-            onMouseDown={(e) => e.stopPropagation()}
-            className="flex-1"
-            placeholder="Valeur à rechercher..."
+            onChange={(e) => {
+              const newValue = e.target.value
+              setTextValue(newValue)
+              handleUpdate(operator, newValue)
+            }}
+            placeholder={getMessage('filterValuePlaceholder', 'Entrez une valeur...')}
           />
         </div>
-      </div>
+      )}
     </div>
   )
 }
 
-// Filtre nombre avec opérateurs
-export function NumberFilterControl({ value, onChange }: FilterControlProps) {
+/**
+ * Contrôle de filtre pour les nombres
+ */
+export function NumberFilterControl({ value, onChange, messages }: {
+  value: FilterValue<number> | undefined
+  onChange: (value: FilterValue<number> | undefined) => void
+  messages?: DataTableMessages
+}) {
   const [operator, setOperator] = useState<FilterOperator>(value?.operator || 'equals')
-  const [numberValue, setNumberValue] = useState(value?.value as string || '')
-  const [numberValue2, setNumberValue2] = useState(value?.value2 as string || '')
+  const [numberValue, setNumberValue] = useState(() => {
+    if (value && 'value' in value) {
+      return String(value.value || '')
+    }
+    return ''
+  })
+  const [numberValue2, setNumberValue2] = useState(() => {
+    if (value && 'value2' in value) {
+      return String(value.value2 || '')
+    }
+    return ''
+  })
+
+  // Fonction utilitaire pour récupérer les messages avec fallback
+  const getMessage = (key: keyof DataTableMessages, defaultValue: string): string => {
+    return messages?.[key] || defaultValue
+  }
 
   useEffect(() => {
     if (value) {
       setOperator(value.operator)
-      setNumberValue(String(value.value || ''))
-      setNumberValue2(String(value.value2 || ''))
-    } else {
-      setOperator('equals')
-      setNumberValue('')
-      setNumberValue2('')
+      if ('value' in value) {
+        setNumberValue(String(value.value || ''))
+      } else {
+        setNumberValue('')
+      }
+      if ('value2' in value) {
+        setNumberValue2(String(value.value2 || ''))
+      } else {
+        setNumberValue2('')
+      }
     }
   }, [value])
 
-  const handleChange = (newOperator: FilterOperator, newValue: string, newValue2?: string) => {
-    setOperator(newOperator)
-    setNumberValue(newValue)
-    if (newValue2 !== undefined) {
-      setNumberValue2(newValue2)
+  const handleUpdate = (newOperator: FilterOperator, newValue: string, newValue2?: string) => {
+    if (newOperator === 'is_null' || newOperator === 'is_not_null') {
+      onChange({ operator: newOperator })
+      return
     }
 
-    if (newValue.trim()) {
-      const filterValue: FilterValue = {
-        operator: newOperator,
-        value: parseFloat(newValue)
-      }
-
-      if (newOperator === 'between' && newValue2?.trim()) {
-        filterValue.value2 = parseFloat(newValue2)
-      }
-
-      onChange(filterValue)
-    } else {
+    const num = parseFloat(newValue)
+    if (isNaN(num)) {
       onChange(undefined)
+      return
+    }
+
+    if (newOperator === 'between') {
+      const num2 = parseFloat(newValue2 || '')
+      if (isNaN(num2)) {
+        onChange(undefined)
+        return
+      }
+      onChange({ operator: newOperator, value: num, value2: num2 } as FilterValue<number>)
+    } else {
+      onChange({ operator: newOperator, value: num } as FilterValue<number>)
     }
   }
 
   return (
     <div className="space-y-3">
       <div>
-        <label className="text-sm font-medium">Filtrer par nombre</label>
-        <div className="flex gap-2 mt-1">
-          <Select value={operator} onValueChange={(op) => handleChange(op as FilterOperator, numberValue, numberValue2)}>
-            <SelectTrigger className="w-24">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="equals">=</SelectItem>
-              <SelectItem value="not_equals">≠</SelectItem>
-              <SelectItem value="greater_than">&gt;</SelectItem>
-              <SelectItem value="greater_or_equal">≥</SelectItem>
-              <SelectItem value="less_than">&lt;</SelectItem>
-              <SelectItem value="less_or_equal">≤</SelectItem>
-              <SelectItem value="between">Entre</SelectItem>
-            </SelectContent>
-          </Select>
-          <input
-            type="number"
-            value={numberValue}
-            onChange={(e) => handleChange(operator, e.target.value, numberValue2)}
-            onClick={(e) => e.stopPropagation()}
-            onFocus={(e) => e.stopPropagation()}
-            onMouseDown={(e) => e.stopPropagation()}
-            className="flex-1 px-3 py-2 border border-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-            placeholder="Valeur..."
-          />
+        <label className="text-sm font-medium">{getMessage('filterOperatorLabel', 'Opérateur')}</label>
+        <Select value={operator} onValueChange={(newOp) => {
+          setOperator(newOp as FilterOperator)
+          handleUpdate(newOp as FilterOperator, numberValue, numberValue2)
+        }}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="equals">{getMessage('filterOperatorEquals', 'Égal à')}</SelectItem>
+            <SelectItem value="not_equals">{getMessage('filterOperatorNotEquals', 'Différent de')}</SelectItem>
+            <SelectItem value="greater_than">{getMessage('filterOperatorGreaterThan', 'Plus grand que')}</SelectItem>
+            <SelectItem value="greater_or_equal">{getMessage('filterOperatorGreaterOrEqual', 'Plus grand ou égal')}</SelectItem>
+            <SelectItem value="less_than">{getMessage('filterOperatorLessThan', 'Plus petit que')}</SelectItem>
+            <SelectItem value="less_or_equal">{getMessage('filterOperatorLessOrEqual', 'Plus petit ou égal')}</SelectItem>
+            <SelectItem value="between">{getMessage('filterOperatorBetween', 'Entre')}</SelectItem>
+            <SelectItem value="is_null">{getMessage('filterOperatorIsNull', 'Est vide')}</SelectItem>
+            <SelectItem value="is_not_null">{getMessage('filterOperatorIsNotNull', 'N\'est pas vide')}</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {operator !== 'is_null' && operator !== 'is_not_null' && (
+        <>
+          <div>
+            <label className="text-sm font-medium">{getMessage('filterValueLabel', 'Valeur')}</label>
+            <Input
+              type="number"
+              value={numberValue}
+              onChange={(e) => {
+                const newValue = e.target.value
+                setNumberValue(newValue)
+                handleUpdate(operator, newValue, numberValue2)
+              }}
+              placeholder={getMessage('filterNumberPlaceholder', 'Entrez un nombre...')}
+            />
+          </div>
+
           {operator === 'between' && (
-            <>
-              <span className="flex items-center text-sm text-muted-foreground">et</span>
-              <input
+            <div>
+              <label className="text-sm font-medium">{getMessage('filterValue2Label', 'Valeur 2')}</label>
+              <Input
                 type="number"
                 value={numberValue2}
-                onChange={(e) => handleChange(operator, numberValue, e.target.value)}
-                onClick={(e) => e.stopPropagation()}
-                onFocus={(e) => e.stopPropagation()}
-                onMouseDown={(e) => e.stopPropagation()}
-                className="flex-1 px-3 py-2 border border-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                placeholder="Valeur 2..."
+                onChange={(e) => {
+                  const newValue2 = e.target.value
+                  setNumberValue2(newValue2)
+                  handleUpdate(operator, numberValue, newValue2)
+                }}
+                placeholder={getMessage('filterNumberPlaceholder', 'Entrez un nombre...')}
               />
-            </>
+            </div>
           )}
-        </div>
-      </div>
+        </>
+      )}
     </div>
   )
 }
 
-// Filtre select avec options
-export function SelectFilterControl({ value, onChange, options }: FilterControlProps & { options: { label: string; value: string }[] }) {
-  const [selectedValues, setSelectedValues] = useState<string[]>(
-    value?.operator === 'in' && value.values ? value.values as string[] :
-    value?.value ? [value.value as string] : []
-  )
+/**
+ * Contrôle de filtre pour les listes/sélections
+ */
+export function SelectFilterControl({
+  value,
+  onChange,
+  options,
+  messages
+}: {
+  value: FilterValue<string> | undefined
+  onChange: (value: FilterValue<string> | undefined) => void
+  options: Array<{ value: string; label: string }>
+  messages?: DataTableMessages
+}) {
   const [operator, setOperator] = useState<FilterOperator>(value?.operator || 'equals')
-  const [isMultiSelect, setIsMultiSelect] = useState(value?.operator === 'in' || value?.operator === 'not_in')
+  const [selectedValues, setSelectedValues] = useState<string[]>(() => {
+    if (!value) return []
+
+    if ('values' in value && value.values) {
+      return value.values as string[]
+    }
+
+    if ('value' in value && value.value) {
+      return [value.value as string]
+    }
+
+    return []
+  })
+
+  // Fonction utilitaire pour récupérer les messages avec fallback
+  const getMessage = (key: keyof DataTableMessages, defaultValue: string): string => {
+    return messages?.[key] || defaultValue
+  }
 
   useEffect(() => {
     if (value) {
       setOperator(value.operator)
       if (value.operator === 'in' || value.operator === 'not_in') {
-        setSelectedValues(value.values as string[] || [])
-        setIsMultiSelect(true)
+        if ('values' in value && value.values) {
+          setSelectedValues(value.values as string[])
+        } else {
+          setSelectedValues([])
+        }
+      } else if ('value' in value && value.value) {
+        setSelectedValues([value.value as string])
       } else {
-        setSelectedValues(value.value ? [value.value as string] : [])
-        setIsMultiSelect(false)
+        setSelectedValues([])
       }
-    } else {
-      setOperator('equals')
-      setSelectedValues([])
-      setIsMultiSelect(false)
     }
   }, [value])
 
-  const handleOperatorChange = (newOperator: string) => {
-    const typedOperator = newOperator as FilterOperator
-    setOperator(typedOperator)
-    const newIsMulti = typedOperator === 'in' || typedOperator === 'not_in'
-    setIsMultiSelect(newIsMulti)
-
-    if (selectedValues.length > 0) {
-      if (newIsMulti) {
-        onChange({ operator: typedOperator, values: selectedValues })
-      } else {
-        onChange({ operator: typedOperator, value: selectedValues[0] })
-      }
-    } else {
-      onChange(undefined)
+  const handleUpdate = (newOperator: FilterOperator, newValues: string[]) => {
+    if (newOperator === 'is_null' || newOperator === 'is_not_null') {
+      onChange({ operator: newOperator })
+      return
     }
-  }
 
-  const handleValueChange = (newValue: string) => {
-    if (isMultiSelect) {
-      const newValues = selectedValues.includes(newValue)
-        ? selectedValues.filter(v => v !== newValue)
-        : [...selectedValues, newValue]
+    if (newValues.length === 0) {
+      onChange(undefined)
+      return
+    }
 
-      setSelectedValues(newValues)
-
-      if (newValues.length > 0) {
-        onChange({ operator, values: newValues })
-      } else {
-        onChange(undefined)
-      }
+    if (newOperator === 'in' || newOperator === 'not_in') {
+      onChange({ operator: newOperator, values: newValues } as FilterValue<string>)
     } else {
-      const newValues = newValue ? [newValue] : []
-      setSelectedValues(newValues)
-
-      if (newValue) {
-        onChange({ operator, value: newValue })
-      } else {
-        onChange(undefined)
-      }
+      onChange({ operator: newOperator, value: newValues[0] } as FilterValue<string>)
     }
   }
 
   return (
     <div className="space-y-3">
       <div>
-        <label className="text-sm font-medium">Opérateur</label>
-        <Select value={operator} onValueChange={handleOperatorChange}>
-          <SelectTrigger className="w-full mt-1">
+        <label className="text-sm font-medium">{getMessage('filterOperatorLabel', 'Opérateur')}</label>
+        <Select value={operator} onValueChange={(newOp) => {
+          setOperator(newOp as FilterOperator)
+          handleUpdate(newOp as FilterOperator, selectedValues)
+        }}>
+          <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="equals">Égal à</SelectItem>
-            <SelectItem value="not_equals">Différent de</SelectItem>
-            <SelectItem value="in">Dans la liste</SelectItem>
-            <SelectItem value="not_in">Pas dans la liste</SelectItem>
+            <SelectItem value="equals">{getMessage('filterOperatorEquals', 'Égal à')}</SelectItem>
+            <SelectItem value="not_equals">{getMessage('filterOperatorNotEquals', 'Différent de')}</SelectItem>
+            <SelectItem value="in">{getMessage('filterOperatorIn', 'Dans la liste')}</SelectItem>
+            <SelectItem value="not_in">{getMessage('filterOperatorNotIn', 'Pas dans la liste')}</SelectItem>
+            <SelectItem value="is_null">{getMessage('filterOperatorIsNull', 'Est vide')}</SelectItem>
+            <SelectItem value="is_not_null">{getMessage('filterOperatorIsNotNull', 'N\'est pas vide')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
-      <div>
-        <label className="text-sm font-medium">
-          {isMultiSelect ? 'Sélectionner plusieurs options' : 'Sélectionner une option'}
-        </label>
-        <div className="mt-1 space-y-2">
-          {options?.map(option => (
-            <label key={option.value} className="flex items-center space-x-2">
-              <input
-                type={isMultiSelect ? "checkbox" : "radio"}
-                name="filter-options"
-                checked={selectedValues.includes(option.value)}
-                onChange={() => handleValueChange(option.value)}
-                className="rounded border-gray-300"
-              />
-              <span className="text-sm">{option.label}</span>
-            </label>
-          ))}
+
+      {operator !== 'is_null' && operator !== 'is_not_null' && (
+        <div>
+          <label className="text-sm font-medium">
+            {operator === 'in' || operator === 'not_in'
+              ? getMessage('filterValuesLabel', 'Valeurs')
+              : getMessage('filterValueLabel', 'Valeur')
+            }
+          </label>
+          <Select
+            value={selectedValues[0] || ''}
+            onValueChange={(newValue) => {
+              const newValues = operator === 'in' || operator === 'not_in'
+                ? [...selectedValues, newValue]
+                : [newValue]
+              setSelectedValues(newValues)
+              handleUpdate(operator, newValues)
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={getMessage('filterSelectPlaceholder', 'Sélectionnez une valeur...')} />
+            </SelectTrigger>
+            <SelectContent>
+              {options.map(option => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-      </div>
+      )}
     </div>
   )
 }

@@ -1,4 +1,5 @@
-import { DataTable, DataTableColumn, SortColumn, PaginationMode, TextFilterControl, SelectFilterControl, ColumnFilter, DataTableGrouping } from './data-table'
+import { DataTable, SortColumn, PaginationMode, ColumnFilter, DataTableGrouping, DataTableResponse } from './data-table'
+import { defineColumn } from './data-table-types'
 import { z } from 'zod'
 import { useState } from 'react'
 import { Filter, FilterX } from 'lucide-react'
@@ -43,45 +44,31 @@ const generateUsers = (count: number): User[] => {
 const sampleUsers: User[] = generateUsers(100)
 
 // Configuration des colonnes
-const columns: DataTableColumn<User>[] = [
-  {
+const userColumn = defineColumn<User, typeof UserSchema>(UserSchema)
+const columns = [
+  userColumn('id', {
     label: 'ID',
-    path: 'id',
     isSortable: true,
     width: '80px',
     align: 'center',
-  },
-  {
+  }),
+  userColumn('name', {
     label: 'Nom',
-    path: 'name',
     description: 'Nom complet de l\'utilisateur',
     isSortable: true,
     isFilterable: true,
-    filterControl: TextFilterControl,
-  },
-  {
+  }),
+  userColumn('email', {
     label: 'Email',
-    path: 'email',
     isSortable: true,
     isFilterable: true,
-    filterControl: TextFilterControl,
-  },
-  {
+  }),
+  userColumn('status', {
     label: 'Statut',
-    path: 'status',
     isSortable: true,
     align: 'center',
     isFilterable: true,
-    filterControl: (props) => (
-      <SelectFilterControl
-        {...props}
-        options={[
-          { label: 'Actif', value: 'active' },
-          { label: 'Inactif', value: 'inactive' }
-        ]}
-      />
-    ),
-    render: (value: unknown) => (
+    render: (value) => (
       <span
         className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
           value === 'active'
@@ -92,25 +79,13 @@ const columns: DataTableColumn<User>[] = [
         {value === 'active' ? 'Actif' : 'Inactif'}
       </span>
     ),
-  },
-  {
+  }),
+  userColumn('role', {
     label: 'Rôle',
-    path: 'role',
     isSortable: true,
     align: 'center',
     isFilterable: true,
-    filterControl: (props) => (
-      <SelectFilterControl
-        {...props}
-        options={[
-          { label: 'Admin', value: 'Admin' },
-          { label: 'Utilisateur', value: 'User' },
-          { label: 'Modérateur', value: 'Moderator' },
-          { label: 'Éditeur', value: 'Editor' }
-        ]}
-      />
-    ),
-  },
+  }),
 ]
 
 export default function DataTableDemo() {
@@ -118,7 +93,13 @@ export default function DataTableDemo() {
   const [currentMode, setCurrentMode] = useState<PaginationMode>('PaginationWithSize')
 
   // Fonction pour récupérer les données (simule un appel API avec tri et filtrage côté serveur)
-  const getData = async (sortColumns: SortColumn[], startRow: number, pageSize: number, grouping?: DataTableGrouping, filters?: ColumnFilter[]) => {
+  const getData = async (
+    sortColumns: SortColumn<User>[],
+    startRow: number,
+    pageSize: number,
+    grouping?: DataTableGrouping<User>,
+    filters?: ColumnFilter<User>[]
+  ): Promise<DataTableResponse<User>> => {
     // Simulation d'un délai d'API
     await new Promise(resolve => setTimeout(resolve, 300))
 
@@ -131,7 +112,7 @@ export default function DataTableDemo() {
     if (filters && filters.length > 0) {
       filteredData = filteredData.filter(item => {
         return filters.every(filter => {
-          const value = getValueByPath(item, filter.path)
+          const value = item[filter.path as keyof User]
           const filterValue = filter.filter
 
           if (!filterValue) {
@@ -139,36 +120,38 @@ export default function DataTableDemo() {
           }
 
           // Gestion des différents opérateurs
-          switch (filterValue.operator) {
+          switch ((filterValue as Record<string, unknown>).operator) {
             case 'equals':
-              return value === filterValue.value
+              return value === (filterValue as Record<string, unknown>).value
 
             case 'not_equals':
-              return value !== filterValue.value
+              return value !== (filterValue as Record<string, unknown>).value
 
             case 'contains':
-              if (typeof value === 'string' && typeof filterValue.value === 'string') {
-                return value.toLowerCase().includes(filterValue.value.toLowerCase())
+              if (typeof value === 'string' && typeof (filterValue as Record<string, unknown>).value === 'string') {
+                return value.toLowerCase().includes(((filterValue as Record<string, unknown>).value as string).toLowerCase())
               }
               return false
 
             case 'starts_with':
-              if (typeof value === 'string' && typeof filterValue.value === 'string') {
-                return value.toLowerCase().startsWith(filterValue.value.toLowerCase())
+              if (typeof value === 'string' && typeof (filterValue as Record<string, unknown>).value === 'string') {
+                return value.toLowerCase().startsWith(((filterValue as Record<string, unknown>).value as string).toLowerCase())
               }
               return false
 
             case 'ends_with':
-              if (typeof value === 'string' && typeof filterValue.value === 'string') {
-                return value.toLowerCase().endsWith(filterValue.value.toLowerCase())
+              if (typeof value === 'string' && typeof (filterValue as Record<string, unknown>).value === 'string') {
+                return value.toLowerCase().endsWith(((filterValue as Record<string, unknown>).value as string).toLowerCase())
               }
               return false
 
             case 'in':
-              return filterValue.values?.includes(value)
+              return Array.isArray((filterValue as Record<string, unknown>).values) &&
+                     ((filterValue as Record<string, unknown>).values as unknown[]).includes(value)
 
             case 'not_in':
-              return !filterValue.values?.includes(value)
+              return !(Array.isArray((filterValue as Record<string, unknown>).values) &&
+                      ((filterValue as Record<string, unknown>).values as unknown[]).includes(value))
 
             default:
               return true
@@ -181,8 +164,8 @@ export default function DataTableDemo() {
     if (sortColumns.length > 0) {
       filteredData.sort((a, b) => {
         for (const sort of sortColumns) {
-          const aValue = getValueByPath(a, sort.path)
-          const bValue = getValueByPath(b, sort.path)
+          const aValue = a[sort.path as keyof User]
+          const bValue = b[sort.path as keyof User]
 
           let comparison = 0
 
@@ -219,16 +202,6 @@ export default function DataTableDemo() {
       totalCount: filteredData.length,
       lastRow: endRow - 1
     }
-  }
-
-  // Fonction utilitaire pour obtenir une valeur par son chemin
-  function getValueByPath(obj: Record<string, unknown>, path: string): unknown {
-    return path.split('.').reduce((current: unknown, key: string) => {
-      if (current && typeof current === 'object' && key in current) {
-        return (current as Record<string, unknown>)[key]
-      }
-      return undefined
-    }, obj)
   }
 
   const modes: { value: PaginationMode; label: string; description: string }[] = [
@@ -292,7 +265,64 @@ export default function DataTableDemo() {
             selectedRow={selectedUser}
             messages={{
               emptyMessage: "Aucun utilisateur trouvé",
-              loadingMessage: "Chargement des utilisateurs..."
+              loadingMessage: "Chargement des utilisateurs...",
+
+              // Messages de pagination
+              displayInfo: "Affichage de {start} à {end} sur {total} éléments",
+              elementsPerPage: "Éléments par page",
+              totalElements: "{total} éléments au total",
+              loadMoreButton: "Charger plus",
+              loadingIndicator: "Chargement...",
+
+              // Messages de filtrage
+              filterPopupApply: "Appliquer",
+              filterPopupCancel: "Annuler",
+              filterPopupClear: "Effacer",
+              filterOperatorLabel: "Opérateur",
+              filterValueLabel: "Valeur",
+              filterValue2Label: "Valeur 2",
+              filterValuesLabel: "Valeurs",
+              filterValuePlaceholder: "Entrez une valeur...",
+              filterNumberPlaceholder: "Entrez un nombre...",
+              filterSelectPlaceholder: "Sélectionnez...",
+
+              // Messages de tri
+              sortAscending: "Tri croissant",
+              sortDescending: "Tri décroissant",
+              noSort: "Aucun tri",
+
+              // États des filtres
+              filterActive: "Filtre actif",
+              filterInactive: "Filtre inactif",
+
+              // Opérateurs de filtrage
+              filterOperatorEquals: "Égal à",
+              filterOperatorNotEquals: "Différent de",
+              filterOperatorContains: "Contient",
+              filterOperatorStartsWith: "Commence par",
+              filterOperatorEndsWith: "Finit par",
+              filterOperatorGreaterThan: "Plus grand que",
+              filterOperatorGreaterOrEqual: "Plus grand ou égal",
+              filterOperatorLessThan: "Plus petit que",
+              filterOperatorLessOrEqual: "Plus petit ou égal",
+              filterOperatorBetween: "Entre",
+              filterOperatorIn: "Dans la liste",
+              filterOperatorNotIn: "Pas dans la liste",
+              filterOperatorIsNull: "Est vide",
+              filterOperatorIsNotNull: "N'est pas vide",
+
+              // Messages des filtres booléens
+              filterBooleanTrue: "Vrai",
+              filterBooleanFalse: "Faux",
+
+              // Messages d'accessibilité
+              sortColumnAriaLabel: "{column} - Cliquez pour trier, Ctrl/Shift+Clic pour tri multi-colonnes",
+              paginationAriaLabel: "Navigation de pagination",
+
+              // Messages d'erreur
+              validationError: "Erreur de validation des données",
+              loadingError: "Erreur lors du chargement des données",
+              unknownError: "Une erreur inconnue s'est produite"
             }}
             showLoadMoreButton={true}
             filterIcons={{
@@ -340,31 +370,28 @@ export function DataTablePreview() {
   const [selectedUser, setSelectedUser] = useState<User | undefined>()
 
   // Configuration des colonnes
-  const columns: DataTableColumn<User>[] = [
-    {
+  const previewUserColumn = defineColumn<User, typeof UserSchema>(UserSchema)
+  const columns = [
+    previewUserColumn('id', {
       label: 'ID',
-      path: 'id',
       isSortable: true,
       width: '80px',
       align: 'center',
-    },
-    {
+    }),
+    previewUserColumn('name', {
       label: 'Nom',
-      path: 'name',
       description: 'Nom complet de l\'utilisateur',
       isSortable: true,
-    },
-    {
+    }),
+    previewUserColumn('email', {
       label: 'Email',
-      path: 'email',
       isSortable: true,
-    },
-    {
+    }),
+    previewUserColumn('status', {
       label: 'Statut',
-      path: 'status',
       isSortable: true,
       align: 'center',
-      render: (value: unknown) => (
+      render: (value) => (
         <span
           className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
             value === 'active'
@@ -375,15 +402,14 @@ export function DataTablePreview() {
           {value === 'active' ? 'Actif' : 'Inactif'}
         </span>
       ),
-    },
-    {
+    }),
+    previewUserColumn('role', {
       label: 'Rôle',
-      path: 'role',
       isSortable: true,
       align: 'center',
-    },
+    }),
   ]  // Fonction pour récupérer les données (simule un appel API avec tri côté serveur)
-  const getData = async (sortColumns: SortColumn[], startRow: number, pageSize: number) => {
+  const getData = async (sortColumns: SortColumn<User>[], startRow: number, pageSize: number) => {
     // Simulation d'un délai d'API
     await new Promise(resolve => setTimeout(resolve, 300))
 
@@ -397,8 +423,8 @@ export function DataTablePreview() {
     if (sortColumns.length > 0) {
       sortedData.sort((a, b) => {
         for (const sort of sortColumns) {
-          const aValue = getValueByPath(a, sort.path)
-          const bValue = getValueByPath(b, sort.path)
+          const aValue = a[sort.path as keyof User]
+          const bValue = b[sort.path as keyof User]
 
           let comparison = 0
 
@@ -437,16 +463,6 @@ export function DataTablePreview() {
     }
   }
 
-  // Fonction utilitaire pour obtenir une valeur par son chemin
-  function getValueByPath<T extends Record<string, unknown>>(obj: T, path: string): unknown {
-    return path.split('.').reduce((current: unknown, key: string) => {
-      if (current && typeof current === 'object' && key in current) {
-        return (current as Record<string, unknown>)[key]
-      }
-      return undefined
-    }, obj)
-  }
-
   return (
     <div className="flex items-center justify-center p-8">
       <div className="w-full max-w-4xl space-y-4">
@@ -468,7 +484,64 @@ export function DataTablePreview() {
           selectedRow={selectedUser}
           messages={{
             emptyMessage: "Aucun utilisateur trouvé",
-            loadingMessage: "Chargement des utilisateurs..."
+            loadingMessage: "Chargement des utilisateurs...",
+
+            // Messages de pagination
+            displayInfo: "Affichage de {start} à {end} sur {total} éléments",
+            elementsPerPage: "Éléments par page",
+            totalElements: "{total} éléments au total",
+            loadMoreButton: "Charger plus",
+            loadingIndicator: "Chargement...",
+
+            // Messages de filtrage
+            filterPopupApply: "Appliquer",
+            filterPopupCancel: "Annuler",
+            filterPopupClear: "Effacer",
+            filterOperatorLabel: "Opérateur",
+            filterValueLabel: "Valeur",
+            filterValue2Label: "Valeur 2",
+            filterValuesLabel: "Valeurs",
+            filterValuePlaceholder: "Entrez une valeur...",
+            filterNumberPlaceholder: "Entrez un nombre...",
+            filterSelectPlaceholder: "Sélectionnez...",
+
+            // Messages de tri
+            sortAscending: "Tri croissant",
+            sortDescending: "Tri décroissant",
+            noSort: "Aucun tri",
+
+            // États des filtres
+            filterActive: "Filtre actif",
+            filterInactive: "Filtre inactif",
+
+            // Opérateurs principaux
+            filterOperatorEquals: "Égal à",
+            filterOperatorNotEquals: "Différent de",
+            filterOperatorContains: "Contient",
+            filterOperatorStartsWith: "Commence par",
+            filterOperatorEndsWith: "Finit par",
+            filterOperatorGreaterThan: "Plus grand que",
+            filterOperatorGreaterOrEqual: "Plus grand ou égal",
+            filterOperatorLessThan: "Plus petit que",
+            filterOperatorLessOrEqual: "Plus petit ou égal",
+            filterOperatorBetween: "Entre",
+            filterOperatorIn: "Dans la liste",
+            filterOperatorNotIn: "Pas dans la liste",
+            filterOperatorIsNull: "Est vide",
+            filterOperatorIsNotNull: "N'est pas vide",
+
+            // Messages des filtres booléens
+            filterBooleanTrue: "Vrai",
+            filterBooleanFalse: "Faux",
+
+            // Messages d'accessibilité
+            sortColumnAriaLabel: "{column} - Cliquez pour trier, Ctrl/Shift+Clic pour tri multi-colonnes",
+            paginationAriaLabel: "Navigation de pagination",
+
+            // Messages d'erreur
+            validationError: "Erreur de validation des données",
+            loadingError: "Erreur lors du chargement des données",
+            unknownError: "Une erreur inconnue s'est produite"
           }}
         />
 

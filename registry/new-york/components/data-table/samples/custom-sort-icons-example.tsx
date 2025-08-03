@@ -1,4 +1,5 @@
-import { DataTable, DataTableColumn, SortColumn } from '../data-table'
+import { DataTable, SortColumn } from '../data-table'
+import { defineColumn } from '../data-table-types'
 import { z } from 'zod'
 import { useState } from 'react'
 import { MoreHorizontal, TrendingUp, TrendingDown } from 'lucide-react'
@@ -29,42 +30,39 @@ export function CustomSortIconsExample() {
   ]
 
   // Configuration des colonnes avec icônes personnalisées
-  const productColumns: DataTableColumn<Product>[] = [
-    {
+  const productColumn = defineColumn<Product, typeof ProductSchema>(ProductSchema)
+  const productColumns = [
+    productColumn('name', {
       label: 'Produit',
-      path: 'name',
       isSortable: true,
-    },
-    {
+    }),
+    productColumn('price', {
       label: 'Prix',
-      path: 'price',
       isSortable: true,
       align: 'right',
-      render: (value: unknown) => (
-        <span className="font-semibold">€{(value as number).toFixed(2)}</span>
+      render: (value) => (
+        <span className="font-semibold">€{value.toFixed(2)}</span>
       )
-    },
-    {
+    }),
+    productColumn('stock', {
       label: 'Stock',
-      path: 'stock',
       isSortable: true,
       align: 'center',
-      render: (value: unknown) => (
-        <span className={(value as number) === 0 ? 'text-red-500 font-medium' : 'text-green-600'}>
-          {value as number} unités
+      render: (value) => (
+        <span className={value === 0 ? 'text-red-500 font-medium' : 'text-green-600'}>
+          {value} unités
         </span>
       )
-    },
-    {
+    }),
+    productColumn('category', {
       label: 'Catégorie',
-      path: 'category',
       isSortable: true,
-    }
+    })
   ]
 
   // Fonction getData pour les produits
   const getProductData = async (
-    sortColumns: SortColumn[],
+    sortColumns: SortColumn<Product>[],
     startRow: number,
     pageSize: number
   ) => {
@@ -77,18 +75,8 @@ export function CustomSortIconsExample() {
     if (sortColumns.length > 0) {
       data.sort((a, b) => {
         for (const sort of sortColumns) {
-          // Fonction utilitaire pour obtenir une valeur par son chemin
-          const getValueByPath = (obj: Record<string, unknown>, path: string): unknown => {
-            return path.split('.').reduce((current: unknown, key: string) => {
-              if (current && typeof current === 'object' && key in current) {
-                return (current as Record<string, unknown>)[key]
-              }
-              return undefined
-            }, obj)
-          }
-
-          const aValue = getValueByPath(a as Record<string, unknown>, sort.path)
-          const bValue = getValueByPath(b as Record<string, unknown>, sort.path)
+          const aValue = a[sort.path as keyof Product]
+          const bValue = b[sort.path as keyof Product]
 
           let comparison = 0
 

@@ -66,7 +66,10 @@ export default [
       'no-var': 'error',
       'object-shorthand': 'error',
       'prefer-template': 'error',
-      'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'warn'
+      'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
+
+      // Permettre les styles inline pour les composants data-table (nécessaires pour le responsive)
+      'react/forbid-component-props': 'off'
     }
   }
 ]

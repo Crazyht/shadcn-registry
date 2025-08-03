@@ -60,13 +60,13 @@ export function getNestedValue(obj: Record<string, unknown>, path: string): unkn
  */
 export function groupDataClientSide<T extends Record<string, unknown>>(
   data: T[],
-  grouping: DataTableGrouping
+  grouping: DataTableGrouping<T>
 ): DataGroup<T>[] {
   const groups = new Map<unknown, T[]>()
 
   // Grouper les données par valeur de la colonne de groupement
   data.forEach(item => {
-    const groupValue = getNestedValue(item, grouping.path)
+    const groupValue = getNestedValue(item, String(grouping.path))
     if (!groups.has(groupValue)) {
       groups.set(groupValue, [])
     }
@@ -167,7 +167,7 @@ export function applyFilters<T extends Record<string, unknown>>(
 
   return data.filter(item => {
     return filters.every(filter => {
-      const value = getNestedValue(item, filter.path)
+      const value = getNestedValue(item, String(filter.path))
       return evaluateFilter(value, filter.filter)
     })
   })

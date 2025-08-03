@@ -26,8 +26,10 @@ import {
   SortColumn,
   ColumnFilter,
   DataGroup,
-  FilterValue,
   DataTableMessages,
+  FilterValue,
+  Path,
+  getValue,
 } from './data-table-types'
 import { generatePageNumbers, getNestedValue, groupDataClientSide } from './data-table-utils'
 import { FilterPopover } from './data-table-filters'
@@ -42,20 +44,13 @@ export { useResponsiveColumns, getColumnClasses, getColumnStyles } from './data-
 /**
  * Normalise les colonnes selon les règles définies
  */
-function normalizeColumns<T>(columns: DataTableColumn<T>[]): DataTableColumn<T>[] {
+function normalizeColumns<T>(columns: DataTableColumn<T, Path<T> | undefined, z.ZodType<T>>[]): DataTableColumn<T, Path<T> | undefined, z.ZodType<T>>[] {
   return columns.map(column => ({
     ...column,
     // Si pas de path défini, la colonne n'est pas triable ni filtrable
     isSortable: column.path ? (column.isSortable ?? false) : false,
     isFilterable: column.path ? (column.isFilterable ?? false) : false,
   }))
-}
-
-/**
- * Obtient la valeur d'une propriété dans un objet via un chemin de type "user.name"
- */
-function getValueByPath(obj: Record<string, unknown>, path: string): unknown {
-  return getNestedValue(obj, path)
 }
 
 export function DataTable<T extends Record<string, unknown>>({
@@ -83,8 +78,8 @@ export function DataTable<T extends Record<string, unknown>>({
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [sortColumns, setSortColumns] = useState<SortColumn[]>([])
-  const [filters, setFilters] = useState<ColumnFilter[]>([])
+  const [sortColumns, setSortColumns] = useState<SortColumn<T>[]>([])
+  const [filters, setFilters] = useState<ColumnFilter<T>[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [currentPage, setCurrentPage] = useState(0)
   const [currentPageSize, setCurrentPageSize] = useState(pageSize ?? defaultPageSize)
@@ -107,7 +102,8 @@ export function DataTable<T extends Record<string, unknown>>({
   const normalizedColumns = normalizeColumns(columns)
 
   // Utiliser les utilitaires responsive
-  const { columns: responsiveColumns } = useResponsiveColumns(normalizedColumns)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { columns: responsiveColumns } = useResponsiveColumns(normalizedColumns as any)
 
   // Calculer les métriques de pagination
   const totalPages = Math.ceil(totalCount / currentPageSize)
@@ -268,7 +264,7 @@ export function DataTable<T extends Record<string, unknown>>({
   }
 
   // Gérer le tri d'une colonne
-  const handleSort = (columnPath: string, event?: React.MouseEvent) => {
+  const handleSort = (columnPath: string | Path<T>, event?: React.MouseEvent) => {
     setSortColumns(prevSort => {
       const existingSort = prevSort.find(s => s.path === columnPath)
       const isMultiSort = event?.ctrlKey || event?.shiftKey
@@ -315,8 +311,8 @@ export function DataTable<T extends Record<string, unknown>>({
   }
 
   // Obtenir l'icône de tri pour une colonne
-  const getSortIcon = (columnPath: string) => {
-    const sortIndex = sortColumns.findIndex(s => s.path === columnPath)
+  const getSortIcon = (columnPath: string | Path<T>) => {
+    const sortIndex = sortColumns.findIndex(s => String(s.path) === String(columnPath))
     const sort = sortColumns[sortIndex]
 
     if (!sort) {
@@ -350,16 +346,20 @@ export function DataTable<T extends Record<string, unknown>>({
     )
   }
   // Fonctions de gestion des filtres
-  const handleFilterChange = (columnPath: string, filterValue: FilterValue | undefined) => {
+  const handleFilterChange = (columnPath: string | Path<T>, filterValue: FilterValue | undefined) => {
     setFilters(prevFilters => {
-      const existingFilterIndex = prevFilters.findIndex(f => f.path === columnPath)
+      const existingFilterIndex = prevFilters.findIndex(f => String(f.path) === String(columnPath))
 
       if (filterValue === null || filterValue === undefined) {
         // Supprimer le filtre si la valeur est vide
-        return prevFilters.filter(f => f.path !== columnPath)
+        return prevFilters.filter(f => String(f.path) !== String(columnPath))
       }
 
-      const newFilter: ColumnFilter = { path: columnPath, filter: filterValue }
+      const newFilter: ColumnFilter<T> = {
+        path: columnPath,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        filter: filterValue as any
+      }
 
       if (existingFilterIndex >= 0) {
         // Mettre à jour le filtre existant
@@ -373,13 +373,13 @@ export function DataTable<T extends Record<string, unknown>>({
     })
   }
 
-  const clearFilter = (columnPath: string) => {
-    setFilters(prevFilters => prevFilters.filter(f => f.path !== columnPath))
+  const clearFilter = (columnPath: string | Path<T>) => {
+    setFilters(prevFilters => prevFilters.filter(f => String(f.path) !== String(columnPath)))
   }
 
   // Obtenir l'icône de filtre pour une colonne
-  const getFilterIcon = (columnPath: string) => {
-    const hasFilter = filters.some(f => f.path === columnPath)
+  const getFilterIcon = (columnPath: string | Path<T>) => {
+    const hasFilter = filters.some(f => String(f.path) === String(columnPath))
 
     if (hasFilter) {
       const ActiveIcon = filterIcons?.active || FilterX
@@ -391,9 +391,10 @@ export function DataTable<T extends Record<string, unknown>>({
       return <DefaultIcon className={defaultClassName} />
     }
   }
-  const getFilterValue = (columnPath: string): FilterValue | undefined => {
-    const filter = filters.find(f => f.path === columnPath)
-    return filter ? filter.filter : undefined
+  const getFilterValue = (columnPath: string | Path<T>): FilterValue | undefined => {
+    const filter = filters.find(f => String(f.path) === String(columnPath))
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return filter ? filter.filter as any : undefined
   }
 
   // Gérer la sélection de ligne
@@ -430,7 +431,8 @@ export function DataTable<T extends Record<string, unknown>>({
     const isExpandable = grouping?.expandable !== false
 
     if (grouping?.renderGroupHeader) {
-      return grouping.renderGroupHeader(groupValue, count, isExpanded)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return grouping.renderGroupHeader(groupValue as any, count, isExpanded)
     }
 
     return (
@@ -489,7 +491,8 @@ export function DataTable<T extends Record<string, unknown>>({
               onClick={() => handleRowClick(row)}
             >
               {responsiveColumns.map((column, colIndex) => {
-                const value = column.path ? getValueByPath(row, column.path) : undefined
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const value = getValue(row, column as any)
                 const displayValue = column.render ? column.render(value, row) : (value as React.ReactNode)
 
                 return (
@@ -529,7 +532,8 @@ export function DataTable<T extends Record<string, unknown>>({
         onClick={() => handleRowClick(row)}
       >
         {responsiveColumns.map((column, colIndex) => {
-          const value = column.path ? getValueByPath(row, column.path) : undefined
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const value = getValue(row, column as any)
           const displayValue = column.render ? column.render(value, row) : (value as React.ReactNode)
 
           return (
@@ -558,7 +562,7 @@ export function DataTable<T extends Record<string, unknown>>({
       return rowComparison(row, selectedRow)
     }
     if (rowKey) {
-      return getValueByPath(row, rowKey) === getValueByPath(selectedRow, rowKey)
+      return getNestedValue(row, String(rowKey)) === getNestedValue(selectedRow, String(rowKey))
     }
     // Comparaison par défaut : par référence
     return selectedRow === row
@@ -600,32 +604,42 @@ export function DataTable<T extends Record<string, unknown>>({
                   key={index}
                   className={cn(
                     'h-12 px-4 text-left align-middle font-medium text-muted-foreground',
-                    column.isSortable && column.path && 'cursor-pointer select-none hover:text-foreground',
                     column.align === 'center' && 'text-center',
                     column.align === 'right' && 'text-right',
                     getColumnClasses(column)
                   )}
                   style={{ ...getColumnStyles(column), width: column.width }}
-                  onClick={(event) => column.isSortable && column.path && handleSort(column.path, event)}
-                  title={
-                    column.isSortable && column.path
-                      ? getMessage('sortColumnAriaLabel', `${column.description || column.label} - Cliquez pour trier, Ctrl/Shift+Clic pour tri multi-colonnes`, { column: column.description || column.label })
-                      : column.description
-                  }
+                  title={column.description}
                 >
                   <div className="flex items-center gap-2">
-                    <span>{column.label}</span>
-                    <div className="flex items-center gap-1">
-                      {column.isSortable && column.path && getSortIcon(column.path)}
-                      {column.isFilterable && column.path && (
-                        <FilterPopover
-                          column={column}
-                          filterValue={getFilterValue(column.path)}
-                          onFilterChange={(value) => column.path && handleFilterChange(column.path, value)}
-                          onClearFilter={() => column.path && clearFilter(column.path)}
-                          icon={getFilterIcon(column.path)}
-                        />
+                    {column.isFilterable && column.path && (
+                      <FilterPopover
+                        column={column}
+                        filterValue={getFilterValue(column.path)}
+                        onFilterChange={(value) => column.path && handleFilterChange(column.path, value)}
+                        onClearFilter={() => column.path && clearFilter(column.path)}
+                        icon={getFilterIcon(column.path)}
+                        messages={messages}
+                      />
+                    )}
+                    <div
+                      className={cn(
+                        'flex items-center gap-1 flex-1',
+                        column.isSortable && column.path && 'cursor-pointer select-none hover:text-foreground'
                       )}
+                      onClick={(event) => {
+                        if (column.isSortable && column.path) {
+                          handleSort(column.path, event)
+                        }
+                      }}
+                      title={
+                        column.isSortable && column.path
+                          ? getMessage('sortColumnAriaLabel', '{column} - Cliquez pour trier, Ctrl/Shift+Clic pour tri multi-colonnes', { column: column.description || column.label })
+                          : undefined
+                      }
+                    >
+                      <span>{column.label}</span>
+                      {column.isSortable && column.path && getSortIcon(column.path)}
                     </div>
                   </div>
                 </th>

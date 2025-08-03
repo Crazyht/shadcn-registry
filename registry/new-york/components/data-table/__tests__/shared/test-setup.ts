@@ -1,6 +1,6 @@
 // Utilitaires partagés pour les tests DataTable
 import { z } from 'zod'
-import { DataTableColumn } from '../../data-table'
+import { DataTableColumn, Path } from '../../data-table'
 
 // Schéma de test
 export const TestSchema = z.object({
@@ -20,7 +20,7 @@ export const testData: TestData[] = [
 ]
 
 // Configuration des colonnes de test
-export const testColumns: DataTableColumn<TestData>[] = [
+export const testColumns: DataTableColumn<TestData, Path<TestData> | undefined, z.ZodType<TestData>>[] = [
   { label: 'ID', path: 'id', isSortable: true },
   { label: 'Nom', path: 'name', isSortable: true },
   { label: 'Email', path: 'email', isSortable: false },

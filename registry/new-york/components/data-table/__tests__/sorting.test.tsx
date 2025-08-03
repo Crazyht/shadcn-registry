@@ -81,7 +81,7 @@ describe('DataTable - Sorting Functionality', () => {
       render(
         <DataTable
           schema={TestSchema}
-          columns={columnsForCustomIcons}
+          columns={columnsForCustomIcons as never}
           getData={getData}
           sortIcons={{
             default: TestIcon,
@@ -111,7 +111,7 @@ describe('DataTable - Sorting Functionality', () => {
       render(
         <DataTable
           schema={TestSchema}
-          columns={columnsForCustomIcons}
+          columns={columnsForCustomIcons as never}
           getData={getData}
           sortIcons={{
             default: TestIcon,
@@ -151,7 +151,7 @@ describe('DataTable - Sorting Functionality', () => {
       render(
         <DataTable
           schema={TestSchema}
-          columns={columnsForCustomIcons}
+          columns={columnsForCustomIcons as never}
           getData={getData}
           sortIcons={{
             default: TestIcon,

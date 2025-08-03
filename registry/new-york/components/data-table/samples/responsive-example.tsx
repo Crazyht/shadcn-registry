@@ -1,4 +1,5 @@
-import { DataTable, DataTableColumn } from '../data-table'
+import { DataTable } from '../data-table'
+import { defineColumn } from '../data-table-types'
 import { z } from 'zod'
 
 // Schéma pour les données d'exemple
@@ -66,69 +67,63 @@ const sampleUsers: User[] = [
 
 export function ResponsiveDataTableExample() {
   // Configuration des colonnes avec gestion responsive
-  const columns: DataTableColumn<User>[] = [
-    {
+  const userColumn = defineColumn<User, typeof UserSchema>(UserSchema)
+  const columns = [
+    userColumn('id', {
       label: "ID",
-      path: "id",
       isSortable: true,
       responsive: {
         medias: ['Desktop'], // Visible uniquement sur desktop
-        widthMode: "content",
+        widthMode: "content" as const,
         width: "60px"
       }
-    },
-    {
+    }),
+    userColumn('name', {
       label: "Nom",
-      path: "name",
       isSortable: true,
       responsive: {
         // Pas de medias défini = visible partout
-        widthMode: "range",
+        widthMode: "range" as const,
         minWidth: "120px",
         maxWidth: "200px"
       }
-    },
-    {
+    }),
+    userColumn('email', {
       label: "Email",
-      path: "email",
       isSortable: true,
       responsive: {
         medias: ['Tablet', 'Desktop'], // Masqué sur mobile
-        widthMode: "fill",
+        widthMode: "fill" as const,
         minWidth: "150px"
       }
-    },
-    {
+    }),
+    userColumn('phone', {
       label: "Téléphone",
-      path: "phone",
       responsive: {
         medias: ['Mobile'], // Visible uniquement sur mobile
-        widthMode: "content",
+        widthMode: "content" as const,
         width: "120px"
       }
-    },
-    {
+    }),
+    userColumn('department', {
       label: "Département",
-      path: "department",
       isSortable: true,
       responsive: {
         medias: [{ min: '900px' }], // Media query personnalisée
-        widthMode: "content",
+        widthMode: "content" as const,
         width: "120px"
       }
-    },
-    {
+    }),
+    userColumn('role', {
       label: "Rôle",
-      path: "role",
       responsive: {
         medias: ['Tablet', 'Desktop'],
-        widthMode: "content",
+        widthMode: "content" as const,
         width: "100px"
       }
-    },
-    {
+    }),
+    userColumn('status', {
       label: "Statut",
-      path: "status",
       render: (value) => {
         const statusColors = {
           active: 'text-green-600 bg-green-100',
@@ -144,35 +139,35 @@ export function ResponsiveDataTableExample() {
       },
       responsive: {
         medias: ['Mobile', 'Desktop'], // Visible sur mobile et desktop, pas tablette
-        widthMode: "content",
+        widthMode: "content" as const,
         width: "80px"
       }
-    },
-    {
+    }),
+    userColumn('salary', {
       label: "Salaire",
-      path: "salary",
       render: (value) => new Intl.NumberFormat('fr-FR', {
         style: 'currency',
         currency: 'EUR'
-      }).format(value as number),
+      }).format(value),
       responsive: {
         medias: [{ min: '1200px' }], // Visible uniquement sur grands écrans
-        widthMode: "content",
+        widthMode: "content" as const,
         width: "100px"
       }
-    },
-    {
+    }),
+    userColumn('lastLogin', {
       label: "Dernière connexion",
-      path: "lastLogin",
-      render: (value) => new Date(value as string).toLocaleDateString('fr-FR'),
+      render: (value) => new Date(value).toLocaleDateString('fr-FR'),
       responsive: {
         medias: [{ min: '768px', max: '1200px' }], // Visible entre 768px et 1200px
-        widthMode: "content",
+        widthMode: "content" as const,
         width: "120px"
       }
-    },
+    }),
+    // Colonne Actions sans path spécifique
     {
       label: "Actions",
+      path: undefined,
       render: () => (
         <div className="flex gap-2">
           <button className="text-blue-600 hover:text-blue-800 text-sm">Modifier</button>
@@ -181,7 +176,7 @@ export function ResponsiveDataTableExample() {
       ),
       responsive: {
         // Visible partout
-        widthMode: "content",
+        widthMode: "content" as const,
         width: "120px"
       }
     }
