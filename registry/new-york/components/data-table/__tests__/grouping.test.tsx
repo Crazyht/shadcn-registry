@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { DataTable } from '../data-table'
 import '@testing-library/jest-dom'
 import { TestSchema, testColumns, groupedTestData, createMockResponse } from './shared/test-setup'
+import { defaultTestMessages } from './shared/test-messages'
 
 describe('DataTable - Grouping Functionality', () => {
   it('groups data by specified column', async () => {

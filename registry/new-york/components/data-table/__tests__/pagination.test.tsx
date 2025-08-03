@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { DataTable } from '../data-table'
 import '@testing-library/jest-dom'
 import { TestSchema, testColumns, testData, createMockResponse } from './shared/test-setup'
+import { defaultTestMessages } from './shared/test-messages'
 
 describe('DataTable - Pagination Functionality', () => {
   describe('Pagination Info Display', () => {

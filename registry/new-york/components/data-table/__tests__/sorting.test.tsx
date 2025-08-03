@@ -20,13 +20,11 @@ describe('DataTable - Sorting Functionality', () => {
       expect(screen.getByText('Alice')).toBeInTheDocument()
     })
 
-    // Cliquer sur l'en-tête "Nom" pour trier
-    const nameHeader = screen.getByText('Nom').closest('th')
+    // Cliquer sur l'en-tête "Nom" pour trier - utiliser le div avec le titre
+    const nameHeader = screen.getByTitle(/Nom.*Cliquez pour trier/i)
     expect(nameHeader).toBeInTheDocument()
 
-    if (nameHeader) {
-      fireEvent.click(nameHeader)
-    }
+    fireEvent.click(nameHeader)
 
     // Vérifier que getData a été appelé avec les paramètres de tri
     await waitFor(() => {
